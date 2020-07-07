@@ -1,20 +1,32 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
 
 <title>Using FormalContexts and ConceptLattices</title>
 
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
 
 
 <style type="text/css">code{white-space: pre;}</style>
@@ -117,9 +129,6 @@ padding-right: 2em;
 font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 font-size: 14px;
 line-height: 1.35;
-}
-#header {
-text-align: center;
 }
 #TOC {
 clear: both;
@@ -288,7 +297,8 @@ code > span.st { color: #d14; }
 code > span.co { color: #888888; font-style: italic; } 
 code > span.ot { color: #007020; } 
 code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
 
@@ -793,9 +803,9 @@ O6
 <p>Also, we can export the formal context as a LaTeX table:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>fc_planets<span class="op">$</span><span class="kw">to_latex</span>()</span>
 <span id="cb8-2"><a href="#cb8-2"></a><span class="co">#&gt; \begin{table} \centering </span></span>
-<span id="cb8-3"><a href="#cb8-3"></a><span class="co">#&gt; \begin{tabular}{lrrrrrrr}</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="co">#&gt; \begin{tabular}{lccccccc}</span></span>
 <span id="cb8-4"><a href="#cb8-4"></a><span class="co">#&gt; \toprule</span></span>
-<span id="cb8-5"><a href="#cb8-5"></a><span class="co">#&gt;   &amp; small &amp; medium &amp; large &amp; near &amp; far &amp; moon &amp; no\_moon\\</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="co">#&gt;   &amp; small &amp; medium &amp; large &amp; near &amp; far &amp; moon &amp; no_moon\\</span></span>
 <span id="cb8-6"><a href="#cb8-6"></a><span class="co">#&gt; \midrule</span></span>
 <span id="cb8-7"><a href="#cb8-7"></a><span class="co">#&gt; Mercury &amp; 1 &amp; 0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 &amp; 1\\</span></span>
 <span id="cb8-8"><a href="#cb8-8"></a><span class="co">#&gt; Venus &amp; 1 &amp; 0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 &amp; 1\\</span></span>
@@ -979,18 +989,18 @@ O6
 <span id="cb20-17"><a href="#cb20-17"></a><span class="co"># LaTeX</span></span>
 <span id="cb20-18"><a href="#cb20-18"></a>fc_planets<span class="op">$</span>concepts<span class="op">$</span><span class="kw">to_latex</span>()</span>
 <span id="cb20-19"><a href="#cb20-19"></a><span class="co">#&gt; \begin{longtable}{lll}</span></span>
-<span id="cb20-20"><a href="#cb20-20"></a><span class="co">#&gt; 1: &amp;$\left(\,\ensuremath{\{Mercury,\, Venus,\, Earth,\, Mars,\, Jupiter,\, Saturn,\, Uranus,\, Neptune,\, Pluto\}},\right.$&amp;$\left.\ensuremath{\varnothing}\,\right)$\\</span></span>
-<span id="cb20-21"><a href="#cb20-21"></a><span class="co">#&gt; 2: &amp;$\left(\,\ensuremath{\{Earth,\, Mars,\, Jupiter,\, Saturn,\, Uranus,\, Neptune,\, Pluto\}},\right.$&amp;$\left.\ensuremath{\{moon\}}\,\right)$\\</span></span>
-<span id="cb20-22"><a href="#cb20-22"></a><span class="co">#&gt; 3: &amp;$\left(\,\ensuremath{\{Jupiter,\, Saturn,\, Uranus,\, Neptune,\, Pluto\}},\right.$&amp;$\left.\ensuremath{\{far,\, moon\}}\,\right)$\\</span></span>
-<span id="cb20-23"><a href="#cb20-23"></a><span class="co">#&gt; 4: &amp;$\left(\,\ensuremath{\{Jupiter,\, Saturn\}},\right.$&amp;$\left.\ensuremath{\{large,\, far,\, moon\}}\,\right)$\\</span></span>
-<span id="cb20-24"><a href="#cb20-24"></a><span class="co">#&gt; 5: &amp;$\left(\,\ensuremath{\{Uranus,\, Neptune\}},\right.$&amp;$\left.\ensuremath{\{medium,\, far,\, moon\}}\,\right)$\\</span></span>
-<span id="cb20-25"><a href="#cb20-25"></a><span class="co">#&gt; 6: &amp;$\left(\,\ensuremath{\{Mercury,\, Venus,\, Earth,\, Mars,\, Pluto\}},\right.$&amp;$\left.\ensuremath{\{small\}}\,\right)$\\</span></span>
-<span id="cb20-26"><a href="#cb20-26"></a><span class="co">#&gt; 7: &amp;$\left(\,\ensuremath{\{Earth,\, Mars,\, Pluto\}},\right.$&amp;$\left.\ensuremath{\{small,\, moon\}}\,\right)$\\</span></span>
-<span id="cb20-27"><a href="#cb20-27"></a><span class="co">#&gt; 8: &amp;$\left(\,\ensuremath{\{Pluto\}},\right.$&amp;$\left.\ensuremath{\{small,\, far,\, moon\}}\,\right)$\\</span></span>
-<span id="cb20-28"><a href="#cb20-28"></a><span class="co">#&gt; 9: &amp;$\left(\,\ensuremath{\{Mercury,\, Venus,\, Earth,\, Mars\}},\right.$&amp;$\left.\ensuremath{\{small,\, near\}}\,\right)$\\</span></span>
-<span id="cb20-29"><a href="#cb20-29"></a><span class="co">#&gt; 10: &amp;$\left(\,\ensuremath{\{Mercury,\, Venus\}},\right.$&amp;$\left.\ensuremath{\{small,\, near,\, no_moon\}}\,\right)$\\</span></span>
-<span id="cb20-30"><a href="#cb20-30"></a><span class="co">#&gt; 11: &amp;$\left(\,\ensuremath{\{Earth,\, Mars\}},\right.$&amp;$\left.\ensuremath{\{small,\, near,\, moon\}}\,\right)$\\</span></span>
-<span id="cb20-31"><a href="#cb20-31"></a><span class="co">#&gt; 12: &amp;$\left(\,\ensuremath{\varnothing},\right.$&amp;$\left.\ensuremath{\{small,\, medium,\, large,\, near,\, far,\, moon,\, no_moon\}}\,\right)$\\</span></span>
+<span id="cb20-20"><a href="#cb20-20"></a><span class="co">#&gt; 1: &amp;$\left(\,\ensuremath{\left\{\mathrm{Mercury},\, \mathrm{Venus},\, \mathrm{Earth},\, \mathrm{Mars},\, \mathrm{Jupiter},\, \mathrm{Saturn},\, \mathrm{Uranus},\, \mathrm{Neptune},\, \mathrm{Pluto}\right\}},\right.$&amp;$\left.\ensuremath{\varnothing}\,\right)$\\</span></span>
+<span id="cb20-21"><a href="#cb20-21"></a><span class="co">#&gt; 2: &amp;$\left(\,\ensuremath{\left\{\mathrm{Earth},\, \mathrm{Mars},\, \mathrm{Jupiter},\, \mathrm{Saturn},\, \mathrm{Uranus},\, \mathrm{Neptune},\, \mathrm{Pluto}\right\}},\right.$&amp;$\left.\ensuremath{\left\{\mathrm{moon}\right\}}\,\right)$\\</span></span>
+<span id="cb20-22"><a href="#cb20-22"></a><span class="co">#&gt; 3: &amp;$\left(\,\ensuremath{\left\{\mathrm{Jupiter},\, \mathrm{Saturn},\, \mathrm{Uranus},\, \mathrm{Neptune},\, \mathrm{Pluto}\right\}},\right.$&amp;$\left.\ensuremath{\left\{\mathrm{far},\, \mathrm{moon}\right\}}\,\right)$\\</span></span>
+<span id="cb20-23"><a href="#cb20-23"></a><span class="co">#&gt; 4: &amp;$\left(\,\ensuremath{\left\{\mathrm{Jupiter},\, \mathrm{Saturn}\right\}},\right.$&amp;$\left.\ensuremath{\left\{\mathrm{large},\, \mathrm{far},\, \mathrm{moon}\right\}}\,\right)$\\</span></span>
+<span id="cb20-24"><a href="#cb20-24"></a><span class="co">#&gt; 5: &amp;$\left(\,\ensuremath{\left\{\mathrm{Uranus},\, \mathrm{Neptune}\right\}},\right.$&amp;$\left.\ensuremath{\left\{\mathrm{medium},\, \mathrm{far},\, \mathrm{moon}\right\}}\,\right)$\\</span></span>
+<span id="cb20-25"><a href="#cb20-25"></a><span class="co">#&gt; 6: &amp;$\left(\,\ensuremath{\left\{\mathrm{Mercury},\, \mathrm{Venus},\, \mathrm{Earth},\, \mathrm{Mars},\, \mathrm{Pluto}\right\}},\right.$&amp;$\left.\ensuremath{\left\{\mathrm{small}\right\}}\,\right)$\\</span></span>
+<span id="cb20-26"><a href="#cb20-26"></a><span class="co">#&gt; 7: &amp;$\left(\,\ensuremath{\left\{\mathrm{Earth},\, \mathrm{Mars},\, \mathrm{Pluto}\right\}},\right.$&amp;$\left.\ensuremath{\left\{\mathrm{small},\, \mathrm{moon}\right\}}\,\right)$\\</span></span>
+<span id="cb20-27"><a href="#cb20-27"></a><span class="co">#&gt; 8: &amp;$\left(\,\ensuremath{\left\{\mathrm{Pluto}\right\}},\right.$&amp;$\left.\ensuremath{\left\{\mathrm{small},\, \mathrm{far},\, \mathrm{moon}\right\}}\,\right)$\\</span></span>
+<span id="cb20-28"><a href="#cb20-28"></a><span class="co">#&gt; 9: &amp;$\left(\,\ensuremath{\left\{\mathrm{Mercury},\, \mathrm{Venus},\, \mathrm{Earth},\, \mathrm{Mars}\right\}},\right.$&amp;$\left.\ensuremath{\left\{\mathrm{small},\, \mathrm{near}\right\}}\,\right)$\\</span></span>
+<span id="cb20-29"><a href="#cb20-29"></a><span class="co">#&gt; 10: &amp;$\left(\,\ensuremath{\left\{\mathrm{Mercury},\, \mathrm{Venus}\right\}},\right.$&amp;$\left.\ensuremath{\left\{\mathrm{small},\, \mathrm{near},\, \mathrm{no_moon}\right\}}\,\right)$\\</span></span>
+<span id="cb20-30"><a href="#cb20-30"></a><span class="co">#&gt; 11: &amp;$\left(\,\ensuremath{\left\{\mathrm{Earth},\, \mathrm{Mars}\right\}},\right.$&amp;$\left.\ensuremath{\left\{\mathrm{small},\, \mathrm{near},\, \mathrm{moon}\right\}}\,\right)$\\</span></span>
+<span id="cb20-31"><a href="#cb20-31"></a><span class="co">#&gt; 12: &amp;$\left(\,\ensuremath{\varnothing},\right.$&amp;$\left.\ensuremath{\left\{\mathrm{small},\, \mathrm{medium},\, \mathrm{large},\, \mathrm{near},\, \mathrm{far},\, \mathrm{moon},\, \mathrm{no_moon}\right\}}\,\right)$\\</span></span>
 <span id="cb20-32"><a href="#cb20-32"></a><span class="co">#&gt; \end{longtable}</span></span></code></pre></div>
 </div>
 <div id="getting-all-extents-intents-and-retrieving-concepts" class="section level2">

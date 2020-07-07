@@ -46,6 +46,7 @@ Mora A, Cordero P, Enciso M, Fortes I, Aguilera G (2012). “Closure via functio
 \item \href{#method-closure}{\code{ImplicationSet$closure()}}
 \item \href{#method-recommend}{\code{ImplicationSet$recommend()}}
 \item \href{#method-apply_rules}{\code{ImplicationSet$apply_rules()}}
+\item \href{#method-to_basis}{\code{ImplicationSet$to_basis()}}
 \item \href{#method-print}{\code{ImplicationSet$print()}}
 \item \href{#method-to_latex}{\code{ImplicationSet$to_latex()}}
 \item \href{#method-get_LHS_matrix}{\code{ImplicationSet$get_LHS_matrix()}}
@@ -57,6 +58,7 @@ Mora A, Cordero P, Enciso M, Fortes I, Aguilera G (2012). “Closure via functio
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Initialize with an optional name
 \subsection{Usage}{
@@ -86,6 +88,7 @@ A new \code{ImplicationSet} object.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_attributes"></a>}}
+\if{latex}{\out{\hypertarget{method-get_attributes}{}}}
 \subsection{Method \code{get_attributes()}}{
 Get the names of the attributes
 \subsection{Usage}{
@@ -98,6 +101,7 @@ A character vector with the names of the attributes used in the implications.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-["></a>}}
+\if{latex}{\out{\hypertarget{method-[}{}}}
 \subsection{Method \code{[()}}{
 Get a subset of the implication set
 \subsection{Usage}{
@@ -117,6 +121,7 @@ A new \code{ImplicationSet} with only the rules given by the \code{idx} indices 
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-to_arules"></a>}}
+\if{latex}{\out{\hypertarget{method-to_arules}{}}}
 \subsection{Method \code{to_arules()}}{
 Convert to arules format
 \subsection{Usage}{
@@ -136,6 +141,7 @@ A \code{rules} object as used by package \code{arules}.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-add"></a>}}
+\if{latex}{\out{\hypertarget{method-add}{}}}
 \subsection{Method \code{add()}}{
 Add a precomputed implication set
 \subsection{Usage}{
@@ -155,6 +161,7 @@ Nothing, just updates the internal \code{implications} field.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-cardinality"></a>}}
+\if{latex}{\out{\hypertarget{method-cardinality}{}}}
 \subsection{Method \code{cardinality()}}{
 Cardinality: Number of implications in the set
 \subsection{Usage}{
@@ -167,6 +174,7 @@ The cardinality of the implication set.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-is_empty"></a>}}
+\if{latex}{\out{\hypertarget{method-is_empty}{}}}
 \subsection{Method \code{is_empty()}}{
 Empty set
 \subsection{Usage}{
@@ -179,6 +187,7 @@ Empty set
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-size"></a>}}
+\if{latex}{\out{\hypertarget{method-size}{}}}
 \subsection{Method \code{size()}}{
 Size: number of attributes in each of LHS and RHS
 \subsection{Usage}{
@@ -191,6 +200,7 @@ A vector with two components: the number of attributes present in each of the LH
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-closure"></a>}}
+\if{latex}{\out{\hypertarget{method-closure}{}}}
 \subsection{Method \code{closure()}}{
 Compute the semantic closure of a fuzzy set with respect to the implication set
 \subsection{Usage}{
@@ -214,6 +224,7 @@ If \code{reduce == FALSE}, the output is a fuzzy set corresponding to the closur
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-recommend"></a>}}
+\if{latex}{\out{\hypertarget{method-recommend}{}}}
 \subsection{Method \code{recommend()}}{
 Generate a recommendation for a subset of the attributes
 \subsection{Usage}{
@@ -235,6 +246,7 @@ A fuzzy set describing the values of the attributes in \code{attribute_filter} w
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-apply_rules"></a>}}
+\if{latex}{\out{\hypertarget{method-apply_rules}{}}}
 \subsection{Method \code{apply_rules()}}{
 Apply rules to remove redundancies
 \subsection{Usage}{
@@ -268,7 +280,21 @@ Nothing, just updates the internal matrices for LHS and RHS.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-to_basis"></a>}}
+\if{latex}{\out{\hypertarget{method-to_basis}{}}}
+\subsection{Method \code{to_basis()}}{
+Convert Implications to Canonical Basis
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImplicationSet$to_basis()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+The canonical basis of implications obtained from the current \code{ImplicationSet}
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
 Print all implications to text
 \subsection{Usage}{
@@ -281,6 +307,7 @@ A string with all the implications in the set.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-to_latex"></a>}}
+\if{latex}{\out{\hypertarget{method-to_latex}{}}}
 \subsection{Method \code{to_latex()}}{
 Export to LaTeX
 \subsection{Usage}{
@@ -311,6 +338,7 @@ A string in LaTeX format that prints nicely all the implications.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_LHS_matrix"></a>}}
+\if{latex}{\out{\hypertarget{method-get_LHS_matrix}{}}}
 \subsection{Method \code{get_LHS_matrix()}}{
 Get internal LHS matrix
 \subsection{Usage}{
@@ -323,6 +351,7 @@ A sparse matrix representing the LHS of the implications in the set.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_RHS_matrix"></a>}}
+\if{latex}{\out{\hypertarget{method-get_RHS_matrix}{}}}
 \subsection{Method \code{get_RHS_matrix()}}{
 Get internal RHS matrix
 \subsection{Usage}{
@@ -335,6 +364,7 @@ A sparse matrix representing the RHS of the implications in the set.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-filter"></a>}}
+\if{latex}{\out{\hypertarget{method-filter}{}}}
 \subsection{Method \code{filter()}}{
 Filter implications by attributes in LHS and RHS
 \subsection{Usage}{
@@ -358,6 +388,7 @@ An \code{ImplicationSet} that is a subset of the current set, only with those ru
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-support"></a>}}
+\if{latex}{\out{\hypertarget{method-support}{}}}
 \subsection{Method \code{support()}}{
 Compute support of each implication
 \subsection{Usage}{
@@ -370,6 +401,7 @@ A vector with the support of each implication
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

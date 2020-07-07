@@ -1,4 +1,4 @@
-#' @import stringr
+#' @importFrom stringr str_flatten
 set_to_latex <- function(S, attributes) {
 
   idx <- which(S > 0)
@@ -8,9 +8,9 @@ set_to_latex <- function(S, attributes) {
     A <- S[idx]
     att <- attributes[idx]
 
-    tmp <- paste0("\\ensuremath{\\{",
-                  str_flatten(paste0("{^{", A, "}}\\!/", att),
-                              collapse = ",\\, "), "\\}}")
+    tmp <- paste0("\\ensuremath{\\left\\{",
+                  str_flatten(paste0("{^{", A, "}}\\!/\\mathrm{", att, "}"),
+                              collapse = ",\\, "), "\\right\\}}")
 
   } else {
 
@@ -26,7 +26,8 @@ set_to_latex <- function(S, attributes) {
 
 }
 
-#' @import stringr
+#' @importFrom stringr str_flatten
+#' @importFrom Matrix Matrix
 imp_to_latex <- function(imp_set, ncols = 1,
                          numbered = TRUE,
                          numbers = seq(imp_set$cardinality())) {
@@ -50,6 +51,15 @@ imp_to_latex <- function(imp_set, ncols = 1,
 
   }
 
+  remaining <- ncol(LHS) %% ncols
+
+  if (remaining > 0) {
+
+    remaining <- ncols - remaining
+    output <- c(output, rep("", remaining))
+
+  }
+
   output <- matrix(output, ncol = ncols)
 
   output <- sapply(seq(nrow(output)), function(r) {
@@ -70,7 +80,7 @@ imp_to_latex <- function(imp_set, ncols = 1,
 
 }
 
-#' @import stringr
+#' @importFrom stringr str_flatten
 concepts_to_latex <- function(concept_list,
                               ncols = 1,
                               align = TRUE,

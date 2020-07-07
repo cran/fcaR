@@ -39,6 +39,7 @@ fc_planets$concepts$support()
 \item \href{#method-sublattice}{\code{ConceptLattice$sublattice()}}
 \item \href{#method-join_irreducibles}{\code{ConceptLattice$join_irreducibles()}}
 \item \href{#method-meet_irreducibles}{\code{ConceptLattice$meet_irreducibles()}}
+\item \href{#method-decompose}{\code{ConceptLattice$decompose()}}
 \item \href{#method-supremum}{\code{ConceptLattice$supremum()}}
 \item \href{#method-infimum}{\code{ConceptLattice$infimum()}}
 \item \href{#method-subconcepts}{\code{ConceptLattice$subconcepts()}}
@@ -51,6 +52,7 @@ fc_planets$concepts$support()
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \code{ConceptLattice} object.
 \subsection{Usage}{
@@ -78,6 +80,7 @@ A new \code{ConceptLattice} object.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-size"></a>}}
+\if{latex}{\out{\hypertarget{method-size}{}}}
 \subsection{Method \code{size()}}{
 Size of the Lattice
 \subsection{Usage}{
@@ -90,6 +93,7 @@ The number of concepts in the lattice.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-is_empty"></a>}}
+\if{latex}{\out{\hypertarget{method-is_empty}{}}}
 \subsection{Method \code{is_empty()}}{
 Is the lattice empty?
 \subsection{Usage}{
@@ -102,6 +106,7 @@ Is the lattice empty?
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-extents"></a>}}
+\if{latex}{\out{\hypertarget{method-extents}{}}}
 \subsection{Method \code{extents()}}{
 Concept Extents
 \subsection{Usage}{
@@ -114,6 +119,7 @@ The extents of all concepts, as a \code{dgCMatrix}.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-intents"></a>}}
+\if{latex}{\out{\hypertarget{method-intents}{}}}
 \subsection{Method \code{intents()}}{
 Concept Intents
 \subsection{Usage}{
@@ -126,25 +132,37 @@ The intents of all concepts, as a \code{dgCMatrix}.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-plot}{}}}
 \subsection{Method \code{plot()}}{
 Plot the concept lattice
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConceptLattice$plot(object_names = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ConceptLattice$plot(object_names = TRUE, to_latex = FALSE, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{object_names}}{(logical) If \code{TRUE}, plot object names, otherwise omit them from the diagram.}
+
+\item{\code{to_latex}}{(logical) If \code{TRUE}, export the plot as a \code{tikzpicture} environment that can be included in a \code{LaTeX} file.}
+
+\item{\code{...}}{Other parameters to be passed to the \code{tikzDevice} that renders the lattice in \code{LaTeX}, or for the figure caption. See \code{Details}.}
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Details}{
+Particular parameters that control the size of the \code{tikz} output are: \code{width}, \code{height} (both in inches), and \code{pointsize} (in points), that should be set to the font size used in the \code{documentclass} header in the \code{LaTeX} file where the code is to be inserted.
+
+If a \code{caption} is provided, the whole \code{tikz} picture will be wrapped by a \code{figure} environment and the caption set.
+}
+
 \subsection{Returns}{
-Nothing, just plots the graph of the concept lattice.
+If \code{to_latex} is \code{FALSE}, it returns nothing, just plots the graph of the concept lattice. Otherwise, this function returns the \code{LaTeX} code to reproduce the concept lattice.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
 Print the Concept Lattice
 \subsection{Usage}{
@@ -157,6 +175,7 @@ Nothing, just prints the lattice.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-to_latex"></a>}}
+\if{latex}{\out{\hypertarget{method-to_latex}{}}}
 \subsection{Method \code{to_latex()}}{
 Write in LaTeX
 \subsection{Usage}{
@@ -182,6 +201,7 @@ The \code{LaTeX} code to list all concepts.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-["></a>}}
+\if{latex}{\out{\hypertarget{method-[}{}}}
 \subsection{Method \code{[()}}{
 Get Concepts by Index
 \subsection{Usage}{
@@ -201,6 +221,7 @@ A list of SparseConcepts.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sublattice"></a>}}
+\if{latex}{\out{\hypertarget{method-sublattice}{}}}
 \subsection{Method \code{sublattice()}}{
 Sublattice
 \subsection{Usage}{
@@ -224,6 +245,7 @@ The generated sublattice as a new \code{ConceptLattice} object.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-join_irreducibles"></a>}}
+\if{latex}{\out{\hypertarget{method-join_irreducibles}{}}}
 \subsection{Method \code{join_irreducibles()}}{
 Join-irreducible Elements
 \subsection{Usage}{
@@ -236,6 +258,7 @@ The join-irreducible elements in the concept lattice.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-meet_irreducibles"></a>}}
+\if{latex}{\out{\hypertarget{method-meet_irreducibles}{}}}
 \subsection{Method \code{meet_irreducibles()}}{
 Meet-irreducible Elements
 \subsection{Usage}{
@@ -247,7 +270,28 @@ The meet-irreducible elements in the concept lattice.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-decompose"></a>}}
+\if{latex}{\out{\hypertarget{method-decompose}{}}}
+\subsection{Method \code{decompose()}}{
+Decompose a concept as the supremum of meet-irreducible concepts
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ConceptLattice$decompose(C)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{C}}{A list of \code{SparseConcept}s}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list, each field is the set of meet-irreducible elements whose supremum is the corresponding element in \code{C}.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-supremum"></a>}}
+\if{latex}{\out{\hypertarget{method-supremum}{}}}
 \subsection{Method \code{supremum()}}{
 Supremum of Concepts
 \subsection{Usage}{
@@ -271,6 +315,7 @@ The supremum of the list of concepts.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-infimum"></a>}}
+\if{latex}{\out{\hypertarget{method-infimum}{}}}
 \subsection{Method \code{infimum()}}{
 Infimum of Concepts
 \subsection{Usage}{
@@ -294,6 +339,7 @@ The infimum of the list of concepts.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-subconcepts"></a>}}
+\if{latex}{\out{\hypertarget{method-subconcepts}{}}}
 \subsection{Method \code{subconcepts()}}{
 Subconcepts of a Concept
 \subsection{Usage}{
@@ -313,6 +359,7 @@ A list with the subconcepts.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-superconcepts"></a>}}
+\if{latex}{\out{\hypertarget{method-superconcepts}{}}}
 \subsection{Method \code{superconcepts()}}{
 Superconcepts of a Concept
 \subsection{Usage}{
@@ -332,6 +379,7 @@ A list with the superconcepts.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-lower_neighbours"></a>}}
+\if{latex}{\out{\hypertarget{method-lower_neighbours}{}}}
 \subsection{Method \code{lower_neighbours()}}{
 Lower Neighbours of a Concept
 \subsection{Usage}{
@@ -351,6 +399,7 @@ A list with the lower neighbours of \code{C}.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-upper_neighbours"></a>}}
+\if{latex}{\out{\hypertarget{method-upper_neighbours}{}}}
 \subsection{Method \code{upper_neighbours()}}{
 Upper Neighbours of a Concept
 \subsection{Usage}{
@@ -370,6 +419,7 @@ A list with the upper neighbours of \code{C}.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-support"></a>}}
+\if{latex}{\out{\hypertarget{method-support}{}}}
 \subsection{Method \code{support()}}{
 Get support of each concept
 \subsection{Usage}{
@@ -382,6 +432,7 @@ A vector with the support of each concept.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

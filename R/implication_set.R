@@ -30,7 +30,7 @@
 #'
 #' Mora A, Cordero P, Enciso M, Fortes I, Aguilera G (2012). “Closure via functional dependence simplification.” _International Journal of Computer Mathematics_, *89*(4), 510-526.
 #'
-#' @import Matrix
+#' @importFrom Matrix Matrix
 #' @export
 ImplicationSet <- R6::R6Class(
 
@@ -163,7 +163,7 @@ ImplicationSet <- R6::R6Class(
     #'
     #' @return A \code{rules} object as used by package \code{arules}.
     #'
-    #' @import arules
+    #' @importFrom arules itemLabels info quality interestMeasure
     #' @importFrom methods as is
     #' @export
     to_arules = function(quality = TRUE) {
@@ -197,6 +197,13 @@ ImplicationSet <- R6::R6Class(
 
       rules <- new("rules", lhs = LHS, rhs = RHS)
 
+      # This is needed in arules from version 1.6-6
+      # Solves issue #15 by Michael Hahsler
+      info(rules) <- list(data = private$name,
+                          support = 0,
+                          confidence = 1,
+                          ntransactions = ncol(private$I))
+
       if (quality) {
 
         quality(rules) <- interestMeasure(rules,
@@ -215,7 +222,6 @@ ImplicationSet <- R6::R6Class(
     #'
     #' @return Nothing, just updates the internal \code{implications} field.
     #'
-    #' @import arules
     #' @export
     add = function(...) {
 
@@ -340,7 +346,8 @@ ImplicationSet <- R6::R6Class(
                              RHS = private$rhs_matrix,
                              attributes = private$attributes,
                              reduce = reduce,
-                             verbose = verbose)
+                             verbose = verbose,
+                             is_direct = private$directness)
 
       if (!reduce) {
 
@@ -437,6 +444,33 @@ ImplicationSet <- R6::R6Class(
         private$rhs_matrix <- L$rhs
 
       }
+
+    },
+
+    #' @description
+    #' Convert Implications to Canonical Basis
+    #'
+    #' @return The canonical basis of implications obtained from the current \code{ImplicationSet}
+    #' @export
+    #'
+    to_basis = function() {
+
+      LHS <- private$lhs_matrix
+      RHS <- private$rhs_matrix
+      attributes <- private$attributes
+      L <- .composition(LHS, RHS, attributes)
+      LHS <- L$lhs
+      RHS <- L$rhs
+      L <- .generalization(LHS, RHS, attributes)
+      LHS <- L$lhs
+      RHS <- L$rhs
+
+      L <- .imp_to_basis(LHS, RHS, attributes)
+      imps <- ImplicationSet$new(attributes = attributes,
+                                 lhs = LHS,
+                                 rhs = RHS)
+
+      return(imps)
 
     },
 
@@ -564,6 +598,7 @@ ImplicationSet <- R6::R6Class(
       return(RHS)
 
     },
+
 
     #' @description
     #' Filter implications by attributes in LHS and RHS
@@ -717,6 +752,7 @@ ImplicationSet <- R6::R6Class(
     I = NULL,
     implication_support = NULL,
     binary = NULL,
+    directness = FALSE,
 
     is_binary = function() {
 

@@ -60,7 +60,7 @@ ConceptLattice <- R6::R6Class(
           attributes = attributes)
 
         private$I <- I
-        private$subconcept_matrix <- .subset(extents)
+        # private$subconcept_matrix <- .subset(extents)
 
       }
 
@@ -127,34 +127,181 @@ ConceptLattice <- R6::R6Class(
     #' Plot the concept lattice
     #'
     #' @param object_names  (logical) If \code{TRUE}, plot object names, otherwise omit them from the diagram.
+    #' @param to_latex      (logical) If \code{TRUE}, export the plot as a \code{tikzpicture} environment that can be included in a \code{LaTeX} file.
+    #' @param ...          Other parameters to be passed to the \code{tikzDevice} that renders the lattice in \code{LaTeX}, or for the figure caption. See \code{Details}.
     #'
-    #' @return Nothing, just plots the graph of the concept lattice.
+    #' @details
+    #' Particular parameters that control the size of the \code{tikz} output are: \code{width}, \code{height} (both in inches), and \code{pointsize} (in points), that should be set to the font size used in the \code{documentclass} header in the \code{LaTeX} file where the code is to be inserted.
+    #'
+    #' If a \code{caption} is provided, the whole \code{tikz} picture will be wrapped by a \code{figure} environment and the caption set.
+    #'
+    #' @return If \code{to_latex} is \code{FALSE}, it returns nothing, just plots the graph of the concept lattice. Otherwise, this function returns the \code{LaTeX} code to reproduce the concept lattice.
     #' @export
     #'
     #' @importFrom hasseDiagram hasse
-    plot = function(object_names = TRUE) {
+    #' @importFrom stringr str_replace_all fixed
+    #' @importFrom tikzDevice tikz
+    plot = function(object_names = TRUE,
+                    to_latex = FALSE,
+                    ...) {
 
-      if (object_names) {
+      if (self$size() == 0) {
 
-        labels <- sapply(private$concepts,
-                         function(l) .concept_to_string(l,
-                                                        private$objects,
-                                                        private$attributes))
+        warning("No concepts.", call. = FALSE)
+
+      }
+
+      if (to_latex) {
+
+        if (object_names) {
+
+          labels <- sapply(private$concepts,
+                           function(l) l$to_latex(print = FALSE)) %>%
+            str_replace_all(pattern = "\n",
+                            replacement = "")
+
+        } else {
+
+          labels <- sapply(private$concepts,
+                           function(l) {
+                             v <- l$get_intent()
+                             v$to_latex(print = FALSE)
+                           })
+
+        }
+
+        labels <- labels %>%
+          str_replace_all(pattern = fixed(" "),
+                          replacement = "\\,")
 
       } else {
 
-        labels <- sapply(private$concepts,
-                         function(l) {
-                           v <- l$get_intent()
-                           .set_to_string(S = v$get_vector(),
-                                          attributes = v$get_attributes())
-                         })
+        if (object_names) {
+
+          labels <- sapply(private$concepts,
+                           function(l) .concept_to_string(l,
+                                                          private$objects,
+                                                          private$attributes))
+
+        } else {
+
+          labels <- sapply(private$concepts,
+                           function(l) {
+                             v <- l$get_intent()
+                             .set_to_string(S = v$get_vector(),
+                                            attributes = v$get_attributes())
+                           })
+
+        }
+
+      }
+
+
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset(private$pr_extents)
+
+      }
+
+      if (to_latex) {
+
+        tmp_file <- tempfile(fileext = ".tex")
+        dots <- list(...)
+        args <- list(file = tmp_file,
+                     standAlone = FALSE,
+                     sanitize = FALSE,
+                     width = 6,
+                     height = 4)
+
+        if ("filename" %in% names(dots)) {
+
+          filename <- dots$filename
+          dots$filename <- NULL
+
+        } else {
+
+          filename <- tempfile(fileext = ".tex")
+
+        }
+
+        if ("caption" %in% names(dots)) {
+
+          caption <- dots$caption
+          dots["caption"] <- NULL
+          label <- dots$label
+          if (is.null(label)) {
+
+            label <- "fig:"
+
+          } else {
+
+            dots["label"] <- NULL
+
+          }
+
+          caption <- paste0("\\label{",
+                            label,
+                            "}",
+                            caption)
+
+          tex_prefix <- c("\\begin{figure}",
+                          "\\centering",
+                          "")
+
+          tex_suffix <- c("",
+                          paste0("\\caption{", caption, "}"),
+                          "",
+                          "\\end{figure}")
+
+        } else {
+
+          tex_prefix <- c()
+          tex_suffix <- c()
+
+        }
+
+        old_opt <- getOption("tikzDocumentDeclaration")
+
+        if ("pointsize" %in% names(dots)) {
+
+          options("tikzDocumentDeclaration" = paste0("\\documentclass[", dots$pointsize,
+                                                    "pt]{article}\n"))
+
+        }
+
+        options( tikzLatexPackages = c(
+          getOption( "tikzLatexPackages" ),
+          "\\usepackage{amssymb}"
+        ))
+
+        args[names(dots)] <- dots[names(dots)]
+
+        do.call(tikz, args = args)
 
       }
 
       hasse(data = as.matrix(t(private$subconcept_matrix)),
             labels = labels,
             parameters = list(arrows = "backward"))
+
+      if (to_latex) {
+
+        dev.off()
+
+        tex <- readLines(tmp_file)
+        unlink(tmp_file)
+
+        tex <- c(tex_prefix,
+                 tex,
+                 tex_suffix)
+
+        options("tikzDocumentDeclaration" = old_opt)
+        my_tex <- paste0(tex, collapse = "\n")
+        cat(my_tex, file = filename)
+
+        return(filename)
+
+      }
 
     },
 
@@ -278,6 +425,12 @@ ConceptLattice <- R6::R6Class(
 
       if (length(idx) > 0) {
 
+        if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+          private$subconcept_matrix <- .subset(private$pr_extents)
+
+        }
+
         idx <- .get_sublattice(private$subconcept_matrix,
                                starting_idx = idx)
 
@@ -317,6 +470,12 @@ ConceptLattice <- R6::R6Class(
     #' @importFrom Matrix colSums
     join_irreducibles = function() {
 
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset(private$pr_extents)
+
+      }
+
       if (is.null(private$reduced_matrix)) {
 
         private$reduced_matrix <- .reduce_transitivity(private$subconcept_matrix)
@@ -339,10 +498,60 @@ ConceptLattice <- R6::R6Class(
     #' @importFrom Matrix colSums
     meet_irreducibles = function() {
 
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset(private$pr_extents)
+
+      }
+
       M <- .reduce_transitivity(t(private$subconcept_matrix))
 
       idx <- which(colSums(M) == 1)
       self[idx]
+
+    },
+
+    #' @description
+    #' Decompose a concept as the supremum of meet-irreducible concepts
+    #'
+    #' @param C A list of \code{SparseConcept}s
+    #' @return
+    #' A list, each field is the set of meet-irreducible elements whose supremum is the corresponding element in \code{C}.
+    #'
+    #' @export
+    #'
+    #' @importFrom Matrix rowSums
+    decompose = function(C) {
+
+      irreducible <- self$meet_irreducibles()
+      irr_intents <- do.call(cbind,
+                             sapply(irreducible,
+                                    function(r) r$get_intent()$get_vector()))
+
+      ss <- lapply(C,
+                   function(r) {
+
+                     if (r$get_intent()$cardinal() == 0) return(r)
+
+                     id <- which(.subset(irr_intents,
+                                         r$get_intent()$get_vector()))
+
+                     if (length(id) > 1) {
+
+                       MM <- .subset(irr_intents[, id])
+                       id <- id[rowSums(MM) == 1]
+
+                     }
+                     foo <- irreducible[id]
+
+                     class(foo) <- "conceptlist"
+
+                     return(foo)
+
+                   })
+
+
+      return(ss)
 
     },
 
@@ -361,6 +570,12 @@ ConceptLattice <- R6::R6Class(
     supremum = function(...) {
 
       idx <- private$to_indices(...)
+
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset(private$pr_extents)
+
+      }
 
       return(self[join(private$subconcept_matrix, idx)])
 
@@ -382,6 +597,12 @@ ConceptLattice <- R6::R6Class(
 
       idx <- private$to_indices(...)
 
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset(private$pr_extents)
+
+      }
+
       return(self[meet(private$subconcept_matrix, idx)])
 
     },
@@ -397,6 +618,12 @@ ConceptLattice <- R6::R6Class(
     subconcepts = function(C) {
 
       idx <- private$to_indices(C)
+
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset(private$pr_extents)
+
+      }
 
       # Get the index of all subconcepts
       M <- t(private$subconcept_matrix)[idx, ]
@@ -418,6 +645,12 @@ ConceptLattice <- R6::R6Class(
 
       idx <- private$to_indices(C)
 
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset(private$pr_extents)
+
+      }
+
       # Get the index of all superconcepts
       M <- private$subconcept_matrix[idx, ]
       candidates <- which(M > 0)
@@ -438,6 +671,12 @@ ConceptLattice <- R6::R6Class(
     lower_neighbours = function(C) {
 
       idx <- private$to_indices(C)
+
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset(private$pr_extents)
+
+      }
 
       if (is.null(private$reduced_matrix)) {
 
@@ -462,6 +701,12 @@ ConceptLattice <- R6::R6Class(
 
       idx <- private$to_indices(C)
 
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset(private$pr_extents)
+
+      }
+
       if (is.null(private$reduced_matrix)) {
 
         private$reduced_matrix <- .reduce_transitivity(private$subconcept_matrix)
@@ -476,6 +721,7 @@ ConceptLattice <- R6::R6Class(
     #' Get support of each concept
     #'
     #' @return A vector with the support of each concept.
+    #' @importFrom Matrix rowMeans
     #' @export
     support = function() {
 

@@ -11,7 +11,7 @@
 #' S$to_latex()
 #'
 #' @importFrom methods as is slotNames
-#' @import Matrix
+#' @importFrom Matrix Matrix
 #'
 #' @export
 SparseSet <- R6::R6Class(
@@ -77,7 +77,71 @@ SparseSet <- R6::R6Class(
 
       idx <- match(attributes, private$attributes)
 
-      private$v[idx] <- values
+      nas <- which(is.na(idx))
+      if (length(nas) > 0) {
+
+        idx <- idx[-nas]
+        values <- values[-nas]
+
+      }
+
+      if (length(idx) > 0) {
+
+        private$v[idx] <- values
+
+      }
+
+    },
+
+    #' @description
+    #' Get elements by index
+    #'
+    #' @param indices (numeric, logical or character vector) The indices of the elements to return. It can be a vector of logicals where \code{TRUE} elements are to be retained.
+    #'
+    #' @return A \code{SparseSet} but with only the required elements.
+    #'
+    #' @export
+    `[` = function(indices) {
+
+      if (is.logical(indices)) {
+
+        indices <- which(indices)
+
+      }
+
+      if (is.character(indices)) {
+
+        indices <- match(indices, private$attributes)
+        indices <- indices[!is.na(indices)]
+
+      }
+
+      if (is.numeric(indices)) {
+
+        indices <- indices[indices <= self$length()]
+
+      }
+
+      w <- private$v
+      idx <- setdiff(seq(self$length()), indices)
+      w[idx] <- 0
+      S <- SparseSet$new(attributes = private$attributes,
+                         M = w)
+
+      return(S)
+
+    },
+
+    #' @description
+    #' Cardinal of the SparseSet
+    #'
+    #' @return the cardinal of the \code{SparseSet}, counted
+    #' as the sum of the degrees of each element.
+    #'
+    #' @export
+    cardinal = function() {
+
+      sum(private$v)
 
     },
 
@@ -129,7 +193,7 @@ SparseSet <- R6::R6Class(
       if (sum(private$v) > 0) {
 
         cat(str_wrap(.set_to_string(S = private$v,
-                           attributes = private$attributes),
+                                    attributes = private$attributes),
                      width = 75,
                      exdent = 2))
 
@@ -161,10 +225,13 @@ SparseSet <- R6::R6Class(
       if (print) {
 
         cat(str)
+        return(invisible(str))
+
+      } else {
+
+        return(str)
 
       }
-
-      return(invisible(str))
 
     }
 

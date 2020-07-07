@@ -1,3 +1,4 @@
+#' @importFrom tictoc tic toc
 .process_batch <- function(LHS, RHS, attributes, rules, verbose = TRUE) {
 
   # Initialize results
@@ -54,7 +55,7 @@
 
       message("--> ", rule_names[j], ": from ", current_cols, " to ",
           new_cols, " in ", round(rule_time$toc - rule_time$tic, 3),
-          " secs. \n")
+          " secs.")
 
     }
 

@@ -20,7 +20,6 @@
 #' C$get_intent()
 #'
 #' @importFrom methods as is slotNames
-#' @import Matrix
 #'
 #' @export
 SparseConcept <- R6::R6Class(
@@ -96,20 +95,29 @@ SparseConcept <- R6::R6Class(
     #' @description
     #' Write the concept in LaTeX format
     #'
+    #' @param print (logical) Print to output?
+    #'
     #' @return The fuzzy concept in LaTeX.
     #' @export
-    to_latex = function() {
+    to_latex = function(print = TRUE) {
 
       extent <- set_to_latex(private$extent$get_vector(),
                              private$extent$get_attributes())
       intent <- set_to_latex(private$intent$get_vector(),
                              private$intent$get_attributes())
 
-      str <- paste0("(", extent, ", ", intent, ")\n")
+      str <- paste0("\\ensuremath{\\left(", extent, ", ", intent, "\\right)}\n")
 
-      cat(str)
+      if (print) {
 
-      return(invisible(str))
+        cat(str)
+        return(invisible(str))
+
+      } else {
+
+        return(str)
+
+      }
 
     }
 

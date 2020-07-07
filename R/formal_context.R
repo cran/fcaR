@@ -81,8 +81,7 @@ FormalContext <- R6::R6Class(
     #' @return An object of the \code{FormalContext} class.
     #' @export
     #'
-    #' @import Matrix
-    #' @import arules
+    #' @importFrom Matrix Matrix t
     #' @importFrom stringr str_wrap
     #' @importFrom methods as is slotNames
     initialize = function(I,
@@ -160,6 +159,9 @@ FormalContext <- R6::R6Class(
       self$expanded_grades_set <- expanded_grades_set
       self$objects <- objects
       self$attributes <- attributes
+
+      colnames(self$I) <- self$objects
+      rownames(self$I) <- self$attributes
 
       # Is the FormalContext binary?
       private$is_binary <- length(self$grades_set) == 2
@@ -628,8 +630,22 @@ FormalContext <- R6::R6Class(
       # Since the previous function gives the list of intents of
       # the computed concepts, now we will compute the corresponding
       # extents.
-      my_intents <- L$concepts[, -1]
-      my_extents <- L$extents[, -1]
+
+      if (length(self$attributes) == 1) {
+
+
+        my_intents <- Matrix(t(as.vector(L$concepts[, -1])), sparse = TRUE)
+
+        my_extents <- Matrix(t(as.vector(L$extents[, -1])), sparse = TRUE)
+
+      } else {
+
+        my_intents <- L$concepts[, -1]
+
+        my_extents <- L$extents[, -1]
+
+      }
+
 
       self$concepts <- ConceptLattice$new(extents = my_extents,
                                           intents = my_intents,
@@ -644,13 +660,15 @@ FormalContext <- R6::R6Class(
     #' @description
     #' Use modified Ganter algorithm to compute both concepts and implications
     #'
-    #' @param verbose   (logical) TRUE will provide a verbose output.
+    #' @param save_concepts (logical) \code{TRUE} will also compute and save the concept lattice. \code{FALSE} is usually faster, since it only computes implications.
+    #' @param verbose   (logical) \code{TRUE} will provide a verbose output.
     #'
     #' @return Nothing, just updates the internal fields \code{concepts} and \code{implications}.
     #'
     #'
     #' @export
-    find_implications = function(verbose = FALSE) {
+    find_implications = function(save_concepts = TRUE,
+                                 verbose = FALSE) {
 
       private$check_empty()
 
@@ -662,28 +680,48 @@ FormalContext <- R6::R6Class(
       L <- next_closure_implications(I = my_I,
                                      grades_set = grades_set,
                                      attrs = attrs,
+                                     save_concepts = save_concepts,
                                      verbose = verbose)
 
       # Since the previous function gives the list of intents of
       # the computed concepts, now we will compute the corresponding
       # extents.
-      my_intents <- L$concepts[, -1]
-      my_extents <- L$extents[, -1]
+      if (save_concepts) {
+
+        my_intents <- L$concepts[, -1]
+        my_extents <- L$extents[, -1]
+
+      }
+
+      if (save_concepts) {
+
+        self$concepts <- ConceptLattice$new(extents = my_extents,
+                                            intents = my_intents,
+                                            objects = self$objects,
+                                            attributes = self$attributes,
+                                            I = self$I)
+
+      }
 
       # Now, add the computed implications
-      my_LHS <- L$LHS[, -1]
-      my_RHS <- L$RHS[, -1]
+      if (ncol(L$LHS) > 1) {
 
-      self$concepts <- ConceptLattice$new(extents = my_extents,
-                                          intents = my_intents,
-                                          objects = self$objects,
-                                          attributes = self$attributes,
-                                          I = self$I)
+        # There are implications (the first one is dummy
+        # emptyset -> emptyset )
+        my_LHS <- L$LHS[, -1]
+        my_RHS <- L$RHS[, -1]
 
-      extracted_implications <- ImplicationSet$new(attributes = self$attributes,
-                                                   lhs = my_LHS,
-                                                   rhs = my_RHS,
-                                                   I = self$I)
+        extracted_implications <- ImplicationSet$new(attributes = self$attributes,
+                                                     lhs = my_LHS,
+                                                     rhs = my_RHS,
+                                                     I = self$I)
+
+      } else {
+
+        extracted_implications <- ImplicationSet$new(attributes = self$attributes,
+                                                     I = self$I)
+
+      }
 
       self$implications <- extracted_implications
 
@@ -695,7 +733,6 @@ FormalContext <- R6::R6Class(
     #' @return A \code{transactions} object.
     #'
     #' @importFrom methods as
-    #' @import arules
     #'
     #' @export
     to_transactions = function() {
@@ -833,7 +870,17 @@ FormalContext <- R6::R6Class(
       cat(str_wrap(str, exdent = 2))
       cat("\nMatrix:\n")
 
-      print(head(I[, seq_along(my_attributes)]))
+      if (length(my_attributes) > 1) {
+
+        print(head(I[, seq_along(my_attributes)]))
+
+      } else {
+
+        print(head(I))
+
+      }
+
+
 
     },
 
@@ -843,6 +890,7 @@ FormalContext <- R6::R6Class(
     #'
     #' @param label (character) The label for the table environment.
     #' @param caption (character) The caption of the table.
+    #' @param fraction (character) If \code{none}, no fractions are produced. Otherwise, if it is \code{frac}, \code{dfrac} or \code{sfrac}, decimal numbers are represented as fractions with the corresponding LaTeX typesetting.
     #'
     #' @return
     #' A table environment in LaTeX.
@@ -850,11 +898,26 @@ FormalContext <- R6::R6Class(
     #' @export
     #'
     #' @importFrom knitr kable
-    to_latex = function(label = "", caption = "") {
+    to_latex = function(label = "", caption = "", fraction = c("none", "frac", "dfrac", "sfrac")) {
+
+      fraction <- match.arg(fraction)
 
       I <- as.matrix(t(self$I))
-      str <- as.character(kable(I, format = "latex",
-                                booktabs = TRUE, linesep = ""))
+
+      if (fraction != "none") {
+
+        I <- .to_fraction(I,
+                          latex = TRUE,
+                          type = fraction)
+
+      }
+
+      str <- as.character(kable(I,
+                                format = "latex",
+                                booktabs = TRUE,
+                                align = "c",
+                                escape = FALSE,
+                                linesep = ""))
 
       str <- c("\\begin{table}",
                "\\centering",
@@ -875,19 +938,123 @@ FormalContext <- R6::R6Class(
     #' @description
     #' Plot the formal context table
     #'
-    #' @return Nothing, just plots the formal context.
+    #' @param to_latex      (logical) If \code{TRUE}, export the plot as a \code{tikzpicture} environment that can be included in a \code{LaTeX} file.
+    #' @param ...          Other parameters to be passed to the \code{tikzDevice} that renders the lattice in \code{LaTeX}, or for the figure caption. See \code{Details}.
     #'
-    #' @import scales RColorBrewer
+    #' @details
+    #' Particular parameters that control the size of the \code{tikz} output are: \code{width}, \code{height} (both in inches), and \code{pointsize} (in points), that should be set to the font size used in the \code{documentclass} header in the \code{LaTeX} file where the code is to be inserted.
+    #'
+    #' If a \code{caption} is provided, the whole \code{tikz} picture will be wrapped by a \code{figure} environment and the caption set.
+    #'
+    #' @return If \code{to_latex} is \code{FALSE}, it returns nothing, just plots the graph of the formal context. Otherwise, this function returns the \code{LaTeX} code to reproduce the formal context plot.
+    #'
+    #' @importFrom scales colour_ramp
+    #' @importFrom RColorBrewer brewer.pal
+    #' @importFrom tikzDevice tikz
     #'
     #' @export
-    plot = function() {
+    plot = function(to_latex = FALSE,
+                    ...) {
 
       private$check_empty()
+
+      if (to_latex) {
+
+
+        tmp_file <- tempfile(fileext = ".tex")
+        dots <- list(...)
+        args <- list(file = tmp_file,
+                     standAlone = FALSE,
+                     sanitize = TRUE,
+                     width = 4,
+                     height = 4)
+
+        if ("filename" %in% names(dots)) {
+
+          filename <- dots$filename
+          dots$filename <- NULL
+
+        } else {
+
+          filename <- tempfile(fileext = ".tex")
+
+        }
+
+        if ("caption" %in% names(dots)) {
+
+          caption <- dots$caption
+          dots["caption"] <- NULL
+          label <- dots$label
+          if (is.null(label)) {
+
+            label <- "fig:"
+
+          } else {
+
+            dots["label"] <- NULL
+
+          }
+
+          caption <- paste0("\\label{",
+                            label,
+                            "}",
+                            caption)
+
+          tex_prefix <- c("\\begin{figure}",
+                          "\\centering",
+                          "")
+
+          tex_suffix <- c("",
+                          paste0("\\caption{", caption, "}"),
+                          "",
+                          "\\end{figure}")
+
+        } else {
+
+          tex_prefix <- c()
+          tex_suffix <- c()
+
+        }
+
+        old_opt <- getOption("tikzDocumentDeclaration")
+
+        if ("pointsize" %in% names(dots)) {
+
+          options("tikzDocumentDeclaration" = paste0("\\documentclass[", dots$pointsize,
+                                                     "pt]{article}\n"))
+
+        }
+
+        args[names(dots)] <- dots[names(dots)]
+
+        do.call(tikz, args = args)
+
+      }
 
       color_function <- colour_ramp(brewer.pal(9, "Greys"))
       heatmap(t(as.matrix(self$I)), Rowv = NA, Colv = NA,
               col = color_function(seq(0, 1, 0.01)),
               scale = "none")
+
+      if (to_latex) {
+
+        dev.off()
+
+        tex <- readLines(tmp_file)
+        unlink(tmp_file)
+
+        tex <- c(tex_prefix,
+                 tex,
+                 tex_suffix)
+
+        options("tikzDocumentDeclaration" = old_opt)
+
+        my_tex <- paste0(tex, collapse = "\n")
+        cat(my_tex, file = filename)
+
+        return(filename)
+
+      }
 
     }
 
