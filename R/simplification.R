@@ -1,101 +1,82 @@
 .simplification <- function(LHS, RHS, attributes, trace = FALSE) {
 
-  LHS_subsets <- t(.subset(LHS))
-
+  LHS_subsets <- Matrix::Matrix(FALSE, sparse = TRUE,
+                                ncol = ncol(LHS),
+                                nrow = ncol(LHS))
   intersections <- .self_intersection(LHS, RHS)
 
+  id_inter <- Matrix::which(intersections == 0)
+
+  LHS_subsets[, id_inter] <- Matrix::t(.subset(LHS[, id_inter], LHS))
+
   # This gives the LHS that are subsets of other LHS
-  condition1 <- colSums(LHS_subsets) > 1
+  col_values <- Matrix::colSums(LHS_subsets)
+  condition1 <- col_values > 1
 
   # This gives those LHS which are disjoint to their RHS
   condition2 <- intersections == 0
 
-  are_subset <- which(condition1 & condition2)
+  are_subset <- Matrix::which(condition1 & condition2)
 
   black_list <- rep(FALSE, ncol(LHS))
 
-  count <- 1
+  count <- 0
 
   while (length(are_subset) > 0) {
 
-    this_row <- are_subset[1]
+    count <- count + 1
+
+    id1 <- which.max(col_values[are_subset])
+    this_row <- are_subset[id1]
 
     my_idx <- which_at_col(LHS_subsets@i,
                            LHS_subsets@p,
                            this_row)
+
+    # this_row <- id_inter[this_row]
     my_idx <- setdiff(my_idx, this_row)
-
-    if (trace) {
-
-      original_rule <- ImplicationSet$new(name = "original",
-                                           attributes = attributes,
-                                           lhs = Matrix(LHS[, this_row], sparse = TRUE),
-                                           rhs = Matrix(RHS[, this_row], sparse = TRUE))
-
-      original_set <- ImplicationSet$new(name = "set",
-                                          attributes = attributes,
-                                          lhs = Matrix(LHS[, my_idx], sparse = TRUE),
-                                          rhs = Matrix(RHS[, my_idx], sparse = TRUE))
-
-    }
 
     # this_row is subset of all my_idx
     # So, we must do C-B -> D-B in every my_idx rule.
-    newLHS <- .difference(LHS[, my_idx], RHS[, this_row])
-    newRHS <- .difference(RHS[, my_idx], RHS[, this_row])
 
-    if (trace) {
+    if (length(my_idx) > 1) {
 
-      transformed_set <- ImplicationSet$new(name = "set",
-                                             attributes = attributes,
-                                             lhs = Matrix(newLHS, sparse = TRUE),
-                                             rhs = Matrix(newRHS, sparse = TRUE))
+      C <- LHS[, my_idx]
+      D <- RHS[, my_idx]
 
-      message("Iteration", count, "\n")
-      message("=================\n")
+    } else {
 
-      count <- count + 1
-
-      message("** A -> B\n")
-      # print(original_rule)
-
-      message("** C -> D\n")
-      # print(original_set)
-
-      message("** C-B -> D-B\n")
-      # print(transformed_set)
+      C <- Matrix::Matrix(LHS[, my_idx], sparse = TRUE)
+      D <- Matrix::Matrix(RHS[, my_idx], sparse = TRUE)
 
     }
+    B <- Matrix::Matrix(RHS[, this_row], sparse = TRUE)
+    newLHS <- set_difference_single(C@i, C@p, C@x,
+                                    B@i, B@p, B@x,
+                                    nrow(C))
+    newRHS <- set_difference_single(D@i, D@p, D@x,
+                                    B@i, B@p, B@x,
+                                    nrow(D))
 
     LHS[, my_idx] <- newLHS
     RHS[, my_idx] <- newRHS
 
-    if (trace) {
+    intersections[my_idx] <- .self_intersection(newLHS, newRHS)
+    id_inter <- which(intersections == 0)
 
-      final_set <- ImplicationSet$new(name = "set",
-                                       attributes = attributes,
-                                       lhs = Matrix(LHS, sparse = TRUE),
-                                       rhs = Matrix(RHS, sparse = TRUE))
+    LHS_subsets[my_idx, id_inter] <- Matrix::t(.subset(LHS[, id_inter], newLHS))
+    col_values <- Matrix::colSums(LHS_subsets)
+    condition1 <- col_values > 1
 
-      message("** Resulting set\n")
-      # print(final_set)
-
-    }
-
-    LHS_subsets <- t(.subset(LHS))
-
-    condition1 <- colSums(LHS_subsets) > 1
-
-    intersections <- .self_intersection(LHS, RHS)
-    condition2 <- (intersections == 0) & (colSums(RHS) > 0)
+    condition2 <- (intersections == 0) & (Matrix::colSums(RHS) > 0)
 
     black_list[this_row] <- TRUE
-    are_subset <- which(condition1 & condition2 & (!black_list))
+    are_subset <- Matrix::which(condition1 & condition2 & (!black_list))
 
   }
 
   # Cleaning phase
-  idx_to_remove <- which(colSums(RHS) == 0)
+  idx_to_remove <- Matrix::which(Matrix::colSums(RHS) == 0)
 
   if (length(idx_to_remove) > 0) {
 

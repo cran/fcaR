@@ -17,7 +17,7 @@ test_that("fcaR operates on implications", {
 
   fc$implications$add(mush_clean)
 
-  # Cadinality
+  # Cardinality
   expect_is(fc$implications$cardinality(), "integer")
 
   # Rule size
@@ -35,10 +35,7 @@ test_that("fcaR operates on implications", {
 
   # At this moment, we're at a fixed point, but we could apply
   # some more rules if needed:
-  expect_error(fc$implications$apply_rules(rules = c("generalization",
-                                                     "composition",
-                                                     "simplification",
-                                                     "reduction"),
+  expect_error(fc$implications$apply_rules(rules = equivalencesRegistry$get_entry_names(),
                                            reorder = TRUE,
                                            parallelize = FALSE), NA)
   expect_is(fc$implications, "ImplicationSet")
@@ -51,7 +48,8 @@ test_that("fcaR prints implications", {
 
   fc$implications$add(mush_clean)
 
-  expect_error(fc$implications, NA)
+  expect_error(fc$implications[1:10]$print(), NA)
+  expect_output(fc$implications[1:10]$print())
 
 })
 

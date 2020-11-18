@@ -1,29 +1,23 @@
-#' @importFrom tictoc tic toc
 .process_batch <- function(LHS, RHS, attributes, rules, verbose = TRUE) {
 
   # Initialize results
-  new_LHS <- Matrix(0,
-                    nrow = nrow(LHS),
-                    ncol = 1,
-                    sparse = TRUE)
+  new_LHS <- Matrix::Matrix(0,
+                            nrow = nrow(LHS),
+                            ncol = 1,
+                            sparse = TRUE)
 
-  new_RHS <- Matrix(0,
-                    nrow = nrow(LHS),
-                    ncol = 1,
-                    sparse = TRUE)
+  new_RHS <- Matrix::Matrix(0,
+                            nrow = nrow(LHS),
+                            ncol = 1,
+                            sparse = TRUE)
 
-  my_functions <- c("generalization" = .generalization,
-                    "composition"    = .composition,
-                    "reduction"      = .reduction,
-                    "simplification" = .simplification)
-
-  idx_rules <- match(rules, names(my_functions))
-  idx_rules <- idx_rules[!is.na(idx_rules)]
-  rules_to_apply <- my_functions[idx_rules]
-  rule_names <- names(my_functions)[idx_rules]
+  # Look up the equivalence rules in the registry
+  methods <- lapply(rules,
+                    equivalencesRegistry$get_entry)
+  methods[sapply(methods, is.null)] <- NULL
 
   # Begin the timing
-  tic("batch")
+  tictoc::tic("batch")
 
   if (verbose) {
 
@@ -36,16 +30,16 @@
   new_cols <- ncol(LHS)
 
   # Loop over all functions
-  for (j in seq_along(idx_rules)) {
+  for (j in seq_along(methods)) {
 
     current_cols <- new_cols
 
-    current_rule <- rules_to_apply[[j]]
+    current_rule <- methods[[j]]$fun
 
-    tic("rule")
+    tictoc::tic("rule")
     L <- current_rule(old_LHS, old_RHS, attributes)
 
-    rule_time <- toc(quiet = TRUE)
+    rule_time <- tictoc::toc(quiet = TRUE)
     old_LHS <- L$lhs
     old_RHS <- L$rhs
 
@@ -53,9 +47,9 @@
 
     if (verbose) {
 
-      message("--> ", rule_names[j], ": from ", current_cols, " to ",
-          new_cols, " in ", round(rule_time$toc - rule_time$tic, 3),
-          " secs.")
+      message("--> ", methods[[j]]$method[1], ": from ", current_cols, " to ",
+              new_cols, " in ", round(rule_time$toc - rule_time$tic, 3),
+              " secs.")
 
     }
 
@@ -67,7 +61,7 @@
 
   L <- .clean(new_LHS, new_RHS)
 
-  batch_toc <- toc(quiet = TRUE)
+  batch_toc <- tictoc::toc(quiet = TRUE)
 
   if (verbose) {
 

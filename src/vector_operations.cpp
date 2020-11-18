@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 
 void initArray(IntArray *a, size_t initialSize) {
-  a->array = (int *)calloc(initialSize, sizeof(int));
+  a->array = (int *)malloc(initialSize * sizeof(int));
   a->used = 0;
   a->size = initialSize;
 }
@@ -55,9 +55,26 @@ void freeArray(IntArray *a) {
   a->used = a->size = 0;
 }
 
+void printArray(IntArray a) {
+
+  Rcout << "(";
+  if (a.used > 0) {
+
+    for (int i = 0; i < a.used; i++) {
+
+      Rcout << a.array[i] << ", ";
+
+    }
+
+  }
+
+  Rcout << ")" << std::endl;
+
+}
+
 
 void initArray(DoubleArray *a, size_t initialSize) {
-  a->array = (double *)calloc(initialSize, sizeof(double));
+  a->array = (double *)malloc(initialSize * sizeof(double));
 
   a->used = 0;
   a->size = initialSize;
@@ -117,6 +134,22 @@ void freeArray(DoubleArray *a) {
   a->used = a->size = 0;
 }
 
+void printArray(DoubleArray a) {
+
+  Rcout << "(";
+  if (a.used > 0) {
+
+    for (int i = 0; i < a.used; i++) {
+
+      Rcout << a.array[i] << ", ";
+
+    }
+
+  }
+
+  Rcout << ")" << std::endl;
+
+}
 
 void initVector(SparseVector *a, size_t initialSize) {
 
@@ -124,6 +157,15 @@ void initVector(SparseVector *a, size_t initialSize) {
   initArray(&(a->i), initialSize);
   initArray(&(a->x), initialSize);
   a->length = initialSize;
+
+}
+
+void initMatrix(SparseVector *a, size_t nrow) {
+
+  initArray(&(a->p), nrow * 100000);
+  initArray(&(a->i), nrow * 100000);
+  initArray(&(a->x), nrow * 100000);
+  a->length = nrow;
 
 }
 
@@ -208,8 +250,9 @@ void assignUsed(DoubleArray *a, const size_t n) {
 
 void cloneVector(SparseVector *a, SparseVector b) {
 
-  freeVector(a);
-  initVector(a, b.x.size);
+  reinitVector(a);
+  // freeVector(a);
+  // initVector(a, b.x.size);
 
   if (b.i.used > 0) {
 
@@ -232,26 +275,39 @@ void add_column(SparseVector *a, SparseVector b) {
 
     int last_p = a->p.array[a->p.used - 1];
 
+    int added = 0;
+
     for (size_t i = 0; i < b.i.used; i++) {
 
-      insertArray(&(a->i), b.i.array[i]);
-      insertArray(&(a->x), b.x.array[i]);
+      if (b.x.array[i] > 0) {
+
+        insertArray(&(a->i), b.i.array[i]);
+        insertArray(&(a->x), b.x.array[i]);
+        added++;
+
+      }
 
     }
 
-    insertArray(&(a->p), last_p + b.i.used);
+    insertArray(&(a->p), last_p + added);
 
   } else {
 
+    int added = 0;
     for (size_t i = 0; i < b.i.used; i++) {
 
-      insertArray(&(a->i), b.i.array[i]);
-      insertArray(&(a->x), b.x.array[i]);
+      if (b.x.array[i] > 0) {
+
+        insertArray(&(a->i), b.i.array[i]);
+        insertArray(&(a->x), b.x.array[i]);
+        added++;
+
+      }
 
     }
 
     insertArray(&(a->p), 0);
-    insertArray(&(a->p), b.i.used);
+    insertArray(&(a->p), added);
 
   }
 
@@ -337,7 +393,7 @@ S4 SparseToS4_fast(SparseVector V) {
   IntegerVector i(V.i.used);
   NumericVector x(V.x.used);
   IntegerVector dims(2);
-  IntegerVector p(V.p.used + 1);
+  IntegerVector p(V.p.used);
 
   if (V.i.used > 0) {
 
@@ -348,12 +404,12 @@ S4 SparseToS4_fast(SparseVector V) {
 
   if (V.p.used > 0) {
 
-    memcpy(&(p[1]), V.p.array, V.p.used * sizeof(int));
+    memcpy(&(p[0]), V.p.array, V.p.used * sizeof(int));
 
   }
 
   dims[0] = V.length;
-  dims[1] = V.p.used;
+  dims[1] = V.p.used - 1;
 
   res.slot("x") = x;
   res.slot("i") = i;
@@ -361,5 +417,303 @@ S4 SparseToS4_fast(SparseVector V) {
   res.slot("p") = p;
 
   return(res);
+
+}
+
+SparseVector set_difference_sparse(IntegerVector xi,
+                            IntegerVector xp,
+                            NumericVector xx,
+                            IntegerVector yi,
+                            IntegerVector yp,
+                            NumericVector yx,
+                            int number) {
+
+  SparseVector res;
+  initVector(&res, number);
+
+  int my_p = 0;
+
+  // Rcout << "x.p.used = " << xp.size() << std::endl;
+
+  insertArray(&(res.p), 0);
+
+  for (size_t p = 0; p < xp.size() - 1; p++) {
+
+    // Rcout << "Added column with " << my_p << std::endl;
+
+
+    int init_x = xp[p], end_x = xp[p + 1];
+    int init_y = yp[p], end_y = yp[p + 1];
+
+    for (size_t i = init_x; i < end_x; i++) {
+
+      bool add = true;
+
+      for (size_t j = init_y; j < end_y; j++) {
+
+        if (xi[i] == yi[j]) {
+
+          if (yx[j] >= xx[i]) {
+
+            add = false;
+            break;
+
+          }
+
+          if (yi[j] > xi[i]) break;
+
+        }
+
+      }
+
+      if (add) {
+
+        my_p++;
+
+        // Rcout << "Added element " << my_p << std::endl;
+
+        insertArray(&(res.i), xi[i]);
+        insertArray(&(res.x), xx[i]);
+
+      }
+
+    }
+
+    insertArray(&(res.p), my_p);
+
+  }
+
+  return res;
+
+}
+
+// [[Rcpp::export]]
+S4 set_difference(IntegerVector xi,
+                  IntegerVector xp,
+                  NumericVector xx,
+                  IntegerVector yi,
+                  IntegerVector yp,
+                  NumericVector yx,
+                  int number) {
+
+  SparseVector res = set_difference_sparse(xi, xp, xx,
+                                    yi, yp, yx,
+                                    number);
+
+  return SparseToS4_fast(res);
+
+}
+
+SparseVector set_difference_sparse1(IntegerVector xi,
+                                   IntegerVector xp,
+                                   NumericVector xx,
+                                   IntegerVector yi,
+                                   IntegerVector yp,
+                                   NumericVector yx,
+                                   int number) {
+
+  SparseVector res;
+  initVector(&res, number);
+
+  int my_p = 0;
+
+  // Rcout << "x.p.used = " << xp.size() << std::endl;
+
+  insertArray(&(res.p), 0);
+
+  for (size_t p = 0; p < xp.size() - 1; p++) {
+
+    // Rcout << "Added column with " << my_p << std::endl;
+
+
+    int init_x = xp[p], end_x = xp[p + 1];
+    int init_y = yp[0], end_y = yp[1];
+
+    for (size_t i = init_x; i < end_x; i++) {
+
+      bool add = true;
+
+      for (size_t j = init_y; j < end_y; j++) {
+
+        if (xi[i] == yi[j]) {
+
+          if (yx[j] >= xx[i]) {
+
+            add = false;
+            break;
+
+          }
+
+          if (yi[j] > xi[i]) break;
+
+        }
+
+      }
+
+      if (add) {
+
+        my_p++;
+
+        // Rcout << "Added element " << my_p << std::endl;
+
+        insertArray(&(res.i), xi[i]);
+        insertArray(&(res.x), xx[i]);
+
+      }
+
+    }
+
+    insertArray(&(res.p), my_p);
+
+  }
+
+  return res;
+
+}
+
+// [[Rcpp::export]]
+S4 set_difference_single(IntegerVector xi,
+                  IntegerVector xp,
+                  NumericVector xx,
+                  IntegerVector yi,
+                  IntegerVector yp,
+                  NumericVector yx,
+                  int number) {
+
+  SparseVector res = set_difference_sparse1(xi, xp, xx,
+                                           yi, yp, yx,
+                                           number);
+
+  S4 res2 = SparseToS4_fast(res);
+
+  freeVector(&res);
+
+  return res2;
+
+}
+
+NumericVector as_vector(SparseVector v) {
+
+  NumericVector x(v.length);
+
+  for (int i = 0; i < v.i.used; i++) {
+
+    x[v.i.array[i]] = v.x.array[i];
+
+  }
+
+  return(x);
+
+}
+
+SparseVector as_sparse(NumericVector v) {
+
+  SparseVector res;
+  initVector(&res, v.size());
+
+  for (int i = 0; i < v.size(); i++) {
+
+    if (v[i] > 0) {
+
+      insertArray(&(res.i), i);
+      insertArray(&(res.x), v[i]);
+
+    }
+
+  }
+
+  return res;
+
+}
+
+SparseVector as_sparse(double* v, int length) {
+
+  SparseVector res;
+  initVector(&res, length);
+
+  for (int i = 0; i < length; i++) {
+
+    if (v[i] > 0) {
+
+      insertArray(&(res.i), i);
+      insertArray(&(res.x), v[i]);
+
+    }
+
+  }
+
+  return res;
+
+}
+
+SparseVector as_sparse(double* v,
+                       int nrow, int ncol,
+                       int j) {
+
+  SparseVector res;
+  initVector(&res, nrow);
+
+  for (int i = 0; i < nrow; i++) {
+
+    if (v[j * nrow + i] > 0) {
+
+      insertArray(&(res.i), i);
+      insertArray(&(res.x), v[j * nrow + i]);
+
+    }
+
+  }
+
+  return res;
+
+}
+
+void as_sparse(SparseVector *res,
+               double* v,
+               int nrow, int ncol,
+               int j) {
+
+  // SparseVector res;
+  // initVector(&res, nrow);
+
+  for (int i = 0; i < nrow; i++) {
+
+    if (v[j * nrow + i] > 0) {
+
+      insertArray(&(res->i), i);
+      insertArray(&(res->x), v[j * nrow + i]);
+
+    }
+
+  }
+
+
+}
+
+double get_element(SparseVector v, int n) {
+
+  if (n > v.length - 1) {
+
+    return 0;
+
+  }
+
+  double res = 0;
+
+  for (int i = 0; i < v.i.used; i++) {
+
+    if (v.i.array[i] > n)
+      break;
+
+    if (v.i.array[i] == n) {
+
+      res = v.x.array[i];
+      break;
+
+    }
+
+  }
+
+  return res;
 
 }

@@ -9,13 +9,10 @@
 stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/fcaR)](https://cran.r-project.org/package=fcaR)
-[![Build
-Status](https://travis-ci.com/neuroimaginador/fcaR.svg?token=MLhMMg8zTrQjhhSXhmgz&branch=master)](https://travis-ci.com/neuroimaginador/fcaR)
 [![codecov](https://codecov.io/gh/neuroimaginador/fcaR/branch/master/graph/badge.svg?token=8ujvQdrzUI)](https://codecov.io/gh/neuroimaginador/fcaR)
-[![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/neuroimaginador/fcaR?branch=master&svg=true)](https://ci.appveyor.com/project/neuroimaginador/fcaR)
+[![R build
+status](https://github.com/neuroimaginador/fcaR/workflows/R-CMD-check/badge.svg)](https://github.com/neuroimaginador/fcaR/actions)
 [![Downloads](https://cranlogs.r-pkg.org/badges/grand-total/fcaR)](https://cran.r-project.org/package=fcaR)
-
 <!-- badges: end -->
 
 The aim of this package is to provide tools to perform fuzzy formal
@@ -28,23 +25,23 @@ fuzzy sets and, thus, build recommendation systems.
 
 The fcaR package provides data structures which allow the user to work
 seamlessly with formal contexts and sets of implications. More
-explicitly, three main classes are implemented, using the 
+explicitly, three main classes are implemented, using the
 object-oriented-programming paradigm in R:
 
-  - FormalContext encapsulates the definition of a formal context (G, M,
+-   FormalContext encapsulates the definition of a formal context (G, M,
     I), being G the set of objects, M the set of attributes and I the
     (fuzzy) relationship matrix, and provides methods to operate on the
     context using FCA tools.
-  - ImplicationSet represents a set of implications over a specific
+-   ImplicationSet represents a set of implications over a specific
     formal context.
-  - ConceptLattice represents the set of concepts and their
+-   ConceptLattice represents the set of concepts and their
     relationships, including methods to operate on the lattice.
 
 Two additional helper classes are implemented:
 
-  - SparseSet is a class solely used for visualization purposes, since
+-   SparseSet is a class solely used for visualization purposes, since
     it encapsulates in sparse format a (fuzzy) set.
-  - SparseConcept encapsulates internally both extent and intent of a
+-   SparseConcept encapsulates internally both extent and intent of a
     formal concept as SparseSet.
 
 Since fcaR is an extension of the data model in the arules package, most
@@ -65,339 +62,172 @@ The development version of this package can be installed with
 ## Example of Use
 
 <!-- Example from [here](https://www.sciencedirect.com/science/article/pii/S1877705812021418) -->
-
 Let us start with a fuzzy dataset (stored in a matrix I) as follows:
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 </th>
-
 <th style="text-align:right;">
-
 P1
-
 </th>
-
 <th style="text-align:right;">
-
 P2
-
 </th>
-
 <th style="text-align:right;">
-
 P3
-
 </th>
-
 <th style="text-align:right;">
-
 P4
-
 </th>
-
 <th style="text-align:right;">
-
 P5
-
 </th>
-
 <th style="text-align:right;">
-
 P6
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 O1
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 1.0
-
 </td>
-
 <td style="text-align:right;">
-
 0.5
-
 </td>
-
 <td style="text-align:right;">
-
 0.5
-
 </td>
-
 <td style="text-align:right;">
-
 1.0
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 O2
-
 </td>
-
 <td style="text-align:right;">
-
 1.0
-
 </td>
-
 <td style="text-align:right;">
-
 1.0
-
 </td>
-
 <td style="text-align:right;">
-
 1.0
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 O3
-
 </td>
-
 <td style="text-align:right;">
-
 0.5
-
 </td>
-
 <td style="text-align:right;">
-
 0.5
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 1
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 O4
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 1.0
-
 </td>
-
 <td style="text-align:right;">
-
 0.5
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 O5
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 1.0
-
 </td>
-
 <td style="text-align:right;">
-
 0.5
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 O6
-
 </td>
-
 <td style="text-align:right;">
-
 0.5
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 0.0
-
 </td>
-
 <td style="text-align:right;">
-
 0
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
 
 Here, a value of x in the intersection of a row and a column indicates
@@ -465,9 +295,9 @@ fc$implications
 Some fundamental functionalities on the concept lattice associated to
 the formal context have been implemented:
 
-  - Computing a sublattice.
-  - Calculating the subconcepts and superconcepts of a given concept.
-  - Finding the join- and meet- irreducible elements, which allows to
+-   Computing a sublattice.
+-   Calculating the subconcepts and superconcepts of a given concept.
+-   Finding the join- and meet- irreducible elements, which allows to
     reduce the context and find the *standard context*.
 
 Also, one can compute the support of both implications and concepts:
@@ -495,8 +325,8 @@ given fuzzy attribute set.
 fc$implications$apply_rules(rules = c("composition",
                                       "generalization"))
 #> Processing batch
-#> --> composition: from 12 to 12 in 0.006 secs.
-#> --> generalization: from 12 to 12 in 0.009 secs.
+#> --> Composition: from 12 to 12 in 0.005 secs.
+#> --> Generalization: from 12 to 12 in 0.01 secs.
 #> Batch took 0.021 secs.
 
 # Reduced set of implications
@@ -534,7 +364,7 @@ Cordero P, Enciso M, Mora Á, Pérez de Guzman I (2002). “SLFD Logic:
 Elimination of Data Redundancy in Knowledge Representation.” *Advances
 in Artificial Intelligence - IBERAMIA 2002*, *2527*, 141-150. doi:
 10.1007/3-540-36131-6\_15 (URL:
-<http://doi.org/10.1007/3-540-36131-6_15>).
+<https://doi.org/10.1007/3-540-36131-6_15>).
 
 Belohlavek R (2002). “Algorithms for fuzzy concept lattices.” In *Proc.
 Fourth Int. Conf. on Recent Advances in Soft Computing*. Nottingham,
