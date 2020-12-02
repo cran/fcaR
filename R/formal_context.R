@@ -17,9 +17,6 @@
 #' fc_planets <- FormalContext$new(planets)
 #' print(fc_planets)
 #'
-#' # Plot the formal context
-#' fc_planets$plot()
-#'
 #' # Define a set of attributes
 #' S <- SparseSet$new(attributes = fc_planets$attributes)
 #' S$assign(moon = 1, large = 1)
@@ -850,36 +847,56 @@ FormalContext <- R6::R6Class(
 
       I <- Matrix::as.matrix(Matrix::t(self$I))
 
-      if (dims[2] > 6) {
+      if (private$is_binary) {
 
-        my_attributes <- c(self$attributes[1:6], "...")
-        warning("Too many attributes, output will be truncated.\n",
-                call. = FALSE,
-                noBreaks. = FALSE,
-                immediate. = TRUE)
-
-      } else {
-
-        my_attributes <- self$attributes
+        I <- .print_binary(I, latex = FALSE)
 
       }
 
-      cat("FormalContext with", dims[1], "objects and",
-          dims[2], "attributes.\n")
+      objects <- self$objects
+      if (nrow(I) > 10) {
 
-      str <- paste0("Attributes' names are: ",
-                    stringr::str_flatten(my_attributes, collapse = ", "),
-                    "\n")
-      cat(stringr::str_wrap(str, exdent = 2))
-      cat("\nMatrix:\n")
+        I <- I[1:10, ]
+        objects <- objects[1:10]
 
-      if (length(my_attributes) > 1) {
+      }
 
-        print(head(I[, seq_along(my_attributes)]))
 
-      } else {
+      matp <- .print_matrix(I,
+                            objects = objects,
+                            attributes = self$attributes)
+      M <- matp$mat
+      ids <- matp$att_id
+      last_attribute <- max(ids) - 1
 
-        print(head(I))
+      str <- paste0("FormalContext with ", dims[1],
+                    " objects and ",
+                    dims[2], " attributes.") %>%
+        stringr::str_wrap(width = getOption("width"))
+
+      cat(str)
+      cat("\n")
+
+      cat(M)
+      cat("\n")
+
+      if (last_attribute < length(self$attributes)) {
+
+        remaining <- self$attributes[-seq(last_attribute)]
+
+        if (length(remaining) > 6) {
+
+          remaining <- c(remaining[1:6], "...")
+
+        }
+
+        remaining <- remaining %>%
+          stringr::str_flatten(", ")
+
+        str <- paste0("Other attributes are: ", remaining) %>%
+          stringr::str_wrap(width = getOption("width"))
+
+        cat(str, "\n")
 
       }
 
@@ -904,20 +921,26 @@ FormalContext <- R6::R6Class(
 
       I <- Matrix::as.matrix(Matrix::t(self$I))
 
-      if (fraction != "none") {
+      if (private$is_binary) {
 
-        I <- .to_fraction(I,
-                          latex = TRUE,
-                          type = fraction)
+        I <- .print_binary(I, latex = TRUE)
+
+
+      } else {
+
+        if (fraction != "none") {
+
+          I <- .to_fraction(I,
+                            latex = TRUE,
+                            type = fraction)
+
+        }
 
       }
 
-      str <- as.character(knitr::kable(I,
-                                       format = "latex",
-                                       booktabs = TRUE,
-                                       align = "c",
-                                       escape = FALSE,
-                                       linesep = ""))
+      str <- context_to_latex(I,
+                              objects = self$objects,
+                              attributes = self$attributes)
 
       str <- c("\\begin{table}",
                "\\centering",
@@ -961,102 +984,7 @@ FormalContext <- R6::R6Class(
 
       }
 
-      if (to_latex) {
-
-        tmp_file <- tempfile(fileext = ".tex")
-        dots <- list(...)
-        args <- list(file = tmp_file,
-                     standAlone = FALSE,
-                     sanitize = TRUE,
-                     width = 4,
-                     height = 4)
-
-        if ("filename" %in% names(dots)) {
-
-          filename <- dots$filename
-          dots$filename <- NULL
-
-        } else {
-
-          filename <- tempfile(fileext = ".tex")
-
-        }
-
-        if ("caption" %in% names(dots)) {
-
-          caption <- dots$caption
-          dots["caption"] <- NULL
-          label <- dots$label
-          if (is.null(label)) {
-
-            label <- "fig:"
-
-          } else {
-
-            dots["label"] <- NULL
-
-          }
-
-          caption <- paste0("\\label{",
-                            label,
-                            "}",
-                            caption)
-
-          tex_prefix <- c("\\begin{figure}",
-                          "\\centering",
-                          "")
-
-          tex_suffix <- c("",
-                          paste0("\\caption{", caption, "}"),
-                          "",
-                          "\\end{figure}")
-
-        } else {
-
-          tex_prefix <- c()
-          tex_suffix <- c()
-
-        }
-
-        old_opt <- getOption("tikzDocumentDeclaration")
-
-        if ("pointsize" %in% names(dots)) {
-
-          options("tikzDocumentDeclaration" = paste0("\\documentclass[", dots$pointsize,
-                                                     "pt]{article}\n"))
-
-        }
-
-        args[names(dots)] <- dots[names(dots)]
-
-        do.call(tikzDevice::tikz, args = args)
-
-      }
-
-      color_function <- scales::colour_ramp(RColorBrewer::brewer.pal(9, "Greys"))
-      heatmap(t(Matrix::as.matrix(self$I)), Rowv = NA, Colv = NA,
-              col = color_function(seq(0, 1, 0.01)),
-              scale = "none")
-
-      if (to_latex) {
-
-        dev.off()
-
-        tex <- readLines(tmp_file)
-        unlink(tmp_file)
-
-        tex <- c(tex_prefix,
-                 tex,
-                 tex_suffix)
-
-        options("tikzDocumentDeclaration" = old_opt)
-
-        my_tex <- paste0(tex, collapse = "\n")
-        cat(my_tex, file = filename)
-
-        return(filename)
-
-      }
+      plot_context(self$I, to_latex, ...)
 
     }
 

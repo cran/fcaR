@@ -1,3 +1,13 @@
+# fcaR 1.0.7
+
+Bugfixes:
+* Minor bugfixes in several functions.
+* Fixed C source that could generate some problems.
+
+Enhancements:
+* Reduced number of dependencies.
+* Better printing of FormalContexts, specially for binary FormalContexts.
+
 # fcaR 1.0.6
  
 Bugfixes:

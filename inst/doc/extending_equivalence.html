@@ -464,19 +464,19 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span>implications<span class="sc">$</span><span class="fu">apply_rules</span>(<span class="st">&quot;randomize&quot;</span>)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Processing batch</span></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; --&gt; Randomize: from 10 to 10 in 0.001 secs.</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Batch took 0.004 secs.</span></span></code></pre></div>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Batch took 0.005 secs.</span></span></code></pre></div>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reordered implications</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span>implications</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Implication set with 10 implications.</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 1: {no_moon} -&gt; {small, near}</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 1: {small, near, moon, no_moon} -&gt; {medium, large, far}</span></span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 2: {medium, large, far, moon} -&gt; {small, near, no_moon}</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 3: {small, near, far, moon} -&gt; {medium, large, no_moon}</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 4: {far} -&gt; {moon}</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 5: {small, near, moon, no_moon} -&gt; {medium, large, far}</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 6: {medium} -&gt; {far, moon}</span></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 7: {large} -&gt; {far, moon}</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 8: {small, medium, far, moon} -&gt; {large, near, no_moon}</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 9: {small, large, far, moon} -&gt; {medium, near, no_moon}</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 3: {far} -&gt; {moon}</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 4: {medium} -&gt; {far, moon}</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 5: {large} -&gt; {far, moon}</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 6: {small, large, far, moon} -&gt; {medium, near, no_moon}</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 7: {small, medium, far, moon} -&gt; {large, near, no_moon}</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 8: {no_moon} -&gt; {small, near}</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 9: {small, near, far, moon} -&gt; {medium, large, no_moon}</span></span>
 <span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 10: {near} -&gt; {small}</span></span></code></pre></div>
 </div>
 
