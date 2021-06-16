@@ -53,18 +53,20 @@ to_latex <- function(x) UseMethod("to_latex")
 #' fc_planets$find_concepts()
 #'
 #' # Print the first 3 concepts to latex
-#' to_latex(fc_planets$concepts[1:3])
+#' to_latex(fc_planets$concepts[1:3]$to_list())
 #'
 #' @export
 to_latex.conceptlist <- function(x) {
 
-  str <- concepts_to_latex(x, numbered = FALSE)
+  for (concept in x) {
 
-  cat(str)
+    concept$to_latex()
+
+  }
 
   return(invisible(NULL))
 
 }
 
-.S3methods("to_latex", "conceptlist")
-.S3methods("print", "conceptlist")
+# .S3methods("to_latex", "conceptlist")
+# .S3methods("print", "conceptlist")

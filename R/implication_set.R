@@ -45,13 +45,13 @@ ImplicationSet <- R6::R6Class(
     #' @param ... See Details.
     #'
     #' @details
-    #' Creates and initialize a new \code{FormalContext} object. It can be done in two ways:
+    #' Creates and initialize a new \code{ImplicationSet} object. It can be done in two ways:
     #' \code{initialize(name, attributes, lhs, rhs)}
     #' or \code{initialize(rules)}
     #'
     #' In the first way, the only mandatory argument is \code{attributes}, (character vector) which is a vector of names of the attributes on which we define the implications. Optional arguments are: \code{name} (character string), name of the implication set, \code{lhs} (a \code{dgCMatrix}), initial LHS of the implications stored and the analogous \code{rhs}.
     #'
-    #' The other way is used to initialize the \code{FormalContext} object from a \code{rules} object from package \code{arules}.
+    #' The other way is used to initialize the \code{ImplicationSet} object from a \code{rules} object from package \code{arules}.
     #'
     #' @return A new \code{ImplicationSet} object.
     initialize = function(...) {
@@ -195,7 +195,7 @@ ImplicationSet <- R6::R6Class(
     #' @description
     #' Add a precomputed implication set
     #'
-    #' @param ...   An \code{ImplicationSet} object, a \code{rules} object, or a pair \code{lhs}, \code{rhs} of \code{SparseSet} objects or \code{dgCMatrix}. The implications to add to this formal context.
+    #' @param ...   An \code{ImplicationSet} object, a \code{rules} object, or a pair \code{lhs}, \code{rhs} of \code{Set} objects or \code{dgCMatrix}. The implications to add to this formal context.
     #'
     #' @return Nothing, just updates the internal \code{implications} field.
     #'
@@ -227,13 +227,13 @@ ImplicationSet <- R6::R6Class(
           lhs <- dots[[1]]
           rhs <- dots[[2]]
 
-          if (inherits(lhs, "SparseSet")) {
+          if (inherits(lhs, "Set")) {
 
             lhs <- lhs$get_vector()
 
           }
 
-          if (inherits(rhs, "SparseSet")) {
+          if (inherits(rhs, "Set")) {
 
             rhs <- rhs$get_vector()
 
@@ -300,7 +300,7 @@ ImplicationSet <- R6::R6Class(
     #' @description
     #' Compute the semantic closure of a fuzzy set with respect to the implication set
     #'
-    #' @param S        (a \code{SparseSet} object)  Fuzzy set to compute its closure. Use class \code{SparseSet} to build it.
+    #' @param S        (a \code{Set} object)  Fuzzy set to compute its closure. Use class \code{Set} to build it.
     #' @param reduce   (logical) Reduce the implications using simplification logic?
     #' @param verbose  (logical) Show verbose output?
     #'
@@ -311,9 +311,15 @@ ImplicationSet <- R6::R6Class(
                        reduce = FALSE,
                        verbose = FALSE) {
 
-      if (inherits(S, "SparseSet")) {
+      if (inherits(S, "Set")) {
 
+        original <- S$clone()
+        S <- match_attributes(S, private$attributes)
         S <- S$get_vector()
+
+      } else {
+
+        original <- Set$new(private$attributes, M = S)
 
       }
 
@@ -327,12 +333,12 @@ ImplicationSet <- R6::R6Class(
 
       if (!reduce) {
 
-        cl <- list(closure = SparseSet$new(attributes = private$attributes,
+        cl <- list(closure = Set$new(attributes = private$attributes,
                                            M = cl$closure))
 
       } else {
 
-        cl$closure <- SparseSet$new(attributes = private$attributes,
+        cl$closure <- Set$new(attributes = private$attributes,
                                     M = cl$closure)
 
         cl$implications <- ImplicationSet$new(attributes = private$attributes,
@@ -342,6 +348,9 @@ ImplicationSet <- R6::R6Class(
                                               I = private$I)
 
       }
+
+      cl$closure <- match_attributes(cl$closure,
+                                     original$get_attributes())
 
       return(cl)
 
@@ -358,7 +367,7 @@ ImplicationSet <- R6::R6Class(
     #' @export
     recommend = function(S, attribute_filter) {
 
-      if (inherits(S, "SparseSet")) {
+      if (inherits(S, "Set")) {
 
         S <- S$get_vector()
 
@@ -447,9 +456,6 @@ ImplicationSet <- R6::R6Class(
 
       private$lhs_matrix <- L$lhs
       private$rhs_matrix <- L$rhs
-      # imps <- ImplicationSet$new(attributes = attributes,
-      #                            lhs = LHS,
-      #                            rhs = RHS)
 
       return(invisible(self))
 
@@ -485,7 +491,7 @@ ImplicationSet <- R6::R6Class(
                                # function(i) paste0("Rule: ",
                                                   .implication_to_string(LHS[, i], RHS[, i], attributes)))
 
-        implications <- sapply(implications, function(s) stringr::str_wrap(s, width = 70, exdent = 2))
+        implications <- sapply(implications, function(s) stringr::str_wrap(s, width = getOption("width"), exdent = 2))
 
         cat(implications, sep = "\n")
 
@@ -586,14 +592,18 @@ ImplicationSet <- R6::R6Class(
     #' Filter implications by attributes in LHS and RHS
     #'
     #' @param lhs  (character vector) Names of the attributes to filter the LHS by. If \code{NULL}, no filtering is done on the LHS.
+    #' @param not_lhs  (character vector) Names of the attributes to not include in the LHS. If \code{NULL} (the default), it is not considered at all.
     #' @param rhs  (character vector) Names of the attributes to filter the RHS by. If \code{NULL}, no filtering is done on the RHS.
+    #' @param not_rhs  (character vector) Names of the attributes to not include in the RHS. If \code{NULL} (the default), it is not considered at all.
     #' @param drop  (logical) Remove the rest of attributes in RHS?
     #'
     #' @return An \code{ImplicationSet} that is a subset of the current set, only with those rules which has the attributes in \code{lhs} and \code{rhs} in their LHS and RHS, respectively.
     #'
     #' @export
     filter = function(lhs = NULL,
+                      not_lhs = NULL,
                       rhs = NULL,
+                      not_rhs = NULL,
                       drop = FALSE) {
 
       RHS <- private$rhs_matrix
@@ -624,6 +634,33 @@ ImplicationSet <- R6::R6Class(
 
       }
 
+      if (!is.null(not_lhs)) {
+
+        # Filter the implications which
+        # does not have the given not_lhs
+        idx_attr <- match(not_lhs,
+                          private$attributes)
+
+        if (length(idx_attr) > 1) {
+
+          idx_not_lhs <- Matrix::which(Matrix::colSums(LHS[idx_attr, ]) > 0)
+
+        } else {
+
+          idx_not_lhs <- which(LHS[idx_attr, ] > 0)
+
+        }
+
+      } else {
+
+        # If not specified a filter for LHS,
+        # select none.
+        idx_not_lhs <- c()
+
+      }
+
+      idx_lhs <- setdiff(idx_lhs, idx_not_lhs)
+
       if (!is.null(rhs)) {
 
         # Filter the implications which have
@@ -648,6 +685,33 @@ ImplicationSet <- R6::R6Class(
         idx_rhs <- seq(ncol(RHS))
 
       }
+
+      if (!is.null(not_rhs)) {
+
+        # Filter the implications which
+        # does not have the given not_lhs
+        idx_attr <- match(not_rhs,
+                          private$attributes)
+
+        if (length(idx_attr) > 1) {
+
+          idx_not_rhs <- Matrix::which(Matrix::colSums(LHS[idx_attr, ]) > 0)
+
+        } else {
+
+          idx_not_rhs <- which(LHS[idx_attr, ] > 0)
+
+        }
+
+      } else {
+
+        # If not specified a filter for LHS,
+        # select none.
+        idx_not_rhs <- c()
+
+      }
+
+      idx_rhs <- setdiff(idx_rhs, idx_not_rhs)
 
       idx <- intersect(idx_lhs, idx_rhs)
 

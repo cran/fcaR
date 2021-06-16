@@ -24,7 +24,7 @@ fc_planets <- FormalContext$new(planets)
 print(fc_planets)
 
 # Define a set of attributes
-S <- SparseSet$new(attributes = fc_planets$attributes)
+S <- Set$new(attributes = fc_planets$attributes)
 S$assign(moon = 1, large = 1)
 
 # Compute the closure of S
@@ -38,6 +38,53 @@ fc2 <- fc_planets$reduce(TRUE)
 # Find implications
 fc_planets$find_implications()
 
+# Read a formal context from CSV
+filename <- system.file("contexts", "airlines.csv", package = "fcaR")
+fc <- FormalContext$new(filename)
+
+# Read a formal context from a CXT file
+filename <- system.file("contexts", "lives_in_water.cxt", package = "fcaR")
+fc <- FormalContext$new(filename)
+
+
+## ------------------------------------------------
+## Method `FormalContext$scale`
+## ------------------------------------------------
+
+filename <- system.file("contexts", "aromatic.csv", package = "fcaR")
+fc <- FormalContext$new(filename)
+fc$scale("nitro", "ordinal", comparison = `>=`, values = 1:3)
+fc$scale("OS", "nominal", c("O", "S"))
+fc$scale(attributes = "ring", type = "nominal")
+
+## ------------------------------------------------
+## Method `FormalContext$get_scales`
+## ------------------------------------------------
+
+filename <- system.file("contexts", "aromatic.csv", package = "fcaR")
+fc <- FormalContext$new(filename)
+fc$scale("nitro", "ordinal", comparison = `>=`, values = 1:3)
+fc$scale("OS", "nominal", c("O", "S"))
+fc$scale(attributes = "ring", type = "nominal")
+fc$get_scales()
+
+## ------------------------------------------------
+## Method `FormalContext$background_knowledge`
+## ------------------------------------------------
+
+filename <- system.file("contexts", "aromatic.csv", package = "fcaR")
+fc <- FormalContext$new(filename)
+fc$scale("nitro", "ordinal", comparison = `>=`, values = 1:3)
+fc$scale("OS", "nominal", c("O", "S"))
+fc$scale(attributes = "ring", type = "nominal")
+fc$background_knowledge()
+
+## ------------------------------------------------
+## Method `FormalContext$incidence`
+## ------------------------------------------------
+
+fc <- FormalContext$new(planets)
+fc$incidence()
 }
 \references{
 Guigues J, Duquenne V (1986). “Familles minimales d'implications informatives résultant d'un tableau de données binaires.” \emph{Mathématiques et Sciences humaines}, \emph{95}, 5-18.
@@ -53,6 +100,10 @@ Hahsler M, Grun B, Hornik K (2005). “arules - a computational environment for 
 \itemize{
 \item \href{#method-new}{\code{FormalContext$new()}}
 \item \href{#method-is_empty}{\code{FormalContext$is_empty()}}
+\item \href{#method-scale}{\code{FormalContext$scale()}}
+\item \href{#method-get_scales}{\code{FormalContext$get_scales()}}
+\item \href{#method-background_knowledge}{\code{FormalContext$background_knowledge()}}
+\item \href{#method-dual}{\code{FormalContext$dual()}}
 \item \href{#method-intent}{\code{FormalContext$intent()}}
 \item \href{#method-extent}{\code{FormalContext$extent()}}
 \item \href{#method-closure}{\code{FormalContext$closure()}}
@@ -71,6 +122,7 @@ Hahsler M, Grun B, Hornik K (2005). “arules - a computational environment for 
 \item \href{#method-dim}{\code{FormalContext$dim()}}
 \item \href{#method-print}{\code{FormalContext$print()}}
 \item \href{#method-to_latex}{\code{FormalContext$to_latex()}}
+\item \href{#method-incidence}{\code{FormalContext$incidence()}}
 \item \href{#method-plot}{\code{FormalContext$plot()}}
 \item \href{#method-clone}{\code{FormalContext$clone()}}
 }
@@ -81,13 +133,15 @@ Hahsler M, Grun B, Hornik K (2005). “arules - a computational environment for 
 \subsection{Method \code{new()}}{
 Creator for the Formal Context class
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FormalContext$new(I, remove_const = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$new(I, filename, remove_const = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{I}}{(numeric matrix) The table of the formal context.}
+
+\item{\code{filename}}{(character) Path of a file to import.}
 
 \item{\code{remove_const}}{(logical) If \code{TRUE}, remove constant columns. The default is \code{FALSE}.}
 }
@@ -96,7 +150,7 @@ Creator for the Formal Context class
 \subsection{Details}{
 Columns of \code{I} should be named, since they are the names of the attributes of the formal context.
 
-If no \code{I} is used, the resulting \code{FormalContext} will be empty and not usable unless for loading a previously saved one.
+If no \code{I} is used, the resulting \code{FormalContext} will be empty and not usable unless for loading a previously saved one. In this case, one can provide a \code{filename} to import. Only RDS, CSV and CXT files are currently supported.
 }
 
 \subsection{Returns}{
@@ -117,6 +171,124 @@ Check if the \code{FormalContext} is empty
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-scale"></a>}}
+\if{latex}{\out{\hypertarget{method-scale}{}}}
+\subsection{Method \code{scale()}}{
+Scale the context
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$scale(attributes, type, ...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{attributes}}{The attributes to scale}
+
+\item{\code{type}}{Type of scaling.}
+
+\item{\code{...}}{}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+The types of scaling are implemented in a registry,
+so that \code{scalingRegistry$get_entries()} returns
+all types.
+}
+
+\subsection{Returns}{
+The scaled formal context
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{filename <- system.file("contexts", "aromatic.csv", package = "fcaR")
+fc <- FormalContext$new(filename)
+fc$scale("nitro", "ordinal", comparison = `>=`, values = 1:3)
+fc$scale("OS", "nominal", c("O", "S"))
+fc$scale(attributes = "ring", type = "nominal")
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_scales"></a>}}
+\if{latex}{\out{\hypertarget{method-get_scales}{}}}
+\subsection{Method \code{get_scales()}}{
+Scales applied to the formal context
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$get_scales(attributes = names(private$scales))}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{attributes}}{(character) Name of the attributes for which scales
+(if applied) are returned.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The scales that have been applied to the specified attributes
+of the formal context. If no \code{attributes} are passed,
+then all applied scales are returned.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{filename <- system.file("contexts", "aromatic.csv", package = "fcaR")
+fc <- FormalContext$new(filename)
+fc$scale("nitro", "ordinal", comparison = `>=`, values = 1:3)
+fc$scale("OS", "nominal", c("O", "S"))
+fc$scale(attributes = "ring", type = "nominal")
+fc$get_scales()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-background_knowledge"></a>}}
+\if{latex}{\out{\hypertarget{method-background_knowledge}{}}}
+\subsection{Method \code{background_knowledge()}}{
+Background knowledge of a scaled formal context
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$background_knowledge()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+An \code{ImplicationSet} with the implications
+extracted from the application of scales.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{filename <- system.file("contexts", "aromatic.csv", package = "fcaR")
+fc <- FormalContext$new(filename)
+fc$scale("nitro", "ordinal", comparison = `>=`, values = 1:3)
+fc$scale("OS", "nominal", c("O", "S"))
+fc$scale(attributes = "ring", type = "nominal")
+fc$background_knowledge()
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dual"></a>}}
+\if{latex}{\out{\hypertarget{method-dual}{}}}
+\subsection{Method \code{dual()}}{
+Get the dual formal context
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$dual()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A \code{FormalContext} where objects and attributes have interchanged their roles.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-intent"></a>}}
 \if{latex}{\out{\hypertarget{method-intent}{}}}
 \subsection{Method \code{intent()}}{
@@ -128,12 +300,12 @@ Get the intent of a fuzzy set of objects
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{S}}{(\code{SparseSet}) The set of objects to compute the intent for.}
+\item{\code{S}}{(\code{Set}) The set of objects to compute the intent for.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A \code{SparseSet} with the intent.
+A \code{Set} with the intent.
 }
 }
 \if{html}{\out{<hr>}}
@@ -148,12 +320,12 @@ Get the extent of a fuzzy set of attributes
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{S}}{(\code{SparseSet}) The set of attributes to compute the extent for.}
+\item{\code{S}}{(\code{Set}) The set of attributes to compute the extent for.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A \code{SparseSet} with the intent.
+A \code{Set} with the intent.
 }
 }
 \if{html}{\out{<hr>}}
@@ -168,12 +340,12 @@ Get the closure of a fuzzy set of attributes
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{S}}{(\code{SparseSet}) The set of attributes to compute the closure for.}
+\item{\code{S}}{(\code{Set}) The set of attributes to compute the closure for.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A \code{SparseSet} with the closure.
+A \code{Set} with the closure.
 }
 }
 \if{html}{\out{<hr>}}
@@ -228,7 +400,7 @@ Is a Concept?
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{C}}{A \code{SparseConcept} object}
+\item{\code{C}}{A \code{Concept} object}
 }
 \if{html}{\out{</div>}}
 }
@@ -248,7 +420,7 @@ Testing closure of attribute sets
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{S}}{A \code{SparseSet} of attributes}
+\item{\code{S}}{A \code{Set} of attributes}
 }
 \if{html}{\out{</div>}}
 }
@@ -372,7 +544,7 @@ A \code{transactions} object.
 \if{html}{\out{<a id="method-save"></a>}}
 \if{latex}{\out{\hypertarget{method-save}{}}}
 \subsection{Method \code{save()}}{
-Save a \code{FormalContext} to RDS format
+Save a \code{FormalContext} to RDS or CXT format
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{FormalContext$save(filename = tempfile(fileext = ".rds"))}\if{html}{\out{</div>}}
 }
@@ -380,10 +552,14 @@ Save a \code{FormalContext} to RDS format
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{filename}}{(character) Path of the RDS file where to store the \code{FormalContext}.}
+\item{\code{filename}}{(character) Path of the  file where to store the \code{FormalContext}.}
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Details}{
+The format is inferred from the extension of the filename.
+}
+
 \subsection{Returns}{
 Invisibly the current \code{FormalContext}.
 }
@@ -392,7 +568,7 @@ Invisibly the current \code{FormalContext}.
 \if{html}{\out{<a id="method-load"></a>}}
 \if{latex}{\out{\hypertarget{method-load}{}}}
 \subsection{Method \code{load()}}{
-Load a \code{FormalContext} from a RDS file
+Load a \code{FormalContext} from a file
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{FormalContext$load(filename)}\if{html}{\out{</div>}}
 }
@@ -400,10 +576,14 @@ Load a \code{FormalContext} from a RDS file
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{filename}}{(character) Path of the RDS file to load the \code{FormalContext} from.}
+\item{\code{filename}}{(character) Path of the file to load the \code{FormalContext} from.}
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Details}{
+Currently, only RDS, CSV and CXT files are supported.
+}
+
 \subsection{Returns}{
 The loaded \code{FormalContext}.
 }
@@ -441,6 +621,7 @@ Prints information regarding the formal context.
 Write the context in LaTeX format
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{FormalContext$to_latex(
+  table = TRUE,
   label = "",
   caption = "",
   fraction = c("none", "frac", "dfrac", "sfrac")
@@ -450,6 +631,8 @@ Write the context in LaTeX format
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{table}}{(logical) If \code{TRUE}, surrounds everything between \code{\\begin{table}} and \code{\\end{table}}.}
+
 \item{\code{label}}{(character) The label for the table environment.}
 
 \item{\code{caption}}{(character) The caption of the table.}
@@ -461,6 +644,28 @@ Write the context in LaTeX format
 \subsection{Returns}{
 A table environment in LaTeX.
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-incidence"></a>}}
+\if{latex}{\out{\hypertarget{method-incidence}{}}}
+\subsection{Method \code{incidence()}}{
+Incidence matrix of the formal context
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$incidence()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+The incidence matrix of the formal context
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{fc <- FormalContext$new(planets)
+fc$incidence()
+}
+\if{html}{\out{</div>}}
+
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-plot"></a>}}

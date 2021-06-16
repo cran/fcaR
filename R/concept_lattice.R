@@ -1,5 +1,5 @@
 #' @title
-#' R6 class for a context lattice
+#' R6 class for a concept lattice
 #'
 #' @description
 #' This class implements the data structure and methods for concept lattices.
@@ -25,6 +25,8 @@ ConceptLattice <- R6::R6Class(
 
   classname = "ConceptLattice",
 
+  inherit = ConceptSet,
+
   public = list(
 
     #' @description
@@ -49,81 +51,15 @@ ConceptLattice <- R6::R6Class(
       private$pr_extents <- extents
       private$pr_intents <- intents
 
-      if (!capabilities()["long.double"]) {
+      if (!capabilities()["long.double"] & getRversion() < "4.1.0") {
 
         private$can_plot <- FALSE
 
       }
 
-      # Create the SparseConcepts
-      if (!is.null(extents)) {
-
-        private$concepts <- .matrix_to_concepts(
-          M_ext = extents,
-          M_int = intents,
-          objects = objects,
-          attributes = attributes)
-
-        private$I <- I
-
-      }
-
-    },
-
-    #' @description
-    #' Size of the Lattice
-    #'
-    #' @return
-    #' The number of concepts in the lattice.
-    #'
-    #' @export
-    size = function() {
-
-      if (self$is_empty()) {
-
-        return(0)
-
-      }
-
-      return(length(private$concepts))
-
-    },
-
-    #' @description
-    #' Is the lattice empty?
-    #'
-    #' @return
-    #' \code{TRUE} if the lattice has no concepts.
-    #' @export
-    is_empty = function() {
-
-      return(is.null(private$concepts))
-
-    },
-
-    #' @description
-    #' Concept Extents
-    #'
-    #' @return
-    #' The extents of all concepts, as a \code{dgCMatrix}.
-    #'
-    #' @export
-    extents = function() {
-
-      return(private$pr_extents)
-
-    },
-
-    #' @description
-    #' Concept Intents
-    #'
-    #' @return
-    #' The intents of all concepts, as a \code{dgCMatrix}.
-    #'
-    #' @export
-    intents = function() {
-
-      return(private$pr_intents)
+      super$initialize(extents, intents,
+                       objects, attributes,
+                       I)
 
     },
 
@@ -149,6 +85,7 @@ ConceptLattice <- R6::R6Class(
       if (self$size() == 0) {
 
         warning("No concepts.", call. = FALSE)
+        return(invisible(NULL))
 
       }
 
@@ -169,121 +106,21 @@ ConceptLattice <- R6::R6Class(
 
       }
 
-      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+      if ((super$size() > 0) & (is.null(private$subconcept_matrix))) {
 
         private$subconcept_matrix <- .subset(private$pr_extents)
 
       }
 
-      lattice_plot(private$concepts,
-                   private$subconcept_matrix,
-                   private$objects,
-                   private$attributes,
-                   object_names,
-                   to_latex, ...)
+      lattice_plot(extents = private$pr_extents,
+                   intents = private$pr_intents,
+                   subconcept_matrix = private$subconcept_matrix,
+                   objects = private$objects,
+                   attributes = private$attributes,
+                   object_names = object_names,
+                   to_latex = to_latex,
+                   ...)
 
-
-    },
-
-    #' @description
-    #' Print the Concept Lattice
-    #'
-    #' @return
-    #' Nothing, just prints the lattice.
-    #'
-    #' @export
-    print = function() {
-
-      if (self$is_empty()) {
-
-        cat("An empty set of concepts.\n")
-
-      } else {
-
-        n <- length(private$concepts)
-
-        cat("A set of", n, "concepts:\n")
-
-        str <- sapply(seq(n), function(i) {
-
-          conc <- private$concepts[[i]]
-
-          paste0(i, ": ",
-                 .concept_to_string(conc,
-                                    objects = private$objects,
-                                    attributes = private$attributes))
-
-        })
-
-        cat(str, sep = "\n")
-
-      }
-
-    },
-
-    #' @description
-    #' Write in LaTeX
-    #'
-    #' @param print (logical) Print to output?
-    #' @param ncols (integer) Number of columns of the output.
-    #' @param numbered (logical) Number the concepts?
-    #' @param align  (logical) Align objects and attributes independently?
-    #'
-    #' @return
-    #' The \code{LaTeX} code to list all concepts.
-    #'
-    #' @export
-    to_latex = function(print = TRUE,
-                        ncols = 1,
-                        numbered = TRUE,
-                        align = TRUE) {
-
-      if (!self$is_empty()) {
-
-        output <- concepts_to_latex(private$concepts,
-                                    ncols = ncols,
-                                    align = align,
-                                    numbered = numbered)
-
-        if (print) {
-
-          cat(output)
-
-        }
-
-        return(invisible(output))
-
-      }
-
-    },
-
-    #' @description
-    #' Get Concepts by Index
-    #'
-    #' @param indices (numeric or logical vector) The indices of the concepts to return as a list of SparseConcepts. It can be a vector of logicals where \code{TRUE} elements are to be retained.
-    #'
-    #' @return A list of SparseConcepts.
-    #'
-    #' @export
-    `[` = function(indices) {
-
-      if (!self$is_empty()) {
-
-        if (is.logical(indices)) {
-
-          indices <- which(indices)
-
-        }
-
-        indices <- indices[indices <= length(private$concepts)]
-
-        elements <- private$concepts[indices]
-        class(elements) <- "conceptlist"
-        return(elements)
-
-      }
-
-      return(list())
 
     },
 
@@ -293,7 +130,7 @@ ConceptLattice <- R6::R6Class(
     #' @param ... See Details.
     #'
     #' @details
-    #' As argument, one can provide both integer indices or \code{SparseConcepts}, separated by commas. The corresponding concepts are used to generate a sublattice.
+    #' As argument, one can provide both integer indices or \code{Concepts}, separated by commas. The corresponding concepts are used to generate a sublattice.
     #'
     #' @return
     #' The generated sublattice as a new \code{ConceptLattice} object.
@@ -335,6 +172,54 @@ ConceptLattice <- R6::R6Class(
         return(cl)
 
       }
+
+    },
+
+    #' @description Top of a Lattice
+    #'
+    #' @return The top of the Concept Lattice
+    #' @export
+    #'
+    #' @examples
+    #' fc <- FormalContext$new(planets)
+    #' fc$find_concepts()
+    #' fc$concepts$top()
+    #'
+    top = function() {
+
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset(private$pr_extents)
+
+      }
+
+      idx <- which(Matrix::colSums(private$subconcept_matrix) == self$size())
+
+      self[idx]$to_list()[[1]]
+
+    },
+
+    #' @description Bottom of a Lattice
+    #'
+    #' @return The bottom of the Concept Lattice
+    #' @export
+    #'
+    #' @examples
+    #' fc <- FormalContext$new(planets)
+    #' fc$find_concepts()
+    #' fc$concepts$bottom()
+    #'
+    bottom = function() {
+
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset(private$pr_extents)
+
+      }
+
+      idx <- which(Matrix::colSums(private$subconcept_matrix) == 1)
+
+      self[idx]$to_list()[[1]]
 
     },
 
@@ -392,7 +277,7 @@ ConceptLattice <- R6::R6Class(
     #' @description
     #' Decompose a concept as the supremum of meet-irreducible concepts
     #'
-    #' @param C A list of \code{SparseConcept}s
+    #' @param C A list of \code{Concept}s
     #' @return
     #' A list, each field is the set of meet-irreducible elements whose supremum is the corresponding element in \code{C}.
     #'
@@ -401,17 +286,21 @@ ConceptLattice <- R6::R6Class(
     decompose = function(C) {
 
       irreducible <- self$meet_irreducibles()
-      irr_intents <- do.call(cbind,
-                             sapply(irreducible,
-                                    function(r) r$get_intent()$get_vector()))
 
-      ss <- lapply(C,
-                   function(r) {
+      irr_intents <- irreducible$intents()
 
-                     if (r$get_intent()$cardinal() == 0) return(r)
+      C_intents <- C$intents()
+
+      ss <- lapply(seq(C$size()),
+                   function(i) {
+
+                     r <- Matrix::Matrix(C_intents[, i],
+                                         sparse = TRUE)
+
+                     if (sum(r) == 0) return(C[i])
 
                      id <- Matrix::which(.subset(irr_intents,
-                                                 r$get_intent()$get_vector()))
+                                                 r))
 
                      if (length(id) > 1) {
 
@@ -419,11 +308,9 @@ ConceptLattice <- R6::R6Class(
                        id <- id[Matrix::rowSums(MM) == 1]
 
                      }
-                     foo <- irreducible[id]
+                     decomposition <- irreducible[id]
 
-                     class(foo) <- "conceptlist"
-
-                     return(foo)
+                     return(decomposition)
 
                    })
 
@@ -438,7 +325,7 @@ ConceptLattice <- R6::R6Class(
     #' @param ... See Details.
     #'
     #' @details
-    #' As argument, one can provide both integer indices or \code{SparseConcepts}, separated by commas. The corresponding concepts are used to compute their supremum in the lattice.
+    #' As argument, one can provide both integer indices or \code{Concepts}, separated by commas. The corresponding concepts are used to compute their supremum in the lattice.
     #'
     #' @return
     #' The supremum of the list of concepts.
@@ -454,7 +341,7 @@ ConceptLattice <- R6::R6Class(
 
       }
 
-      return(self[join(private$subconcept_matrix, idx)])
+      return(self[join(private$subconcept_matrix, idx)]$to_list()[[1]])
 
     },
 
@@ -464,7 +351,7 @@ ConceptLattice <- R6::R6Class(
     #' @param ... See Details.
     #'
     #' @details
-    #' As argument, one can provide both integer indices or \code{SparseConcepts}, separated by commas. The corresponding concepts are used to compute their infimum in the lattice.
+    #' As argument, one can provide both integer indices or \code{Concepts}, separated by commas. The corresponding concepts are used to compute their infimum in the lattice.
     #'
     #' @return
     #' The infimum of the list of concepts.
@@ -480,7 +367,7 @@ ConceptLattice <- R6::R6Class(
 
       }
 
-      return(self[meet(private$subconcept_matrix, idx)])
+      return(self[meet(private$subconcept_matrix, idx)]$to_list()[[1]])
 
     },
 
@@ -592,45 +479,14 @@ ConceptLattice <- R6::R6Class(
 
       self[which(private$reduced_matrix[idx, ] > 0)]
 
-    },
-
-    #' @description
-    #' Get support of each concept
-    #'
-    #' @return A vector with the support of each concept.
-    #' @export
-    support = function() {
-
-      if (!is.null(private$concept_support)) {
-
-        return(private$concept_support)
-
-      }
-
-      my_I <- private$I
-      my_I@x <- as.numeric(my_I@x)
-
-      subsets <- .subset(private$pr_intents, my_I)
-
-      private$concept_support <- Matrix::rowMeans(subsets)
-
-      return(private$concept_support)
-
     }
 
   ),
 
   private = list(
 
-    concepts = NULL,
-    pr_extents = NULL,
-    pr_intents = NULL,
-    objects = NULL,
-    attributes = NULL,
     subconcept_matrix = NULL,
     reduced_matrix = NULL,
-    I = NULL,
-    concept_support = NULL,
 
     can_plot = TRUE,
 
@@ -666,10 +522,24 @@ ConceptLattice <- R6::R6Class(
 
       }
 
+      csets_idx <- sapply(dots,
+                          function(l) inherits(l, "ConceptSet"))
+      if (length(csets_idx) > 0) {
+
+        csets <- sapply(dots[csets_idx],
+                        function(l) l$to_list()) %>%
+          unlist()
+
+      } else {
+
+        csets <- c()
+
+      }
+
       sets <- sapply(dots,
                      function(l)
-                       inherits(l, "SparseConcept"))
-      sets <- dots[which(sets)]
+                       inherits(l, "Concept"))
+      sets <- c(csets, dots[which(sets)])
 
       indices <- sapply(dots, is.numeric)
       idx <- c()

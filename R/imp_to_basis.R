@@ -45,3 +45,29 @@
   return(list(lhs = LHS, rhs = .difference2(RHS, LHS)))
 
 }
+
+complete_rhs <- function(LHS, RHS) {
+
+  n <- ncol(LHS)
+
+  for (i in seq(n)) {
+
+    A <- Matrix::Matrix(LHS[, 1], sparse = TRUE)# %>% extract_columns(1)
+    B <- Matrix::Matrix(RHS[, 1], sparse = TRUE)# %>% extract_columns(1)
+
+    LHS <- Matrix::Matrix(LHS[, -1], sparse = TRUE)# %>% remove_columns(1)
+    RHS <- Matrix::Matrix(RHS[, -1], sparse = TRUE)# %>% remove_columns(1)
+
+    AUB <- .union(A, B)
+
+    B <- .compute_closure(AUB, LHS, RHS,
+                          attributes, reduce = FALSE)$closure
+
+    LHS <- cbind(LHS, A)
+    RHS <- cbind(RHS, B)
+
+  }
+
+  return(list(lhs = LHS, rhs = .difference2(RHS, LHS)))
+
+}

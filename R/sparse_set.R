@@ -5,30 +5,34 @@
 #' This class implements the data structure and methods for fuzzy sets.
 #'
 #' @examples
-#' S <- SparseSet$new(attributes = c("A", "B", "C"))
+#' S <- Set$new(attributes = c("A", "B", "C"))
 #' S$assign(A = 1)
 #' print(S)
 #' S$to_latex()
 #'
+#' S <- Set$new(c("A", "B", "C"), C = 1, B = 0.5)
+#' S
+#'
 #' @export
-SparseSet <- R6::R6Class(
+Set <- R6::R6Class(
 
-  classname = "SparseSet",
+  classname = "Set",
 
   public = list(
 
     #' @description
-    #' Creator for objects of class \code{SparseSet}
+    #' Creator for objects of class \code{Set}
     #'
     #' @param attributes  (character vector) Names of the attributes that will be available in the fuzzy set.
+    #' @param ... \code{key} = \code{value} pairs, where the value \code{value} is assigned to the \code{key} attribute name.
     #' @param M           (numeric vector or column \code{Matrix}) Values (grades) to be assigned to the attributes.
     #'
     #' @details
-    #' If \code{M} is omitted, the fuzzy set is the empty set. Later, one can use the \code{assign} method to assign grades to any of its attributes.
+    #' If \code{M} is omitted and no pair \code{key} = \code{value}, the fuzzy set is the empty set. Later, one can use the \code{assign} method to assign grades to any of its attributes.
     #'
-    #' @return An object of class \code{SparseSet}.
+    #' @return An object of class \code{Set}.
     #' @export
-    initialize = function(attributes, M = NULL) {
+    initialize = function(attributes, M = NULL, ...) {
 
       private$attributes <- attributes
 
@@ -42,6 +46,13 @@ SparseSet <- R6::R6Class(
                                     nrow = length(attributes),
                                     ncol = 1,
                                     sparse = TRUE)
+
+      }
+
+      dots <- list(...)
+      if (length(dots) > 0) {
+
+        do.call(self$assign, dots)
 
       }
 
@@ -95,7 +106,7 @@ SparseSet <- R6::R6Class(
     #'
     #' @param indices (numeric, logical or character vector) The indices of the elements to return. It can be a vector of logicals where \code{TRUE} elements are to be retained.
     #'
-    #' @return A \code{SparseSet} but with only the required elements.
+    #' @return A \code{Set} but with only the required elements.
     #'
     #' @export
     `[` = function(indices) {
@@ -122,17 +133,17 @@ SparseSet <- R6::R6Class(
       w <- private$v
       idx <- setdiff(seq(self$length()), indices)
       w[idx] <- 0
-      S <- SparseSet$new(attributes = private$attributes,
-                         M = w)
+      S <- Set$new(attributes = private$attributes,
+                   M = w)
 
       return(S)
 
     },
 
     #' @description
-    #' Cardinal of the SparseSet
+    #' Cardinal of the Set
     #'
-    #' @return the cardinal of the \code{SparseSet}, counted
+    #' @return the cardinal of the \code{Set}, counted
     #' as the sum of the degrees of each element.
     #'
     #' @export
@@ -181,21 +192,40 @@ SparseSet <- R6::R6Class(
     #' @description
     #' Prints the set to console
     #'
+    #' @param eol (logical) If \code{TRUE}, adds an end of line to the output.
+    #'
     #' @return A string with the elements of the set and their grades between brackets {}.
     #'
     #' @export
-    print = function() {
+    print = function(eol = TRUE) {
 
       if (sum(private$v) > 0) {
 
         cat(stringr::str_wrap(.set_to_string(S = private$v,
                                              attributes = private$attributes),
-                              width = 75,
+                              width = getOption("width"),
                               exdent = 2))
+        if (eol) {
+
+          cat("\n")
+
+        } else {
+
+          cat("")
+
+        }
 
       } else {
 
-        cat("{}")
+        if (eol) {
+
+          cat("{}\n")
+
+        } else {
+
+          cat("{}")
+
+        }
 
       }
 

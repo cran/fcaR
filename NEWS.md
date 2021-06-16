@@ -1,24 +1,58 @@
+# fcaR 1.1.0
+ 
+Enhancements: 
+
+* Better printing of Sets.
+* More optimized ConceptLattice class. Now it inherits from a ConceptSet superclass with generic functions.
+
+New functionality:
+
+* Added function to compute the __difference__ of two Sets.
+* Added function to compute the __dual__ of a FormalContext.
+* Now one can create a FormalContext from a CSV, CXT or RDS file directly, without needing to "load()" it.
+* FormalContexts can now be saved to CXT format, in addition to RDS.
+* Added functions to compute the top and the bottom of a concept lattice.
+* Added new function sub() to extract a single Concept from a ConceptSet.
+* Added functions %holds_in% and %respects%, which check the __validity__ of a set of implications in a formal context, and if a list of attribute sets respect an implication set.
+* Added functions %entails% and %~% to check the __entailment__ and __equivalence__ between two implication sets.
+* Added new convenience function to map attributes between Sets, so computing intents, extents and closures is more robust.
+* Added new functions `%&%` and `%|%` that compute the intersection (logical _and_) and the union (_or_ operation) on Sets.
+* __Conceptual scaling__, including nominal, ordinal, interordinal, biordinal and interval scales for many-valued formal contexts. Also, computation of background knowledge from the applied scales and of the implications that hold in the formal context. Added new vignette.
+
+_Breaking changes_:
+
+* The former SparseSet and SparseConcept classes are now named Set and Concept. Thus, to create an object of these types, just use Set\$new(...) or Concept\$new(...). Analogously, the former function as_SparseSet() is now as_Set().
+
+Bugfixes:
+
+* Minor bugfixes in several functions.
+
 # fcaR 1.0.7
 
 Bugfixes:
+
 * Minor bugfixes in several functions.
 * Fixed C source that could generate some problems.
 
 Enhancements:
+
 * Reduced number of dependencies.
 * Better printing of FormalContexts, specially for binary FormalContexts.
 
 # fcaR 1.0.6
  
 Bugfixes:
+
 * Detect if R has been built with no long double capabilities and warn the user if she tries to plot FormalContexts and ConceptLattices.
 
 # fcaR 1.0.5
  
 Bugfixes:
+
 * Fixes #17. The reduced set of implications after performing closure with reduce == TRUE now stores the matrix I, so it can be re-exported to the arules format.
 
 Enhancements:
+
 * More efficient version of the simplification rule. Now it performs linearly on the number of implications.
 * Added a way to extend the equivalence rules by means of the registry package. This has been used to introduce the "Right Simplification" and the "Reorder" rules. 
 * New vignette to show how to extend equivalence rules in the package.
@@ -27,11 +61,13 @@ Enhancements:
 # fcaR 1.0.4
 
 Bugfixes:
+
 * Fixes #15. A problem with version 1.6-6 of arules.
 * Bugfix when using the trivial context (S, S, !=)
 * Several bugfixes in LaTeX output.
 
 Enhancements:
+
 * Added export of plots to TiKZ to be included in LaTeX documents.
 * Faster computation of concepts and implications.
 * Added new function to decompose a concept in its irreducible components.
@@ -48,9 +84,11 @@ Enhancements:
 # fcaR 1.0.1
 
 * Made changes suggested by CRAN:
+
   - Added examples in the documentation.
   - Changed cat() to message() in functions not related to printing.
   - Added proper contributors.
+  
 * Updated vignettes
 
 # fcaR 1.0.0

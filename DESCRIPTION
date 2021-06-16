@@ -1,6 +1,6 @@
 Package: fcaR
 Title: Formal Concept Analysis
-Version: 1.0.7
+Version: 1.1.0
 Authors@R: 
     c(person(given = "Domingo",
              family = "Lopez Rodriguez",
@@ -32,17 +32,17 @@ License: GPL-3
 URL: https://github.com/neuroimaginador/fcaR
 BugReports: https://github.com/neuroimaginador/fcaR/issues
 Depends: R (>= 3.1)
-Imports: fractional, grDevices, Matrix, methods, R6, Rcpp, registry,
-        stringr, tictoc, tikzDevice, magrittr
+Imports: forcats, fractional, grDevices, Matrix, methods, R6, Rcpp,
+        registry, stringr, tibble, tikzDevice, magrittr, purrr
 Suggests: arules, covr, hasseDiagram, knitr, markdown, rmarkdown,
-        testthat (>= 2.1.0), parallel
+        testthat (>= 2.1.0), tictoc, parallel
 LinkingTo: Rcpp
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 NeedsCompilation: yes
-Packaged: 2020-12-02 11:58:14 UTC; domingo
+Packaged: 2021-06-16 11:31:43 UTC; domingo
 Author: Domingo Lopez Rodriguez [aut, cre]
     (<https://orcid.org/0000-0002-0172-1585>),
   Angel Mora [aut],
@@ -50,4 +50,4 @@ Author: Domingo Lopez Rodriguez [aut, cre]
   Ana Villalon [aut],
   Ian Johnson [ctb]
 Repository: CRAN
-Date/Publication: 2020-12-02 22:50:11 UTC
+Date/Publication: 2021-06-16 12:00:02 UTC

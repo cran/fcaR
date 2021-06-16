@@ -53,11 +53,19 @@ fc_planets$implications$get_RHS_matrix()
 
 ## -----------------------------------------------------------------------------
 # Let us build a set of attributes
-S <- SparseSet$new(attributes = fc_planets$attributes)
+S <- Set$new(attributes = fc_planets$attributes)
 S$assign(large = 1, far = 1)
 S
 
 fc_planets$implications$closure(S)$closure
+
+## -----------------------------------------------------------------------------
+# Let us clone the implication basis
+imps <- fc_planets$implications$clone()
+imps %holds_in% fc_planets
+
+## -----------------------------------------------------------------------------
+fc_planets %respects% imps
 
 ## -----------------------------------------------------------------------------
 fc_planets$implications$cardinality()
@@ -84,14 +92,32 @@ fc_I$implications$apply_rules(rules = c("composition",
 
 ## -----------------------------------------------------------------------------
 # Let us build a set of attributes
-S <- SparseSet$new(attributes = fc_planets$attributes)
+S <- Set$new(attributes = fc_planets$attributes)
 S$assign(large = 1, far = 1)
 S
 
 fc_planets$implications$closure(S, reduce = TRUE)
 
 ## -----------------------------------------------------------------------------
-S <- SparseSet$new(attributes = fc_I$attributes)
+# imps is the basis
+imps <- fc_planets$implications$clone()
+imps2 <- imps$clone()
+# imps2 is an equivalent set of implications
+# where we have removed redundancies
+imps2$apply_rules(c("simp", "rsimp"))
+# Any implication in imps2 follows from imps
+imps %entails% imps2
+# And viceversa
+imps2 %entails% imps
+
+## -----------------------------------------------------------------------------
+imps %~% imps2
+# If we remove any implication from imps2,
+# they will not be equivalent
+imps %~% imps2[1:9]
+
+## -----------------------------------------------------------------------------
+S <- Set$new(attributes = fc_I$attributes)
 S$assign(P1 = 1, P4 = 0.5)
 
 fc_I$implications$recommend(S, attribute_filter = c("P3", "P5"))

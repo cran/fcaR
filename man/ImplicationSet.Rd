@@ -75,13 +75,13 @@ Initialize with an optional name
 \if{html}{\out{</div>}}
 }
 \subsection{Details}{
-Creates and initialize a new \code{FormalContext} object. It can be done in two ways:
+Creates and initialize a new \code{ImplicationSet} object. It can be done in two ways:
 \code{initialize(name, attributes, lhs, rhs)}
 or \code{initialize(rules)}
 
 In the first way, the only mandatory argument is \code{attributes}, (character vector) which is a vector of names of the attributes on which we define the implications. Optional arguments are: \code{name} (character string), name of the implication set, \code{lhs} (a \code{dgCMatrix}), initial LHS of the implications stored and the analogous \code{rhs}.
 
-The other way is used to initialize the \code{FormalContext} object from a \code{rules} object from package \code{arules}.
+The other way is used to initialize the \code{ImplicationSet} object from a \code{rules} object from package \code{arules}.
 }
 
 \subsection{Returns}{
@@ -153,7 +153,7 @@ Add a precomputed implication set
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{...}}{An \code{ImplicationSet} object, a \code{rules} object, or a pair \code{lhs}, \code{rhs} of \code{SparseSet} objects or \code{dgCMatrix}. The implications to add to this formal context.}
+\item{\code{...}}{An \code{ImplicationSet} object, a \code{rules} object, or a pair \code{lhs}, \code{rhs} of \code{Set} objects or \code{dgCMatrix}. The implications to add to this formal context.}
 }
 \if{html}{\out{</div>}}
 }
@@ -212,7 +212,7 @@ Compute the semantic closure of a fuzzy set with respect to the implication set
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{S}}{(a \code{SparseSet} object)  Fuzzy set to compute its closure. Use class \code{SparseSet} to build it.}
+\item{\code{S}}{(a \code{Set} object)  Fuzzy set to compute its closure. Use class \code{Set} to build it.}
 
 \item{\code{reduce}}{(logical) Reduce the implications using simplification logic?}
 
@@ -370,7 +370,13 @@ A sparse matrix representing the RHS of the implications in the set.
 \subsection{Method \code{filter()}}{
 Filter implications by attributes in LHS and RHS
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ImplicationSet$filter(lhs = NULL, rhs = NULL, drop = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ImplicationSet$filter(
+  lhs = NULL,
+  not_lhs = NULL,
+  rhs = NULL,
+  not_rhs = NULL,
+  drop = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -378,7 +384,11 @@ Filter implications by attributes in LHS and RHS
 \describe{
 \item{\code{lhs}}{(character vector) Names of the attributes to filter the LHS by. If \code{NULL}, no filtering is done on the LHS.}
 
+\item{\code{not_lhs}}{(character vector) Names of the attributes to not include in the LHS. If \code{NULL} (the default), it is not considered at all.}
+
 \item{\code{rhs}}{(character vector) Names of the attributes to filter the RHS by. If \code{NULL}, no filtering is done on the RHS.}
+
+\item{\code{not_rhs}}{(character vector) Names of the attributes to not include in the RHS. If \code{NULL} (the default), it is not considered at all.}
 
 \item{\code{drop}}{(logical) Remove the rest of attributes in RHS?}
 }

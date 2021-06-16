@@ -55,6 +55,60 @@ test_that("fcaR creates a formal context", {
 
   expect_is(fc, "FormalContext")
 
+  # Return the incidence matrix
+  expect_true(all(fc$incidence() == I))
+
+})
+
+test_that("fcaR imports from CXT and CSV files", {
+
+  # Read CSV
+  filename <- system.file("contexts", "airlines.csv",
+                          package = "fcaR")
+
+  fc <- FormalContext$new(filename)
+  expect_is(fc, "FormalContext")
+
+  # Read CXT
+  filename <- system.file("contexts", "lives_in_water.cxt",
+                          package = "fcaR")
+
+  fc <- FormalContext$new(filename)
+  expect_is(fc, "FormalContext")
+
+})
+
+test_that("fcaR computes the dual formal context", {
+
+  objects <- paste0("O", 1:6)
+  n_objects <- length(objects)
+
+  attributes <- paste0("P", 1:6)
+  n_attributes <- length(attributes)
+
+  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
+                       1, 1, 0.5, 0, 0, 0,
+                       0.5, 1, 0, 0, 1, 0,
+                       0.5, 0, 0, 1, 0.5, 0,
+                       1, 0, 0, 0.5, 0, 0,
+                       0, 0, 1, 0, 0, 0),
+              nrow = n_objects,
+              byrow = FALSE)
+
+  colnames(I) <- attributes
+  rownames(I) <- objects
+
+  fc <- FormalContext$new()
+  fc <- FormalContext$new(I)
+
+  fc2 <- fc$dual()
+  expect_is(fc2, "FormalContext")
+
+  expect_equal(fc2$dim(), c(n_attributes, n_objects))
+  expect_output(fc2$print())
+  expect_equal(fc2$objects, fc$attributes)
+  expect_equal(fc2$attributes, fc$objects)
+
 })
 
 test_that("fcaR imports a formal context with constant columns", {
@@ -80,6 +134,37 @@ test_that("fcaR imports a formal context with constant columns", {
   fc <- FormalContext$new(I = I, remove_const = TRUE)
 
   expect_is(fc, "FormalContext")
+
+})
+
+test_that("fcaR exports FormalContexts to LaTeX", {
+
+  objects <- paste0("O", 1:6)
+  n_objects <- length(objects)
+
+  attributes <- paste0("P", 1:6)
+  n_attributes <- length(attributes)
+
+  I <- matrix(data = c(0, 1, 0.5, 0, 0, 0.5,
+                       1, 1, 1, 1, 1, 1,
+                       0.5, 1, 0, 0, 1, 0,
+                       0.5, 0, 0, 1, 0.5, 0,
+                       1, 0, 0, 0.5, 0, 0,
+                       0, 0, 0, 0, 0, 0),
+              nrow = n_objects,
+              byrow = FALSE)
+
+  colnames(I) <- attributes
+  rownames(I) <- objects
+
+  fc <- FormalContext$new(I)
+
+  expect_error(fc$to_latex(fraction = "frac"), NA)
+
+  fc2 <- FormalContext$new(planets)
+
+  expect_error(fc2$to_latex(), NA)
+
 
 })
 
@@ -166,6 +251,12 @@ test_that("fcaR generate plots", {
   fc$find_implications()
 
   expect_error(fc$plot(), NA)
+  # expect_error(fc$plot(to_latex = TRUE), NA)
+  # expect_error(fc$plot(to_latex = TRUE,
+  #                      filename = "./test.tex",
+  #                      caption = "Test",
+  #                      label = "fig:test",
+  #                      pointsize = 12), NA)
 
   fc <- FormalContext$new()
 
@@ -185,8 +276,6 @@ test_that("fcaR imports formal contexts from arules", {
 })
 
 
-
-
 test_that("fcaR exports formal contexts to arules transactions", {
 
   skip_if_not_installed("arules")
@@ -197,14 +286,13 @@ test_that("fcaR exports formal contexts to arules transactions", {
 
 })
 
-
-
 test_that("fcaR prints large formal contexts", {
 
   I <- matrix(data = sample(c(0, 1),
-                            size = 100,
+                            size = 400,
                             replace = TRUE),
-              nrow = 10)
+              nrow = 20)
+  colnames(I) <- paste0("ATT_", seq(ncol(I)))
 
   fc <- FormalContext$new(I)
   expect_error(fc$print(), NA)
@@ -244,10 +332,44 @@ test_that("fcaR saves and loads formal contexts", {
   expect_error(fc2 <- FormalContext$new(), NA)
   expect_error(fc2$load(filename), NA)
 
+  expect_error(fc2 <- FormalContext$new(filename), NA)
+
 
 })
 
-test_that("fcaR computes intents, extents and closures of SparseSets", {
+# TODO: Revisar todo lo de las escalas
+
+test_that("fcaR perform context scaling", {
+
+  to_nominal <- sample(0:3, size = 10, replace = TRUE)
+  to_ordinal <- sample(1:4, size = 10, replace = TRUE)
+  to_interordinal <- sample(1:4, size = 10, replace = TRUE)
+  to_interval <- runif(10)
+
+  I <- cbind(nom = to_nominal,
+             ord = to_ordinal,
+             inter = to_interordinal,
+             int = to_interval)
+
+  fc <- FormalContext$new(I)
+
+  expect_error(fc$scale(attributes = "ord",
+                        type = "ordinal"), NA)
+
+  expect_error(fc$scale(attributes = "nom",
+                        type = "nominal"), NA)
+
+  expect_error(fc$scale(attributes = "inter",
+                        type = "interordinal"), NA)
+
+  expect_error(fc$scale(attributes = "int",
+                        type = "interval",
+                        values = c(0, 0.5, 1),
+                        interval_names = c("low", "high")), NA)
+
+})
+
+test_that("fcaR computes intents, extents and closures of Sets", {
 
   objects <- paste0("O", 1:6)
   n_objects <- length(objects)
@@ -270,14 +392,19 @@ test_that("fcaR computes intents, extents and closures of SparseSets", {
   fc <- FormalContext$new(I = I)
   fc$find_implications()
 
-  c1 <- fc$concepts[2][[1]]
+  c1 <- fc$concepts[2]$to_list()[[1]]
   expect_error(fc$extent(c1$get_intent()), NA)
   expect_error(fc$intent(c1$get_extent()), NA)
   expect_error(fc$closure(c1$get_intent()), NA)
 
-  expect_error(fc$intent(c1$get_intent()))
-  expect_error(fc$extent(c1$get_extent()))
-  expect_error(fc$closure(c1$get_extent()))
+  expect_warning(fc$intent(c1$get_intent()))
+  expect_warning(fc$extent(c1$get_extent()))
+  # expect_warning(fc$closure(c1$get_extent()))
+
+  S <- Set$new(attributes = rev(attributes))
+  S$assign(P6 = 0.5, P5 = 0.5)
+  expect_warning(cl <- fc$closure(S))
+
 
 })
 
@@ -306,7 +433,7 @@ test_that("fcaR checks for concepts", {
 
   for (i in seq(fc$concepts$size())) {
 
-    C <- fc$concepts[i][[1]]
+    C <- fc$concepts[i]$to_list()[[1]]
 
     expect_error(fc$is_closed(C$get_intent()), NA)
     expect_error(fc$is_concept(C), NA)
@@ -315,7 +442,6 @@ test_that("fcaR checks for concepts", {
     expect_error(fc$closure(C$get_intent()), NA)
 
   }
-
 
 })
 
@@ -353,6 +479,7 @@ test_that("fcaR clarifies and reduces contexts", {
 
   fc <- FormalContext$new(I2)
 
+  # TODO: Revisar reduce
   expect_error(fc2 <- fc$reduce(TRUE), NA)
   expect_error(fc$reduce(), NA)
 
