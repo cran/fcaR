@@ -26,6 +26,7 @@
     </style>
 
 
+
 <style type="text/css">
   code {
     white-space: pre;
@@ -107,13 +108,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -1746,7 +1754,8 @@ Score is A
 <h2>Available scales</h2>
 <p>The available scales are stored in a <code>registry</code> object called <code>scalingRegistry</code>, which keeps the functions to perform the different types of scaling:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>scalingRegistry<span class="sc">$</span><span class="fu">get_entry_names</span>()</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Nominal&quot;      &quot;Ordinal&quot;      &quot;Interordinal&quot; &quot;Biordinal&quot;    &quot;Interval&quot;</span></span></code></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Nominal&quot;      &quot;Ordinal&quot;      &quot;Interordinal&quot; &quot;Biordinal&quot;    &quot;Interval&quot;    </span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [6] &quot;Implication&quot;</span></span></code></pre></div>
 </div>
 <div id="applying-scales" class="section level2">
 <h2>Applying scales</h2>
@@ -1756,7 +1765,7 @@ Score is A
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="st">&quot;Grant&quot;</span>, <span class="at">type =</span> <span class="st">&quot;nominal&quot;</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fc</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; FormalContext with 5 objects and 6 attributes.</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 5 x 6</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 5 × 6</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   `Grant = no` `Grant = yes` Intern Agreement                  Attitude    Score</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          &lt;dbl&gt;         &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;                      &lt;chr&gt;       &lt;dbl&gt;</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1            0             1      7 agree                      working       2.7</span></span>
@@ -1769,16 +1778,17 @@ Score is A
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="st">&quot;Intern&quot;</span>, <span class="at">type =</span> <span class="st">&quot;ordinal&quot;</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fc</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; FormalContext with 5 objects and 10 attributes.</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 5 x 10</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   `Grant = no` `Grant = yes` `Intern &lt;= 4` `Intern &lt;= 5` `Intern &lt;= 7`</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1            0             1             0             0             1</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2            0             1             0             0             0</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3            1             0             0             1             1</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4            0             1             0             0             0</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5            1             0             1             1             1</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # … with 5 more variables: Intern &lt;= 8 &lt;dbl&gt;, Intern &lt;= 10 &lt;dbl&gt;,</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   Agreement &lt;chr&gt;, Attitude &lt;chr&gt;, Score &lt;dbl&gt;</span></span></code></pre></div>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 5 × 10</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Grant …¹ Grant…² Inter…³ Inter…⁴ Inter…⁵ Inter…⁶ Inter…⁷ Agree…⁸ Attit…⁹ Score</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;dbl&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1        0       1       0       0       1       1       1 agree   working   2.7</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2        0       1       0       0       0       0       1 strong… hard w…   4.1</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3        1       0       0       1       1       1       1 neithe… working   3.6</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4        0       1       0       0       0       1       1 agree   working   4  </span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5        1       0       1       1       1       1       1 disagr… lazy      3.6</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # … with abbreviated variable names ¹​`Grant = no`, ²​`Grant = yes`,</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   ³​`Intern &lt;= 4`, ⁴​`Intern &lt;= 5`, ⁵​`Intern &lt;= 7`, ⁶​`Intern &lt;= 8`,</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   ⁷​`Intern &lt;= 10`, ⁸​Agreement, ⁹​Attitude</span></span></code></pre></div>
 <p>Now, the <code>Agreement</code> attribute can be scaled using and interordinal scaling:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="st">&quot;Agreement&quot;</span>, </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">type =</span> <span class="st">&quot;interordinal&quot;</span>,</span>
@@ -2488,20 +2498,20 @@ Thiophene
 <p>and the concepts:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span>concepts</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; A set of 15 concepts:</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1: ({Benzene, Furan, Imidazole, 1-3-Oxazole, Pyrazine, Pyrazole, Pyridine, Pyrimidine, Pyrrole, Thiazole, Thiophene, 1-3-5-Triazine}, {})</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2: ({Imidazole, 1-3-Oxazole, Pyrazine, Pyrazole, Pyridine, Pyrimidine, Pyrrole, Thiazole, 1-3-5-Triazine}, {nitro &gt;= 1})</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3: ({Imidazole, Pyrazine, Pyrazole, Pyrimidine, 1-3-5-Triazine}, {nitro &gt;= 1, nitro &gt;= 2})</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4: ({Furan, Imidazole, 1-3-Oxazole, Pyrazole, Pyrrole, Thiazole, Thiophene}, {ring = penta})</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5: ({Imidazole, 1-3-Oxazole, Pyrazole, Pyrrole, Thiazole}, {ring = penta, nitro &gt;= 1})</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6: ({Imidazole, Pyrazole}, {ring = penta, nitro &gt;= 1, nitro &gt;= 2})</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7: ({Thiazole, Thiophene}, {ring = penta, OS = S})</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8: ({Thiazole}, {ring = penta, OS = S, nitro &gt;= 1})</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1: ({Benzene, Furan, Imidazole, 1-3-Oxazole, Pyrazine, Pyrazole, Pyridine, Pyrimidine, Pyrrole, Thiazole}, {})</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2: ({Imidazole, 1-3-Oxazole, Pyrazine, Pyrazole, Pyridine, Pyrimidine, Thiazole}, {nitro &gt;= 1})</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3: ({Imidazole, Pyrazine, Thiazole}, {nitro &gt;= 1, nitro &gt;= 2})</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4: ({Furan, Imidazole, 1-3-Oxazole, Pyridine, Pyrimidine, Pyrrole}, {ring = penta})</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5: ({Imidazole, 1-3-Oxazole, Pyridine, Pyrimidine}, {ring = penta, nitro &gt;= 1})</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6: ({Imidazole}, {ring = penta, nitro &gt;= 1, nitro &gt;= 2})</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7: ({Pyrimidine, Pyrrole}, {ring = penta, OS = S})</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8: ({Pyrimidine}, {ring = penta, OS = S, nitro &gt;= 1})</span></span>
 <span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9: ({Furan, 1-3-Oxazole}, {ring = penta, OS = O})</span></span>
 <span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10: ({1-3-Oxazole}, {ring = penta, OS = O, nitro &gt;= 1})</span></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11: ({Benzene, Pyrazine, Pyridine, Pyrimidine, 1-3-5-Triazine}, {ring = hex})</span></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12: ({Pyrazine, Pyridine, Pyrimidine, 1-3-5-Triazine}, {ring = hex, nitro &gt;= 1})</span></span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13: ({Pyrazine, Pyrimidine, 1-3-5-Triazine}, {ring = hex, nitro &gt;= 1, nitro &gt;= 2})</span></span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14: ({1-3-5-Triazine}, {ring = hex, nitro &gt;= 1, nitro &gt;= 2, nitro &gt;= 3})</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11: ({Benzene, Pyrazine, Pyrazole, Thiazole}, {ring = hex})</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12: ({Pyrazine, Pyrazole, Thiazole}, {ring = hex, nitro &gt;= 1})</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13: ({Pyrazine, Thiazole}, {ring = hex, nitro &gt;= 1, nitro &gt;= 2})</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14: ({Thiazole}, {ring = hex, nitro &gt;= 1, nitro &gt;= 2, nitro &gt;= 3})</span></span>
 <span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15: ({}, {ring = hex, ring = penta, OS = O, OS = S, nitro &gt;= 1, nitro &gt;= 2, nitro &gt;= 3})</span></span></code></pre></div>
 </div>
 

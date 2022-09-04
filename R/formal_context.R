@@ -4,14 +4,6 @@
 #' @description
 #' This class implements the data structure and methods for formal contexts.
 #'
-#' @section Public fields:
-#' * `I`: the table for the formal context.
-#' * `attributes`: name of the attributes in the formal context.
-#' * `objects`: name of the objects in the context.
-#' * `grades_set`: set of grades (in \[0, 1\]) of the attributes.
-#' * `concepts`: list of concepts (extent, intent).
-#' * `implications`: extracted implications as an \code{ImplicationSet}.
-#'
 #' @examples
 #' # Build and print the formal context
 #' fc_planets <- FormalContext$new(planets)
@@ -57,18 +49,25 @@ FormalContext <- R6::R6Class(
 
   public = list(
 
+    #' @field I The table of the formal context as a matrix.
     I = NULL,
 
+    #' @field attributes The attributes of the formal context.
     attributes = NULL,
 
+    #' @field objects The objects of the formal context.
     objects = NULL,
 
+    #' @field grades_set The set of degrees (in \[0, 1\]) the whole set of attributes can take.
     grades_set = NULL,
 
+    #' @field expanded_grades_set The set of degrees (in \[0, 1\]) each attribute can take.
     expanded_grades_set = NULL,
 
+    #' @field concepts The concept lattice associated to the formal context as a \code{\link{ConceptLattice}}.
     concepts = NULL,
 
+    #' @field implications A set of implications on the formal context as an \code{\link{ImplicationSet}}.
     implications = NULL,
 
     #' @description
@@ -122,7 +121,7 @@ FormalContext <- R6::R6Class(
 
         # If it comes from the arules package
         attributes <- I@itemInfo$labels
-        I <- methods::as(I@data, "dgCMatrix")
+        I <- convert_to_sparse(I@data)
         objects <- paste0(seq(ncol(I)))
         dimnames(I) <- list(attributes, objects)
 
@@ -178,9 +177,8 @@ FormalContext <- R6::R6Class(
           # # TODO: save tI???
           # tI <- new_spm(I)
           # I <- new_spm(t(I))
-          I <- methods::as(Matrix::Matrix(t(I),
-                                          sparse = TRUE),
-                           "dgCMatrix")
+          I <- convert_to_sparse(
+            Matrix::Matrix(t(I), sparse = TRUE))
 
 
         }
@@ -471,6 +469,20 @@ FormalContext <- R6::R6Class(
     },
 
     #' @description
+    #' Get the intent of a fuzzy set of objects
+    #'
+    #' @param S   (\code{Set}) The set of objects to compute the intent for.
+    #'
+    #' @return A \code{Set} with the intent.
+    #'
+    #' @export
+    uparrow = function(S) {
+
+      self$intent(S)
+
+    },
+
+    #' @description
     #' Get the extent of a fuzzy set of attributes
     #'
     #' @param S   (\code{Set}) The set of attributes to compute the extent for.
@@ -535,6 +547,20 @@ FormalContext <- R6::R6Class(
         stop("It is not a set of the required type (set of objects).", call. = FALSE)
 
       }
+
+    },
+
+    #' @description
+    #' Get the extent of a fuzzy set of attributes
+    #'
+    #' @param S   (\code{Set}) The set of attributes to compute the extent for.
+    #'
+    #' @return A \code{Set} with the intent.
+    #'
+    #' @export
+    downarrow = function(S) {
+
+      self$extent(S)
 
     },
 
@@ -872,6 +898,7 @@ FormalContext <- R6::R6Class(
       if (private$is_many_valued) error_many_valued()
 
       my_I <- Matrix::as.matrix(Matrix::t(self$I))
+      my_I <- unique(my_I)
       grades_set <- rep(list(self$grades_set), length(self$attributes))
       # grades_set <- self$expanded_grades_set
       attrs <- self$attributes
@@ -935,13 +962,11 @@ FormalContext <- R6::R6Class(
 
       if (private$is_many_valued) error_many_valued()
 
-      # TODO: Assign a private field "tI" to tSpM(self$I)
       my_I <- Matrix::as.matrix(Matrix::t(self$I))
+      my_I <- unique(my_I)
       grades_set <- rep(list(self$grades_set), length(self$attributes))
       # grades_set <- self$expanded_grades_set
       attrs <- self$attributes
-
-      # browser()
 
       # if (is.null(private$bg_implications)) {
 
@@ -1021,8 +1046,8 @@ FormalContext <- R6::R6Class(
 
         # There are implications (the first one is dummy
         # emptyset -> emptyset )
-        my_LHS <- methods::as(L$LHS, "dgCMatrix")
-        my_RHS <- methods::as(L$RHS, "dgCMatrix")
+        my_LHS <- convert_to_sparse(L$LHS)
+        my_RHS <- convert_to_sparse(L$RHS)
 
         extracted_implications <- ImplicationSet$new(attributes = self$attributes,
                                                      lhs = my_LHS,
@@ -1038,6 +1063,8 @@ FormalContext <- R6::R6Class(
 
       self$implications <- extracted_implications
 
+      return(invisible(self))
+
     },
 
     #' @description
@@ -1052,7 +1079,7 @@ FormalContext <- R6::R6Class(
 
       if (private$is_many_valued) error_many_valued()
 
-      return(methods::as(methods::as(self$I, "ngCMatrix"), "transactions"))
+      return(methods::as(methods::as(self$I, "nMatrix"), "transactions"))
       # return(to_transactions.SpM(self$I))
 
     },
@@ -1511,4 +1538,3 @@ FormalContext <- R6::R6Class(
   )
 
 )
-
