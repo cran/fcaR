@@ -1,6 +1,6 @@
 Package: fcaR
 Title: Formal Concept Analysis
-Version: 1.2.0
+Version: 1.2.1
 Authors@R: 
     c(person(given = "Domingo",
              family = "Lopez Rodriguez",
@@ -41,9 +41,9 @@ LinkingTo: Rcpp
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 NeedsCompilation: yes
-Packaged: 2022-09-04 08:19:38 UTC; domingo
+Packaged: 2023-04-27 16:08:36 UTC; domingo
 Author: Domingo Lopez Rodriguez [aut, cre]
     (<https://orcid.org/0000-0002-0172-1585>),
   Angel Mora [aut],
@@ -51,4 +51,4 @@ Author: Domingo Lopez Rodriguez [aut, cre]
   Ana Villalon [aut],
   Ian Johnson [ctb]
 Repository: CRAN
-Date/Publication: 2022-09-04 08:40:03 UTC
+Date/Publication: 2023-04-27 19:50:06 UTC
