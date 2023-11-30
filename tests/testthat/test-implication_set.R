@@ -181,6 +181,8 @@ test_that("fcaR imports implications from arules", {
 
 test_that("fcaR exports implications to arules", {
 
+  expect_error(ImplicationSet$new()$to_arules())
+
   skip_if_not_installed("arules")
 
   fc <- FormalContext$new()
@@ -281,6 +283,12 @@ test_that("fcaR exports implications to latex", {
 
 test_that("fcaR gets LHS and RHS of implications", {
 
+  imps <- ImplicationSet$new(attributes = letters[1:3])
+  expect_error(LHS <- imps$get_LHS_matrix(), NA)
+  expect_equal(dim(LHS), c(3, 1))
+  expect_error(RHS <- imps$get_RHS_matrix(), NA)
+  expect_equal(dim(RHS), c(3, 1))
+
   objects <- paste0("O", 1:6)
   n_objects <- length(objects)
 
@@ -325,6 +333,7 @@ test_that("fcaR computes closure wrt implications", {
   expect_is(cl$closure, "Set")
 
   expect_is(cl$implications, "ImplicationSet")
+  expect_error(cl <- fc$implications$closure(A, reduce = FALSE, verbose = TRUE), NA)
 
 })
 
@@ -422,14 +431,18 @@ test_that("fcaR filters and removes implications", {
   fc$find_implications()
 
   # TODO: FALLA el filtrado
-  expect_error(fc$implications$filter(lhs = fc$attributes[1], rhs = fc$attributes[1:2]), NA)
+  expect_error(fc$implications$filter(lhs = fc$attributes[1],
+                                      rhs = fc$attributes[1:2]), NA)
 
-  expect_warning(fc$implications$filter(lhs = fc$attributes[6], rhs = fc$attributes[3]))
+  expect_warning(fc$implications$filter(lhs = fc$attributes[6],
+                                        rhs = fc$attributes[3]))
 
   expect_error(fc$implications$filter(rhs = fc$attributes[1]), NA)
   expect_error(fc$implications$filter(lhs = fc$attributes[1:2]), NA)
   expect_error(fc$implications$filter(rhs = fc$attributes[1],
                                              drop = TRUE), NA)
+
+  expect_error(fc$implications$filter(not_rhs = fc$attributes[2]), NA)
 
   n <- fc$implications$cardinality()
 
