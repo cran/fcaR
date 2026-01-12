@@ -54,6 +54,7 @@ Belohlavek R, Cordero P, Enciso M, Mora Á, Vychodil V (2016). “Automated prov
 Useful links:
 \itemize{
   \item \url{https://github.com/Malaga-FCA-group/fcaR}
+  \item \url{https://neuroimaginador.github.io/fcaR/}
   \item Report bugs at \url{https://github.com/Malaga-FCA-group/fcaR/issues}
 }
 
@@ -66,11 +67,6 @@ Authors:
   \item Angel Mora \email{amorabonilla@gmail.com}
   \item Jesus Dominguez
   \item Ana Villalon
-}
-
-Other contributors:
-\itemize{
-  \item Ian Johnson [contributor]
 }
 
 }

@@ -113,6 +113,8 @@ Hahsler M, Grun B, Hornik K (2005). “arules - a computational environment for 
 \item{\code{concepts}}{The concept lattice associated to the formal context as a \code{\link{ConceptLattice}}.}
 
 \item{\code{implications}}{A set of implications on the formal context as an \code{\link{ImplicationSet}}.}
+
+\item{\code{description}}{An optional description of the dataset}
 }
 \if{html}{\out{</div>}}
 }
@@ -139,6 +141,7 @@ Hahsler M, Grun B, Hornik K (2005). “arules - a computational environment for 
 \item \href{#method-FormalContext-standardize}{\code{FormalContext$standardize()}}
 \item \href{#method-FormalContext-find_concepts}{\code{FormalContext$find_concepts()}}
 \item \href{#method-FormalContext-find_implications}{\code{FormalContext$find_implications()}}
+\item \href{#method-FormalContext-factorize}{\code{FormalContext$factorize()}}
 \item \href{#method-FormalContext-to_transactions}{\code{FormalContext$to_transactions()}}
 \item \href{#method-FormalContext-save}{\code{FormalContext$save()}}
 \item \href{#method-FormalContext-load}{\code{FormalContext$load()}}
@@ -180,6 +183,8 @@ Creator for the Formal Context class
 Columns of \code{I} should be named, since they are the names of the attributes of the formal context.
 
 If no \code{I} is used, the resulting \code{FormalContext} will be empty and not usable unless for loading a previously saved one. In this case, one can provide a \code{filename} to import. Only RDS, CSV and CXT files are currently supported.
+
+If the file is not present, the fcarepository.org is looked for coincidences. If so, the corresponding context is loaded.
 }
 
 \subsection{Returns}{
@@ -562,12 +567,14 @@ The standard context using the join- and meet- irreducible elements.
 \subsection{Method \code{find_concepts()}}{
 Use Ganter Algorithm to compute concepts
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FormalContext$find_concepts(verbose = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$find_concepts(method = "InClose", verbose = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{method}}{(string) The name of a method for the computation of concepts. Available options can be listed with \code{conceptRegistry$get_entries()}.}
+
 \item{\code{verbose}}{(logical) TRUE will provide a verbose output.}
 }
 \if{html}{\out{</div>}}
@@ -596,6 +603,36 @@ Use modified Ganter algorithm to compute both concepts and implications
 }
 \subsection{Returns}{
 Nothing, just updates the internal fields \code{concepts} and \code{implications}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-FormalContext-factorize"></a>}}
+\if{latex}{\out{\hypertarget{method-FormalContext-factorize}{}}}
+\subsection{Method \code{factorize()}}{
+Factorize the formal context using Boolean/Fuzzy Matrix Factorization algorithms.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$factorize(method = "GreConD", ...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{method}}{(character) The algorithm to use. Currently supported: "GreConD", "ASSO".}
+
+\item{\code{...}}{Additional arguments:
+\itemize{
+\item For \code{GreConD}: \code{w} (weight, default 1.0), \code{stop_threshold_ratio} (error tolerance, default 0.0).
+\item For \code{ASSO}: \code{threshold} (confidence threshold, default 0.7), \code{w_pos} (reward), \code{w_neg} (penalty).
+}}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list with two \code{FormalContext} objects:
+\itemize{
+\item \code{object_factor}: The context mapping Objects to Factors (Matrix A).
+\item \code{factor_attribute}: The context mapping Factors to Attributes (Matrix B).
+}
 }
 }
 \if{html}{\out{<hr>}}

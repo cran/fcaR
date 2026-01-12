@@ -48,6 +48,7 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -1975,9 +1976,9 @@ Score is A
 <p>The available scales are stored in a <code>registry</code> object
 called <code>scalingRegistry</code>, which keeps the functions to
 perform the different types of scaling:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>scalingRegistry<span class="sc">$</span><span class="fu">get_entry_names</span>()</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Nominal&quot;      &quot;Ordinal&quot;      &quot;Interordinal&quot; &quot;Biordinal&quot;    &quot;Interval&quot;    </span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [6] &quot;Implication&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>scalingRegistry<span class="sc">$</span><span class="fu">get_entry_names</span>()</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Nominal&quot;      &quot;Ordinal&quot;      &quot;Interordinal&quot; &quot;Biordinal&quot;    &quot;Interval&quot;    </span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [6] &quot;Implication&quot;</span></span></code></pre></div>
 </div>
 <div id="applying-scales" class="section level2">
 <h2>Applying scales</h2>
@@ -1990,43 +1991,46 @@ will se shortly.</p>
 <p>For instance, if we call <code>fc</code> the formal context of the
 example at the beginning of this document, we can replicate the above
 scales:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="st">&quot;Grant&quot;</span>, <span class="at">type =</span> <span class="st">&quot;nominal&quot;</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fc</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; FormalContext with 5 objects and 6 attributes.</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 5 × 6</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   `Grant = no` `Grant = yes` Intern Agreement                  Attitude    Score</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          &lt;dbl&gt;         &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;                      &lt;chr&gt;       &lt;dbl&gt;</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1            0             1      7 agree                      working       2.7</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2            0             1     10 strongly agree             hard worki…   4.1</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3            1             0      5 neither agree nor disagree working       3.6</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4            0             1      8 agree                      working       4  </span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5            1             0      4 disagree                   lazy          3.6</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="st">&quot;Grant&quot;</span>, <span class="at">type =</span> <span class="st">&quot;nominal&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>fc</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; FormalContext with 5 objects and 6 attributes.</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; # A tibble: 5 × 6</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;   `Grant = no` `Grant = yes` Intern Agreement                  Attitude    Score</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt;          &lt;dbl&gt;         &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;                      &lt;chr&gt;       &lt;dbl&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; 1            0             1      7 agree                      working       2.7</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; 2            0             1     10 strongly agree             hard worki…   4.1</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; 3            1             0      5 neither agree nor disagree working       3.6</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; 4            0             1      8 agree                      working       4  </span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; 5            1             0      4 disagree                   lazy          3.6</span></span></code></pre></div>
 <p>Note that the attribute <code>Grant</code> has been substituted by
 <code>Grant = yes</code> and <code>Grant = no</code>.</p>
 <p>In order to apply the <em>ordinal</em> scaling to the
 <code>Intern</code> attribute, we do:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="st">&quot;Intern&quot;</span>, <span class="at">type =</span> <span class="st">&quot;ordinal&quot;</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fc</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; FormalContext with 5 objects and 10 attributes.</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 5 × 10</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   `Grant = no` `Grant = yes` `Intern &lt;= 4` `Intern &lt;= 5` `Intern &lt;= 7`</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1            0             1             0             0             1</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2            0             1             0             0             0</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3            1             0             0             1             1</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4            0             1             0             0             0</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5            1             0             1             1             1</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # ℹ 5 more variables: `Intern &lt;= 8` &lt;dbl&gt;, `Intern &lt;= 10` &lt;dbl&gt;,</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   Agreement &lt;chr&gt;, Attitude &lt;chr&gt;, Score &lt;dbl&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="st">&quot;Intern&quot;</span>, <span class="at">type =</span> <span class="st">&quot;ordinal&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>fc</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; FormalContext with 5 objects and 10 attributes.</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; # A tibble: 5 × 10</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt;   `Grant = no` `Grant = yes` `Intern &lt;= 4` `Intern &lt;= 5` `Intern &lt;= 7`</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt;          &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; 1            0             1             0             0             1</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; 2            0             1             0             0             0</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; 3            1             0             0             1             1</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; 4            0             1             0             0             0</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; 5            1             0             1             1             1</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; # ℹ 5 more variables: `Intern &lt;= 8` &lt;dbl&gt;, `Intern &lt;= 10` &lt;dbl&gt;,</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; #   Agreement &lt;chr&gt;, Attitude &lt;chr&gt;, Score &lt;dbl&gt;</span></span></code></pre></div>
 <p>Now, the <code>Agreement</code> attribute can be scaled using and
 interordinal scaling:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="st">&quot;Agreement&quot;</span>, </span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">type =</span> <span class="st">&quot;interordinal&quot;</span>,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;strongly disagree&quot;</span>,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;disagree&quot;</span>,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;neither agree nor disagree&quot;</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;agree&quot;</span>,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;strongly agree&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="st">&quot;Agreement&quot;</span>,</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;interordinal&quot;</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>    <span class="st">&quot;strongly disagree&quot;</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>    <span class="st">&quot;disagree&quot;</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>    <span class="st">&quot;neither agree nor disagree&quot;</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>    <span class="st">&quot;agree&quot;</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>    <span class="st">&quot;strongly agree&quot;</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  )</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>)</span></code></pre></div>
 <p>The resulting formal context has 19 columns, thus it is difficult to
 print.</p>
 <p>Note that the call to <code>scale()</code> has an additional optional
@@ -2038,10 +2042,11 @@ disagree” &lt; “agree” &lt; “strongly agree”.</p>
 <em>biordinal</em> scale, since it represents two poles: the first is
 given by values “hard working” and “working” and the other is given by
 “very lazy” and “lazy”. Then, we can do:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="st">&quot;Attitude&quot;</span>, </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">type =</span> <span class="st">&quot;biordinal&quot;</span>, </span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">values_le =</span> <span class="fu">c</span>(<span class="st">&quot;hard working&quot;</span>, <span class="st">&quot;working&quot;</span>),</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">values_ge =</span> <span class="fu">c</span>(<span class="st">&quot;lazy&quot;</span>, <span class="st">&quot;very lazy&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="st">&quot;Attitude&quot;</span>,</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;biordinal&quot;</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">values_le =</span> <span class="fu">c</span>(<span class="st">&quot;hard working&quot;</span>, <span class="st">&quot;working&quot;</span>),</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="at">values_ge =</span> <span class="fu">c</span>(<span class="st">&quot;lazy&quot;</span>, <span class="st">&quot;very lazy&quot;</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>)</span></code></pre></div>
 <p>The full order of attribute values is “hard working” &lt; “working”
 &lt; “lazy” &lt; “very lazy”.</p>
 <p>Note that we have listed the attribute values in two different
@@ -2052,10 +2057,11 @@ in the arguments, that is, in the same order as in the full order
 defined above.</p>
 <p>The last attribute was the <code>Score</code>, that can be grouped in
 intervals using:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="st">&quot;Score&quot;</span>, </span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">type =</span> <span class="st">&quot;interval&quot;</span>, </span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">values =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>), </span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">interval_names =</span> <span class="fu">c</span>(<span class="st">&quot;C&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;A&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="st">&quot;Score&quot;</span>,</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;interval&quot;</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">values =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="at">interval_names =</span> <span class="fu">c</span>(<span class="st">&quot;C&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;A&quot;</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>)</span></code></pre></div>
 <p>The additional arguments are <code>values</code> (the endpoints of
 the intervals) and <code>interval_names</code> (an optional name
 indicating how to call a given interval).</p>
@@ -2067,20 +2073,20 @@ attributes.</p>
 <p>In order to see the transformation (the <em>scale</em> context) used
 for any of the attributes, we use the <code>get_scales()</code> method
 of a <code>FormalContext</code>:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">get_scales</span>(<span class="fu">c</span>(<span class="st">&quot;Grant&quot;</span>, <span class="st">&quot;Score&quot;</span>))</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $Grant</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; FormalContext with 2 objects and 2 attributes.</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      Grant = no  Grant = yes  </span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   no      X                   </span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  yes                  X       </span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $Score</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; FormalContext with 4 objects and 3 attributes.</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      Score is C  Score is B  Score is A  </span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2.7      X                              </span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3.6                  X                  </span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    4                  X                  </span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4.1                              X</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">get_scales</span>(<span class="fu">c</span>(<span class="st">&quot;Grant&quot;</span>, <span class="st">&quot;Score&quot;</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; $Grant</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; FormalContext with 2 objects and 2 attributes.</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt;      Grant = no  Grant = yes  </span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt;   no      X                   </span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt;  yes                  X       </span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; $Score</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; FormalContext with 4 objects and 3 attributes.</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt;      Score is C  Score is B  Score is A  </span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt;  2.7      X                              </span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt;  3.6                  X                  </span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt;    4                  X                  </span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt;  4.1                              X</span></span></code></pre></div>
 <p>With no arguments, it prints all the scales that have been used in a
 <code>FormalContext</code>.</p>
 </div>
@@ -2091,8 +2097,8 @@ implicit knowledge (e.g., if attribute <code>Intern</code> is lower than
 5, then it is also lower than 7).</p>
 <p>This <em>background knowledge</em> is computed after each scaling is
 performed, and can be printed with:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">background_knowledge</span>()</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Implication set with 0 implications.</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">background_knowledge</span>()</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; Implication set with 0 implications.</span></span></code></pre></div>
 <p>It is a simple <code>ImplicationSet</code> that stores all the
 implications that can be derived from the scale contexts.</p>
 </div>
@@ -2111,113 +2117,113 @@ is used, as in the binary/fuzzy case, but the resulting implications
 have been post-processed to remove redundant information with respect to
 the <em>background knowledge</em>.</p>
 <p>In our example, the resulting implications are:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">find_implications</span>()</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span>implications</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Implication set with 26 implications.</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 1: {} -&gt; {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree}</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 2: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Score is A} -&gt; {Grant = yes, Agreement &gt;=</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   neither agree nor disagree, Agreement &gt;= agree, Agreement &gt;= strongly agree,</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Attitude &lt;= hard working, Attitude &lt;= working}</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 3: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Score is B} -&gt; {Intern &lt;= 8, Agreement &lt;=</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   agree}</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 4: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Score is C} -&gt; {Grant = yes, Intern &lt;= 7,</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Intern &lt;= 8, Agreement &lt;= agree, Agreement &gt;= neither agree nor disagree,</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= agree, Attitude &lt;= working}</span></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 5: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Attitude &gt;= very lazy} -&gt; {Grant = no,</span></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Grant = yes, Intern &lt;= 4, Intern &lt;= 5, Intern &lt;= 7, Intern &lt;= 8, Agreement</span></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;= strongly disagree, Agreement &lt;= disagree, Agreement &lt;= neither agree</span></span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   nor disagree, Agreement &lt;= agree, Agreement &gt;= neither agree nor disagree,</span></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= agree, Agreement &gt;= strongly agree, Attitude &lt;= hard working,</span></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Attitude &lt;= working, Attitude &gt;= lazy, Score is C, Score is B, Score is A}</span></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 6: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Attitude &gt;= lazy} -&gt; {Grant = no, Intern &lt;=</span></span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   4, Intern &lt;= 5, Intern &lt;= 7, Intern &lt;= 8, Agreement &lt;= disagree, Agreement &lt;=</span></span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   neither agree nor disagree, Agreement &lt;= agree, Score is B}</span></span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 7: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Attitude &lt;= working} -&gt; {Agreement &gt;= neither</span></span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   agree nor disagree}</span></span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 8: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Attitude &lt;= hard working} -&gt; {Grant = yes,</span></span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= neither agree nor disagree, Agreement &gt;= agree, Agreement &gt;=</span></span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   strongly agree, Attitude &lt;= working, Score is A}</span></span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 9: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Agreement &gt;= strongly agree} -&gt; {Grant = yes,</span></span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= neither agree nor disagree, Agreement &gt;= agree, Attitude &lt;= hard</span></span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   working, Attitude &lt;= working, Score is A}</span></span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 10: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Agreement &gt;= agree} -&gt; {Grant = yes,</span></span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= neither agree nor disagree, Attitude &lt;= working}</span></span>
-<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 11: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Agreement &gt;= neither agree nor disagree} -&gt;</span></span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   {Attitude &lt;= working}</span></span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 12: {Intern &lt;= 10, Agreement &lt;= agree, Agreement &lt;= strongly agree,</span></span>
-<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= strongly disagree, Agreement &gt;= disagree} -&gt; {Intern &lt;= 8}</span></span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 13: {Intern &lt;= 10, Agreement &lt;= neither agree nor disagree, Agreement &lt;=</span></span>
-<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   strongly agree, Agreement &gt;= strongly disagree, Agreement &gt;= disagree} -&gt;</span></span>
-<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   {Grant = no, Intern &lt;= 5, Intern &lt;= 7, Intern &lt;= 8, Agreement &lt;= agree, Score</span></span>
-<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   is B}</span></span>
-<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 14: {Intern &lt;= 10, Agreement &lt;= disagree, Agreement &lt;= strongly agree,</span></span>
-<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= strongly disagree, Agreement &gt;= disagree} -&gt; {Grant = no, Intern</span></span>
-<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;= 4, Intern &lt;= 5, Intern &lt;= 7, Intern &lt;= 8, Agreement &lt;= neither agree nor</span></span>
-<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &lt;= agree, Attitude &gt;= lazy, Score is B}</span></span>
-<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 15: {Intern &lt;= 10, Agreement &lt;= strongly disagree, Agreement &lt;= strongly</span></span>
-<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   agree, Agreement &gt;= strongly disagree, Agreement &gt;= disagree} -&gt; {Grant = no,</span></span>
-<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Grant = yes, Intern &lt;= 4, Intern &lt;= 5, Intern &lt;= 7, Intern &lt;= 8, Agreement</span></span>
-<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;= disagree, Agreement &lt;= neither agree nor disagree, Agreement &lt;= agree,</span></span>
-<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= neither agree nor disagree, Agreement &gt;= agree, Agreement &gt;=</span></span>
-<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   strongly agree, Attitude &lt;= hard working, Attitude &lt;= working, Attitude &gt;=</span></span>
-<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   lazy, Attitude &gt;= very lazy, Score is C, Score is B, Score is A}</span></span>
-<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 16: {Intern &lt;= 8, Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;=</span></span>
-<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   strongly disagree, Agreement &gt;= disagree} -&gt; {Agreement &lt;= agree}</span></span>
-<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 17: {Intern &lt;= 7, Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;=</span></span>
-<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   strongly disagree, Agreement &gt;= disagree} -&gt; {Intern &lt;= 8, Agreement &lt;= agree}</span></span>
-<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 18: {Intern &lt;= 7, Intern &lt;= 8, Intern &lt;= 10, Agreement &lt;= agree, Agreement</span></span>
-<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;= strongly agree, Agreement &gt;= strongly disagree, Agreement &gt;= disagree,</span></span>
-<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Score is B} -&gt; {Grant = no, Intern &lt;= 5, Agreement &lt;= neither agree nor</span></span>
-<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree}</span></span>
-<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 19: {Intern &lt;= 5, Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;=</span></span>
-<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   strongly disagree, Agreement &gt;= disagree} -&gt; {Grant = no, Intern &lt;= 7, Intern</span></span>
-<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;= 8, Agreement &lt;= neither agree nor disagree, Agreement &lt;= agree, Score is B}</span></span>
-<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 20: {Intern &lt;= 4, Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;=</span></span>
-<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   strongly disagree, Agreement &gt;= disagree} -&gt; {Grant = no, Intern &lt;= 5, Intern</span></span>
-<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;= 7, Intern &lt;= 8, Agreement &lt;= disagree, Agreement &lt;= neither agree nor</span></span>
-<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &lt;= agree, Attitude &gt;= lazy, Score is B}</span></span>
-<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 21: {Grant = yes, Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;=</span></span>
-<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   strongly disagree, Agreement &gt;= disagree} -&gt; {Agreement &gt;= neither agree nor</span></span>
-<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= agree, Attitude &lt;= working}</span></span>
-<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 22: {Grant = yes, Intern &lt;= 8, Intern &lt;= 10, Agreement &lt;= agree, Agreement</span></span>
-<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;= strongly agree, Agreement &gt;= strongly disagree, Agreement &gt;= disagree,</span></span>
-<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= neither agree nor disagree, Agreement &gt;= agree, Agreement &gt;=</span></span>
-<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   strongly agree, Attitude &lt;= hard working, Attitude &lt;= working, Score is A}</span></span>
-<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   -&gt; {Grant = no, Intern &lt;= 4, Intern &lt;= 5, Intern &lt;= 7, Agreement &lt;= strongly</span></span>
-<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &lt;= disagree, Agreement &lt;= neither agree nor disagree,</span></span>
-<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Attitude &gt;= lazy, Attitude &gt;= very lazy, Score is C, Score is B}</span></span>
-<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 23: {Grant = yes, Intern &lt;= 7, Intern &lt;= 8, Intern &lt;= 10, Agreement &lt;=</span></span>
-<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   agree, Agreement &lt;= strongly agree, Agreement &gt;= strongly disagree, Agreement</span></span>
-<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &gt;= disagree, Agreement &gt;= neither agree nor disagree, Agreement &gt;= agree,</span></span>
-<span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Attitude &lt;= working} -&gt; {Score is C}</span></span>
-<span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 24: {Grant = no, Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;=</span></span>
-<span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   strongly disagree, Agreement &gt;= disagree} -&gt; {Intern &lt;= 5, Intern &lt;= 7, Intern</span></span>
-<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;= 8, Agreement &lt;= neither agree nor disagree, Agreement &lt;= agree, Score is B}</span></span>
-<span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 25: {Grant = no, Intern &lt;= 4, Intern &lt;= 5, Intern &lt;= 7, Intern &lt;= 8,</span></span>
-<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Intern &lt;= 10, Agreement &lt;= disagree, Agreement &lt;= neither agree nor disagree,</span></span>
-<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Agreement &lt;= agree, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
-<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Agreement &gt;= neither agree nor disagree,</span></span>
-<span id="cb9-98"><a href="#cb9-98" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Attitude &lt;= working, Attitude &gt;= lazy, Score is B} -&gt; {Grant = yes, Agreement</span></span>
-<span id="cb9-99"><a href="#cb9-99" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;= strongly disagree, Agreement &gt;= agree, Agreement &gt;= strongly agree,</span></span>
-<span id="cb9-100"><a href="#cb9-100" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Attitude &lt;= hard working, Attitude &gt;= very lazy, Score is C, Score is A}</span></span>
-<span id="cb9-101"><a href="#cb9-101" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 26: {Grant = no, Grant = yes, Intern &lt;= 5, Intern &lt;= 7, Intern &lt;= 8, Intern</span></span>
-<span id="cb9-102"><a href="#cb9-102" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;= 10, Agreement &lt;= neither agree nor disagree, Agreement &lt;= agree, Agreement</span></span>
-<span id="cb9-103"><a href="#cb9-103" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;= strongly agree, Agreement &gt;= strongly disagree, Agreement &gt;= disagree,</span></span>
-<span id="cb9-104"><a href="#cb9-104" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= neither agree nor disagree, Agreement &gt;= agree, Attitude &lt;=</span></span>
-<span id="cb9-105"><a href="#cb9-105" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   working, Score is C, Score is B} -&gt; {Intern &lt;= 4, Agreement &lt;= strongly</span></span>
-<span id="cb9-106"><a href="#cb9-106" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &lt;= disagree, Agreement &gt;= strongly agree, Attitude &lt;= hard</span></span>
-<span id="cb9-107"><a href="#cb9-107" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   working, Attitude &gt;= lazy, Attitude &gt;= very lazy, Score is A}</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">find_implications</span>()</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>fc<span class="sc">$</span>implications</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; Implication set with 26 implications.</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt; Rule 1: {} -&gt; {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree}</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; Rule 2: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Score is A} -&gt; {Grant = yes, Agreement &gt;=</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt;   neither agree nor disagree, Agreement &gt;= agree, Agreement &gt;= strongly agree,</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt;   Attitude &lt;= hard working, Attitude &lt;= working}</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; Rule 3: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Score is B} -&gt; {Intern &lt;= 8, Agreement &lt;=</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt;   agree}</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; Rule 4: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Score is C} -&gt; {Grant = yes, Intern &lt;= 7,</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt;   Intern &lt;= 8, Agreement &lt;= agree, Agreement &gt;= neither agree nor disagree,</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= agree, Attitude &lt;= working}</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; Rule 5: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Attitude &gt;= very lazy} -&gt; {Grant = no,</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt;   Grant = yes, Intern &lt;= 4, Intern &lt;= 5, Intern &lt;= 7, Intern &lt;= 8, Agreement</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt;   &lt;= strongly disagree, Agreement &lt;= disagree, Agreement &lt;= neither agree</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt;   nor disagree, Agreement &lt;= agree, Agreement &gt;= neither agree nor disagree,</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= agree, Agreement &gt;= strongly agree, Attitude &lt;= hard working,</span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt;   Attitude &lt;= working, Attitude &gt;= lazy, Score is C, Score is B, Score is A}</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; Rule 6: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Attitude &gt;= lazy} -&gt; {Grant = no, Intern &lt;=</span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt;   4, Intern &lt;= 5, Intern &lt;= 7, Intern &lt;= 8, Agreement &lt;= disagree, Agreement &lt;=</span></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt;   neither agree nor disagree, Agreement &lt;= agree, Score is B}</span></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt; Rule 7: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Attitude &lt;= working} -&gt; {Agreement &gt;= neither</span></span>
+<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a><span class="co">#&gt;   agree nor disagree}</span></span>
+<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a><span class="co">#&gt; Rule 8: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
+<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Attitude &lt;= hard working} -&gt; {Grant = yes,</span></span>
+<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= neither agree nor disagree, Agreement &gt;= agree, Agreement &gt;=</span></span>
+<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a><span class="co">#&gt;   strongly agree, Attitude &lt;= working, Score is A}</span></span>
+<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a><span class="co">#&gt; Rule 9: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
+<span id="cb9-36"><a href="#cb9-36" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Agreement &gt;= strongly agree} -&gt; {Grant = yes,</span></span>
+<span id="cb9-37"><a href="#cb9-37" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= neither agree nor disagree, Agreement &gt;= agree, Attitude &lt;= hard</span></span>
+<span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a><span class="co">#&gt;   working, Attitude &lt;= working, Score is A}</span></span>
+<span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a><span class="co">#&gt; Rule 10: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
+<span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Agreement &gt;= agree} -&gt; {Grant = yes,</span></span>
+<span id="cb9-41"><a href="#cb9-41" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= neither agree nor disagree, Attitude &lt;= working}</span></span>
+<span id="cb9-42"><a href="#cb9-42" tabindex="-1"></a><span class="co">#&gt; Rule 11: {Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
+<span id="cb9-43"><a href="#cb9-43" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Agreement &gt;= neither agree nor disagree} -&gt;</span></span>
+<span id="cb9-44"><a href="#cb9-44" tabindex="-1"></a><span class="co">#&gt;   {Attitude &lt;= working}</span></span>
+<span id="cb9-45"><a href="#cb9-45" tabindex="-1"></a><span class="co">#&gt; Rule 12: {Intern &lt;= 10, Agreement &lt;= agree, Agreement &lt;= strongly agree,</span></span>
+<span id="cb9-46"><a href="#cb9-46" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= strongly disagree, Agreement &gt;= disagree} -&gt; {Intern &lt;= 8}</span></span>
+<span id="cb9-47"><a href="#cb9-47" tabindex="-1"></a><span class="co">#&gt; Rule 13: {Intern &lt;= 10, Agreement &lt;= neither agree nor disagree, Agreement &lt;=</span></span>
+<span id="cb9-48"><a href="#cb9-48" tabindex="-1"></a><span class="co">#&gt;   strongly agree, Agreement &gt;= strongly disagree, Agreement &gt;= disagree} -&gt;</span></span>
+<span id="cb9-49"><a href="#cb9-49" tabindex="-1"></a><span class="co">#&gt;   {Grant = no, Intern &lt;= 5, Intern &lt;= 7, Intern &lt;= 8, Agreement &lt;= agree, Score</span></span>
+<span id="cb9-50"><a href="#cb9-50" tabindex="-1"></a><span class="co">#&gt;   is B}</span></span>
+<span id="cb9-51"><a href="#cb9-51" tabindex="-1"></a><span class="co">#&gt; Rule 14: {Intern &lt;= 10, Agreement &lt;= disagree, Agreement &lt;= strongly agree,</span></span>
+<span id="cb9-52"><a href="#cb9-52" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= strongly disagree, Agreement &gt;= disagree} -&gt; {Grant = no, Intern</span></span>
+<span id="cb9-53"><a href="#cb9-53" tabindex="-1"></a><span class="co">#&gt;   &lt;= 4, Intern &lt;= 5, Intern &lt;= 7, Intern &lt;= 8, Agreement &lt;= neither agree nor</span></span>
+<span id="cb9-54"><a href="#cb9-54" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &lt;= agree, Attitude &gt;= lazy, Score is B}</span></span>
+<span id="cb9-55"><a href="#cb9-55" tabindex="-1"></a><span class="co">#&gt; Rule 15: {Intern &lt;= 10, Agreement &lt;= strongly disagree, Agreement &lt;= strongly</span></span>
+<span id="cb9-56"><a href="#cb9-56" tabindex="-1"></a><span class="co">#&gt;   agree, Agreement &gt;= strongly disagree, Agreement &gt;= disagree} -&gt; {Grant = no,</span></span>
+<span id="cb9-57"><a href="#cb9-57" tabindex="-1"></a><span class="co">#&gt;   Grant = yes, Intern &lt;= 4, Intern &lt;= 5, Intern &lt;= 7, Intern &lt;= 8, Agreement</span></span>
+<span id="cb9-58"><a href="#cb9-58" tabindex="-1"></a><span class="co">#&gt;   &lt;= disagree, Agreement &lt;= neither agree nor disagree, Agreement &lt;= agree,</span></span>
+<span id="cb9-59"><a href="#cb9-59" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= neither agree nor disagree, Agreement &gt;= agree, Agreement &gt;=</span></span>
+<span id="cb9-60"><a href="#cb9-60" tabindex="-1"></a><span class="co">#&gt;   strongly agree, Attitude &lt;= hard working, Attitude &lt;= working, Attitude &gt;=</span></span>
+<span id="cb9-61"><a href="#cb9-61" tabindex="-1"></a><span class="co">#&gt;   lazy, Attitude &gt;= very lazy, Score is C, Score is B, Score is A}</span></span>
+<span id="cb9-62"><a href="#cb9-62" tabindex="-1"></a><span class="co">#&gt; Rule 16: {Intern &lt;= 8, Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;=</span></span>
+<span id="cb9-63"><a href="#cb9-63" tabindex="-1"></a><span class="co">#&gt;   strongly disagree, Agreement &gt;= disagree} -&gt; {Agreement &lt;= agree}</span></span>
+<span id="cb9-64"><a href="#cb9-64" tabindex="-1"></a><span class="co">#&gt; Rule 17: {Intern &lt;= 7, Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;=</span></span>
+<span id="cb9-65"><a href="#cb9-65" tabindex="-1"></a><span class="co">#&gt;   strongly disagree, Agreement &gt;= disagree} -&gt; {Intern &lt;= 8, Agreement &lt;= agree}</span></span>
+<span id="cb9-66"><a href="#cb9-66" tabindex="-1"></a><span class="co">#&gt; Rule 18: {Intern &lt;= 7, Intern &lt;= 8, Intern &lt;= 10, Agreement &lt;= agree, Agreement</span></span>
+<span id="cb9-67"><a href="#cb9-67" tabindex="-1"></a><span class="co">#&gt;   &lt;= strongly agree, Agreement &gt;= strongly disagree, Agreement &gt;= disagree,</span></span>
+<span id="cb9-68"><a href="#cb9-68" tabindex="-1"></a><span class="co">#&gt;   Score is B} -&gt; {Grant = no, Intern &lt;= 5, Agreement &lt;= neither agree nor</span></span>
+<span id="cb9-69"><a href="#cb9-69" tabindex="-1"></a><span class="co">#&gt;   disagree}</span></span>
+<span id="cb9-70"><a href="#cb9-70" tabindex="-1"></a><span class="co">#&gt; Rule 19: {Intern &lt;= 5, Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;=</span></span>
+<span id="cb9-71"><a href="#cb9-71" tabindex="-1"></a><span class="co">#&gt;   strongly disagree, Agreement &gt;= disagree} -&gt; {Grant = no, Intern &lt;= 7, Intern</span></span>
+<span id="cb9-72"><a href="#cb9-72" tabindex="-1"></a><span class="co">#&gt;   &lt;= 8, Agreement &lt;= neither agree nor disagree, Agreement &lt;= agree, Score is B}</span></span>
+<span id="cb9-73"><a href="#cb9-73" tabindex="-1"></a><span class="co">#&gt; Rule 20: {Intern &lt;= 4, Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;=</span></span>
+<span id="cb9-74"><a href="#cb9-74" tabindex="-1"></a><span class="co">#&gt;   strongly disagree, Agreement &gt;= disagree} -&gt; {Grant = no, Intern &lt;= 5, Intern</span></span>
+<span id="cb9-75"><a href="#cb9-75" tabindex="-1"></a><span class="co">#&gt;   &lt;= 7, Intern &lt;= 8, Agreement &lt;= disagree, Agreement &lt;= neither agree nor</span></span>
+<span id="cb9-76"><a href="#cb9-76" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &lt;= agree, Attitude &gt;= lazy, Score is B}</span></span>
+<span id="cb9-77"><a href="#cb9-77" tabindex="-1"></a><span class="co">#&gt; Rule 21: {Grant = yes, Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;=</span></span>
+<span id="cb9-78"><a href="#cb9-78" tabindex="-1"></a><span class="co">#&gt;   strongly disagree, Agreement &gt;= disagree} -&gt; {Agreement &gt;= neither agree nor</span></span>
+<span id="cb9-79"><a href="#cb9-79" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= agree, Attitude &lt;= working}</span></span>
+<span id="cb9-80"><a href="#cb9-80" tabindex="-1"></a><span class="co">#&gt; Rule 22: {Grant = yes, Intern &lt;= 8, Intern &lt;= 10, Agreement &lt;= agree, Agreement</span></span>
+<span id="cb9-81"><a href="#cb9-81" tabindex="-1"></a><span class="co">#&gt;   &lt;= strongly agree, Agreement &gt;= strongly disagree, Agreement &gt;= disagree,</span></span>
+<span id="cb9-82"><a href="#cb9-82" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= neither agree nor disagree, Agreement &gt;= agree, Agreement &gt;=</span></span>
+<span id="cb9-83"><a href="#cb9-83" tabindex="-1"></a><span class="co">#&gt;   strongly agree, Attitude &lt;= hard working, Attitude &lt;= working, Score is A}</span></span>
+<span id="cb9-84"><a href="#cb9-84" tabindex="-1"></a><span class="co">#&gt;   -&gt; {Grant = no, Intern &lt;= 4, Intern &lt;= 5, Intern &lt;= 7, Agreement &lt;= strongly</span></span>
+<span id="cb9-85"><a href="#cb9-85" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &lt;= disagree, Agreement &lt;= neither agree nor disagree,</span></span>
+<span id="cb9-86"><a href="#cb9-86" tabindex="-1"></a><span class="co">#&gt;   Attitude &gt;= lazy, Attitude &gt;= very lazy, Score is C, Score is B}</span></span>
+<span id="cb9-87"><a href="#cb9-87" tabindex="-1"></a><span class="co">#&gt; Rule 23: {Grant = yes, Intern &lt;= 7, Intern &lt;= 8, Intern &lt;= 10, Agreement &lt;=</span></span>
+<span id="cb9-88"><a href="#cb9-88" tabindex="-1"></a><span class="co">#&gt;   agree, Agreement &lt;= strongly agree, Agreement &gt;= strongly disagree, Agreement</span></span>
+<span id="cb9-89"><a href="#cb9-89" tabindex="-1"></a><span class="co">#&gt;   &gt;= disagree, Agreement &gt;= neither agree nor disagree, Agreement &gt;= agree,</span></span>
+<span id="cb9-90"><a href="#cb9-90" tabindex="-1"></a><span class="co">#&gt;   Attitude &lt;= working} -&gt; {Score is C}</span></span>
+<span id="cb9-91"><a href="#cb9-91" tabindex="-1"></a><span class="co">#&gt; Rule 24: {Grant = no, Intern &lt;= 10, Agreement &lt;= strongly agree, Agreement &gt;=</span></span>
+<span id="cb9-92"><a href="#cb9-92" tabindex="-1"></a><span class="co">#&gt;   strongly disagree, Agreement &gt;= disagree} -&gt; {Intern &lt;= 5, Intern &lt;= 7, Intern</span></span>
+<span id="cb9-93"><a href="#cb9-93" tabindex="-1"></a><span class="co">#&gt;   &lt;= 8, Agreement &lt;= neither agree nor disagree, Agreement &lt;= agree, Score is B}</span></span>
+<span id="cb9-94"><a href="#cb9-94" tabindex="-1"></a><span class="co">#&gt; Rule 25: {Grant = no, Intern &lt;= 4, Intern &lt;= 5, Intern &lt;= 7, Intern &lt;= 8,</span></span>
+<span id="cb9-95"><a href="#cb9-95" tabindex="-1"></a><span class="co">#&gt;   Intern &lt;= 10, Agreement &lt;= disagree, Agreement &lt;= neither agree nor disagree,</span></span>
+<span id="cb9-96"><a href="#cb9-96" tabindex="-1"></a><span class="co">#&gt;   Agreement &lt;= agree, Agreement &lt;= strongly agree, Agreement &gt;= strongly</span></span>
+<span id="cb9-97"><a href="#cb9-97" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &gt;= disagree, Agreement &gt;= neither agree nor disagree,</span></span>
+<span id="cb9-98"><a href="#cb9-98" tabindex="-1"></a><span class="co">#&gt;   Attitude &lt;= working, Attitude &gt;= lazy, Score is B} -&gt; {Grant = yes, Agreement</span></span>
+<span id="cb9-99"><a href="#cb9-99" tabindex="-1"></a><span class="co">#&gt;   &lt;= strongly disagree, Agreement &gt;= agree, Agreement &gt;= strongly agree,</span></span>
+<span id="cb9-100"><a href="#cb9-100" tabindex="-1"></a><span class="co">#&gt;   Attitude &lt;= hard working, Attitude &gt;= very lazy, Score is C, Score is A}</span></span>
+<span id="cb9-101"><a href="#cb9-101" tabindex="-1"></a><span class="co">#&gt; Rule 26: {Grant = no, Grant = yes, Intern &lt;= 5, Intern &lt;= 7, Intern &lt;= 8, Intern</span></span>
+<span id="cb9-102"><a href="#cb9-102" tabindex="-1"></a><span class="co">#&gt;   &lt;= 10, Agreement &lt;= neither agree nor disagree, Agreement &lt;= agree, Agreement</span></span>
+<span id="cb9-103"><a href="#cb9-103" tabindex="-1"></a><span class="co">#&gt;   &lt;= strongly agree, Agreement &gt;= strongly disagree, Agreement &gt;= disagree,</span></span>
+<span id="cb9-104"><a href="#cb9-104" tabindex="-1"></a><span class="co">#&gt;   Agreement &gt;= neither agree nor disagree, Agreement &gt;= agree, Attitude &lt;=</span></span>
+<span id="cb9-105"><a href="#cb9-105" tabindex="-1"></a><span class="co">#&gt;   working, Score is C, Score is B} -&gt; {Intern &lt;= 4, Agreement &lt;= strongly</span></span>
+<span id="cb9-106"><a href="#cb9-106" tabindex="-1"></a><span class="co">#&gt;   disagree, Agreement &lt;= disagree, Agreement &gt;= strongly agree, Attitude &lt;= hard</span></span>
+<span id="cb9-107"><a href="#cb9-107" tabindex="-1"></a><span class="co">#&gt;   working, Attitude &gt;= lazy, Attitude &gt;= very lazy, Score is A}</span></span></code></pre></div>
 <p>Note that, in this case, this is not the basis of implications, since
 the <em>background knowledge</em> has to be incorporated. That is, these
 implications are valid, but to be complete they need the implications
@@ -2228,14 +2234,17 @@ derived from the scales.</p>
 <h1>Another example</h1>
 <p>Let us consider the following context of attributes of aromatic
 molecules:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>filename <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;contexts&quot;</span>,</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;aromatic.csv&quot;</span>,</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">package =</span> <span class="st">&quot;fcaR&quot;</span>)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>fc <span class="ot">&lt;-</span> FormalContext<span class="sc">$</span><span class="fu">new</span>(filename)</span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">incidence</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">format =</span> <span class="st">&quot;html&quot;</span>,</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">align =</span> <span class="st">&quot;c&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>filename <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;contexts&quot;</span>,</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="st">&quot;aromatic.csv&quot;</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">package =</span> <span class="st">&quot;fcaR&quot;</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>)</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>fc <span class="ot">&lt;-</span> FormalContext<span class="sc">$</span><span class="fu">new</span>(filename)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">incidence</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>    <span class="at">format =</span> <span class="st">&quot;html&quot;</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">&quot;c&quot;</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  )</span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -2425,15 +2434,21 @@ atoms.</li>
 </ul>
 <p>We can transform this context into a binary one by means of the
 following scalings:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="at">attributes =</span> <span class="st">&quot;nitro&quot;</span>, </span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">type =</span> <span class="st">&quot;ordinal&quot;</span>, </span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">comparison =</span> <span class="st">`</span><span class="at">&gt;=</span><span class="st">`</span>, </span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">values =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="at">attributes =</span> <span class="st">&quot;OS&quot;</span>, </span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">type =</span> <span class="st">&quot;nominal&quot;</span>, </span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>         <span class="fu">c</span>(<span class="st">&quot;O&quot;</span>, <span class="st">&quot;S&quot;</span>))</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(<span class="at">attributes =</span> <span class="st">&quot;ring&quot;</span>, </span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">type =</span> <span class="st">&quot;nominal&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  <span class="at">attributes =</span> <span class="st">&quot;nitro&quot;</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;ordinal&quot;</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="at">comparison =</span> <span class="st">`</span><span class="at">&gt;=</span><span class="st">`</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="at">values =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>)</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(</span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>  <span class="at">attributes =</span> <span class="st">&quot;OS&quot;</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;nominal&quot;</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;O&quot;</span>, <span class="st">&quot;S&quot;</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a>)</span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">scale</span>(</span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a>  <span class="at">attributes =</span> <span class="st">&quot;ring&quot;</span>,</span>
+<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;nominal&quot;</span></span>
+<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a>)</span></code></pre></div>
 The final formal context is:
 <table>
 <thead>
@@ -2779,43 +2794,43 @@ Thiophene
 </tbody>
 </table>
 <p>The implications derived from the scales are:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">background_knowledge</span>()</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Implication set with 0 implications.</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">background_knowledge</span>()</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co">#&gt; Implication set with 0 implications.</span></span></code></pre></div>
 <p>Also, we can compute the implications that are not represented by the
 <em>background knowledge</em>:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">find_implications</span>()</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span>implications</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Implication set with 8 implications.</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 1: {nitro &gt;= 3} -&gt; {ring = hex, nitro &gt;= 1, nitro &gt;= 2}</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 2: {nitro &gt;= 2} -&gt; {nitro &gt;= 1}</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 3: {OS = S} -&gt; {ring = penta}</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 4: {OS = O} -&gt; {ring = penta}</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 5: {ring = penta, OS = S, nitro &gt;= 1, nitro &gt;= 2} -&gt; {ring = hex, OS = O,</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   nitro &gt;= 3}</span></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 6: {ring = penta, OS = O, nitro &gt;= 1, nitro &gt;= 2} -&gt; {ring = hex, OS = S,</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   nitro &gt;= 3}</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 7: {ring = penta, OS = O, OS = S} -&gt; {ring = hex, nitro &gt;= 1, nitro &gt;= 2,</span></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   nitro &gt;= 3}</span></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rule 8: {ring = hex, ring = penta} -&gt; {OS = O, OS = S, nitro &gt;= 1, nitro &gt;= 2,</span></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   nitro &gt;= 3}</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">find_implications</span>()</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>fc<span class="sc">$</span>implications</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; Implication set with 8 implications.</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt; Rule 1: {nitro &gt;= 3} -&gt; {ring = hex, nitro &gt;= 1, nitro &gt;= 2}</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; Rule 2: {nitro &gt;= 2} -&gt; {nitro &gt;= 1}</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; Rule 3: {OS = S} -&gt; {ring = penta}</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt; Rule 4: {OS = O} -&gt; {ring = penta}</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; Rule 5: {ring = penta, OS = S, nitro &gt;= 1, nitro &gt;= 2} -&gt; {ring = hex, OS = O,</span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt;   nitro &gt;= 3}</span></span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt; Rule 6: {ring = penta, OS = O, nitro &gt;= 1, nitro &gt;= 2} -&gt; {ring = hex, OS = S,</span></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="co">#&gt;   nitro &gt;= 3}</span></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="co">#&gt; Rule 7: {ring = penta, OS = O, OS = S} -&gt; {ring = hex, nitro &gt;= 1, nitro &gt;= 2,</span></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="co">#&gt;   nitro &gt;= 3}</span></span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a><span class="co">#&gt; Rule 8: {ring = hex, ring = penta} -&gt; {OS = O, OS = S, nitro &gt;= 1, nitro &gt;= 2,</span></span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a><span class="co">#&gt;   nitro &gt;= 3}</span></span></code></pre></div>
 <p>and the concepts:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fc<span class="sc">$</span>concepts</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; A set of 15 concepts:</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1: ({Benzene, Furan, Imidazole, 1-3-Oxazole, Pyrazine, Pyrazole, Pyridine, Pyrimidine, Pyrrole, Thiazole}, {})</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2: ({Imidazole, 1-3-Oxazole, Pyrazine, Pyrazole, Pyridine, Pyrimidine, Thiazole}, {nitro &gt;= 1})</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3: ({Imidazole, Pyrazine, Thiazole}, {nitro &gt;= 1, nitro &gt;= 2})</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4: ({Furan, Imidazole, 1-3-Oxazole, Pyridine, Pyrimidine, Pyrrole}, {ring = penta})</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5: ({Imidazole, 1-3-Oxazole, Pyridine, Pyrimidine}, {ring = penta, nitro &gt;= 1})</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6: ({Imidazole}, {ring = penta, nitro &gt;= 1, nitro &gt;= 2})</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7: ({Pyrimidine, Pyrrole}, {ring = penta, OS = S})</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8: ({Pyrimidine}, {ring = penta, OS = S, nitro &gt;= 1})</span></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9: ({Furan, 1-3-Oxazole}, {ring = penta, OS = O})</span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10: ({1-3-Oxazole}, {ring = penta, OS = O, nitro &gt;= 1})</span></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11: ({Benzene, Pyrazine, Pyrazole, Thiazole}, {ring = hex})</span></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12: ({Pyrazine, Pyrazole, Thiazole}, {ring = hex, nitro &gt;= 1})</span></span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13: ({Pyrazine, Thiazole}, {ring = hex, nitro &gt;= 1, nitro &gt;= 2})</span></span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14: ({Thiazole}, {ring = hex, nitro &gt;= 1, nitro &gt;= 2, nitro &gt;= 3})</span></span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15: ({}, {ring = hex, ring = penta, OS = O, OS = S, nitro &gt;= 1, nitro &gt;= 2, nitro &gt;= 3})</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>fc<span class="sc">$</span>concepts</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co">#&gt; A set of 15 concepts:</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">#&gt; 1: ({Benzene, Furan, Imidazole, 1-3-Oxazole, Pyrazine, Pyrazole, Pyridine, Pyrimidine, Pyrrole, Thiazole, Thiophene, 1-3-5-Triazine}, {})</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; 2: ({Imidazole, 1-3-Oxazole, Pyrazine, Pyrazole, Pyridine, Pyrimidine, Pyrrole, Thiazole, 1-3-5-Triazine}, {nitro &gt;= 1})</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; 3: ({Imidazole, Pyrazine, Pyrazole, Pyrimidine, 1-3-5-Triazine}, {nitro &gt;= 1, nitro &gt;= 2})</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; 4: ({Furan, Imidazole, 1-3-Oxazole, Pyrazole, Pyrrole, Thiazole, Thiophene}, {ring = penta})</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; 5: ({Imidazole, 1-3-Oxazole, Pyrazole, Pyrrole, Thiazole}, {ring = penta, nitro &gt;= 1})</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; 6: ({Imidazole, Pyrazole}, {ring = penta, nitro &gt;= 1, nitro &gt;= 2})</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt; 7: ({Thiazole, Thiophene}, {ring = penta, OS = S})</span></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt; 8: ({Thiazole}, {ring = penta, OS = S, nitro &gt;= 1})</span></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt; 9: ({Furan, 1-3-Oxazole}, {ring = penta, OS = O})</span></span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt; 10: ({1-3-Oxazole}, {ring = penta, OS = O, nitro &gt;= 1})</span></span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co">#&gt; 11: ({Benzene, Pyrazine, Pyridine, Pyrimidine, 1-3-5-Triazine}, {ring = hex})</span></span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="co">#&gt; 12: ({Pyrazine, Pyridine, Pyrimidine, 1-3-5-Triazine}, {ring = hex, nitro &gt;= 1})</span></span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt; 13: ({Pyrazine, Pyrimidine, 1-3-5-Triazine}, {ring = hex, nitro &gt;= 1, nitro &gt;= 2})</span></span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt; 14: ({1-3-5-Triazine}, {ring = hex, nitro &gt;= 1, nitro &gt;= 2, nitro &gt;= 3})</span></span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt; 15: ({}, {ring = hex, ring = penta, OS = O, OS = S, nitro &gt;= 1, nitro &gt;= 2, nitro &gt;= 3})</span></span></code></pre></div>
 </div>
 
 

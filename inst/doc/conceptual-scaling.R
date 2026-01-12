@@ -38,105 +38,142 @@ A <- data.frame(A_nom, A_ord, A_int, A_bi, A_interv)
 fc <- FormalContext$new(A)
 
 ## ----echo = FALSE-------------------------------------------------------------
-fc$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "rcccc")
+fc$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "rcccc"
+  )
 
 ## ----echo = FALSE-------------------------------------------------------------
 fc_nom <- FormalContext$new(A_nom)
-fc_nom$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "r")
+fc_nom$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "r"
+  )
 
 ## ----echo = FALSE-------------------------------------------------------------
 fc_nom$scale("Grant", type = "nominal")
-fc_nom$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "cc")
+fc_nom$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "cc"
+  )
 
 ## ----echo = FALSE-------------------------------------------------------------
-fc_nom$get_scales("Grant")$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "cc")
+fc_nom$get_scales("Grant")$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "cc"
+  )
 
 ## ----echo = FALSE-------------------------------------------------------------
 fc_nom <- FormalContext$new(A_ord)
-fc_nom$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "c")
+fc_nom$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "c"
+  )
 
 ## ----echo = FALSE-------------------------------------------------------------
 fc_nom$scale("Intern", type = "ordinal")
-fc_nom$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "cc")
+fc_nom$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "cc"
+  )
 
 ## ----echo = FALSE-------------------------------------------------------------
-fc_nom$get_scales("Intern")$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "cc")
+fc_nom$get_scales("Intern")$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "cc"
+  )
 
 ## ----echo = FALSE-------------------------------------------------------------
 fc_nom <- FormalContext$new(A_int)
-fc_nom$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "c")
+fc_nom$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "c"
+  )
 
 ## ----echo = FALSE-------------------------------------------------------------
-fc_nom$scale("Agreement", 
-             type = "interordinal",
-             values = c("strongly disagree",
-                        "disagree",
-                        "neither agree nor disagree",
-                        "agree",
-                        "strongly agree"))
-fc_nom$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "cc")
+fc_nom$scale("Agreement",
+  type = "interordinal",
+  values = c(
+    "strongly disagree",
+    "disagree",
+    "neither agree nor disagree",
+    "agree",
+    "strongly agree"
+  )
+)
+fc_nom$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "cc"
+  )
 
 ## ----echo = FALSE-------------------------------------------------------------
-fc_nom$get_scales("Agreement")$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "cc")
+fc_nom$get_scales("Agreement")$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "cc"
+  )
 
 ## ----echo = FALSE-------------------------------------------------------------
 fc_nom <- FormalContext$new(A_bi)
-fc_nom$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "c")
+fc_nom$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "c"
+  )
 
 ## ----echo = FALSE-------------------------------------------------------------
-fc_nom$scale("Attitude", 
-             type = "biordinal", 
-             values_le = c("hard working", "working"),
-             values_ge = c("lazy", "very lazy"))
-fc_nom$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "cc")
+fc_nom$scale("Attitude",
+  type = "biordinal",
+  values_le = c("hard working", "working"),
+  values_ge = c("lazy", "very lazy")
+)
+fc_nom$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "cc"
+  )
 
 ## ----echo = FALSE-------------------------------------------------------------
-fc_nom$get_scales("Attitude")$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "cc")
+fc_nom$get_scales("Attitude")$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "cc"
+  )
 
 ## ----echo = FALSE-------------------------------------------------------------
 fc_nom <- FormalContext$new(A_interv)
-fc_nom$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "c")
+fc_nom$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "c"
+  )
 
 ## ----echo = FALSE-------------------------------------------------------------
-fc_nom$scale("Score", 
-             type = "interval", 
-             values = c(2, 3, 4, 5), interval_names = c("C", "B", "A"))
-fc_nom$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "cc")
+fc_nom$scale("Score",
+  type = "interval",
+  values = c(2, 3, 4, 5), interval_names = c("C", "B", "A")
+)
+fc_nom$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "cc"
+  )
 
 ## ----echo = FALSE-------------------------------------------------------------
-fc_nom$get_scales("Score")$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "cc")
+fc_nom$get_scales("Score")$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "cc"
+  )
 
 ## -----------------------------------------------------------------------------
 scalingRegistry$get_entry_names()
@@ -150,25 +187,30 @@ fc$scale("Intern", type = "ordinal")
 fc
 
 ## -----------------------------------------------------------------------------
-fc$scale("Agreement", 
-         type = "interordinal",
-         values = c("strongly disagree",
-                    "disagree",
-                    "neither agree nor disagree",
-                    "agree",
-                    "strongly agree"))
+fc$scale("Agreement",
+  type = "interordinal",
+  values = c(
+    "strongly disagree",
+    "disagree",
+    "neither agree nor disagree",
+    "agree",
+    "strongly agree"
+  )
+)
 
 ## -----------------------------------------------------------------------------
-fc$scale("Attitude", 
-         type = "biordinal", 
-         values_le = c("hard working", "working"),
-         values_ge = c("lazy", "very lazy"))
+fc$scale("Attitude",
+  type = "biordinal",
+  values_le = c("hard working", "working"),
+  values_ge = c("lazy", "very lazy")
+)
 
 ## -----------------------------------------------------------------------------
-fc$scale("Score", 
-         type = "interval", 
-         values = c(2, 3, 4, 5), 
-         interval_names = c("C", "B", "A"))
+fc$scale("Score",
+  type = "interval",
+  values = c(2, 3, 4, 5),
+  interval_names = c("C", "B", "A")
+)
 
 ## -----------------------------------------------------------------------------
 fc$get_scales(c("Grant", "Score"))
@@ -182,38 +224,50 @@ fc$implications
 
 ## ----echo = FALSE-------------------------------------------------------------
 filename <- system.file("contexts",
-                        "aromatic.csv",
-                        package = "fcaR")
+  "aromatic.csv",
+  package = "fcaR"
+)
 
 fc_orig <- FormalContext$new(filename)
 
 ## -----------------------------------------------------------------------------
 filename <- system.file("contexts",
-                        "aromatic.csv",
-                        package = "fcaR")
+  "aromatic.csv",
+  package = "fcaR"
+)
 
 fc <- FormalContext$new(filename)
 
 ## -----------------------------------------------------------------------------
-fc$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "c")
+fc$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "c"
+  )
 
 ## -----------------------------------------------------------------------------
-fc$scale(attributes = "nitro", 
-         type = "ordinal", 
-         comparison = `>=`, 
-         values = 1:3)
-fc$scale(attributes = "OS", 
-         type = "nominal", 
-         c("O", "S"))
-fc$scale(attributes = "ring", 
-         type = "nominal")
+fc$scale(
+  attributes = "nitro",
+  type = "ordinal",
+  comparison = `>=`,
+  values = 1:3
+)
+fc$scale(
+  attributes = "OS",
+  type = "nominal",
+  c("O", "S")
+)
+fc$scale(
+  attributes = "ring",
+  type = "nominal"
+)
 
 ## ----echo = FALSE-------------------------------------------------------------
-fc$incidence() %>% 
-  knitr::kable(format = "html",
-               align = "c")
+fc$incidence() %>%
+  knitr::kable(
+    format = "html",
+    align = "c"
+  )
 
 ## -----------------------------------------------------------------------------
 fc$background_knowledge()
