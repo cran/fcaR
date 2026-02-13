@@ -141,11 +141,13 @@ Hahsler M, Grun B, Hornik K (2005). “arules - a computational environment for 
 \item \href{#method-FormalContext-standardize}{\code{FormalContext$standardize()}}
 \item \href{#method-FormalContext-find_concepts}{\code{FormalContext$find_concepts()}}
 \item \href{#method-FormalContext-find_implications}{\code{FormalContext$find_implications()}}
+\item \href{#method-FormalContext-find_causal_rules}{\code{FormalContext$find_causal_rules()}}
 \item \href{#method-FormalContext-factorize}{\code{FormalContext$factorize()}}
 \item \href{#method-FormalContext-to_transactions}{\code{FormalContext$to_transactions()}}
 \item \href{#method-FormalContext-save}{\code{FormalContext$save()}}
 \item \href{#method-FormalContext-load}{\code{FormalContext$load()}}
 \item \href{#method-FormalContext-dim}{\code{FormalContext$dim()}}
+\item \href{#method-FormalContext-to_json}{\code{FormalContext$to_json()}}
 \item \href{#method-FormalContext-print}{\code{FormalContext$print()}}
 \item \href{#method-FormalContext-to_latex}{\code{FormalContext$to_latex()}}
 \item \href{#method-FormalContext-incidence}{\code{FormalContext$incidence()}}
@@ -606,6 +608,40 @@ Nothing, just updates the internal fields \code{concepts} and \code{implications
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-FormalContext-find_causal_rules"></a>}}
+\if{latex}{\out{\hypertarget{method-FormalContext-find_causal_rules}{}}}
+\subsection{Method \code{find_causal_rules()}}{
+Find causal rules
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$find_causal_rules(
+  response_var,
+  min_support = 0.1,
+  confidence_level = 0.95,
+  max_length = 3,
+  verbose = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{response_var}}{(character) The name of the response variable.}
+
+\item{\code{min_support}}{(numeric) Minimum support for the premise attributes.}
+
+\item{\code{confidence_level}}{(numeric) Confidence level for the causality test.}
+
+\item{\code{max_length}}{(integer) Maximum length of the premise.}
+
+\item{\code{verbose}}{(logical) Show verbose output.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A \code{RuleSet} object containing the discovered causal rules and their quality metrics.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FormalContext-factorize"></a>}}
 \if{latex}{\out{\hypertarget{method-FormalContext-factorize}{}}}
 \subsection{Method \code{factorize()}}{
@@ -710,6 +746,26 @@ A vector with (number of objects, number of attributes).
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-FormalContext-to_json"></a>}}
+\if{latex}{\out{\hypertarget{method-FormalContext-to_json}{}}}
+\subsection{Method \code{to_json()}}{
+Export the formal context to JSON
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$to_json(file = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{file}}{(character) The path of the file to save the JSON to.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A JSON string representing the formal context.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FormalContext-print"></a>}}
 \if{latex}{\out{\hypertarget{method-FormalContext-print}{}}}
 \subsection{Method \code{print()}}{
@@ -774,7 +830,7 @@ fc$incidence()
 \if{html}{\out{<a id="method-FormalContext-subcontext"></a>}}
 \if{latex}{\out{\hypertarget{method-FormalContext-subcontext}{}}}
 \subsection{Method \code{subcontext()}}{
-Subcontext of the formal context
+Generates a new FormalContext restricted to a subset of objects and/or attributes.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{FormalContext$subcontext(objects, attributes)}\if{html}{\out{</div>}}
 }
@@ -782,27 +838,14 @@ Subcontext of the formal context
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{objects}}{(character array) Name of the objects to
-keep.}
+\item{\code{objects}}{(character or integer vector) The names or indices of the objects to keep. If NULL, keeps all.}
 
-\item{\code{attributes}}{(character array) Names of the attributes
-to keep.}
+\item{\code{attributes}}{(character or integer vector) The names or indices of the attributes to keep. If NULL, keeps all.}
 }
 \if{html}{\out{</div>}}
 }
-\subsection{Details}{
-A warning will be issued if any of the names is not present
-in the list of objects or attributes of the formal context.
-
-If \code{objects} or \code{attributes} is empty, then it is
-assumed to represent the whole set of objects or attributes
-of the original formal context.
-}
-
 \subsection{Returns}{
-Another \code{FormalContext} that is a subcontext
-of the original one, with only the objects and attributes
-selected.
+A new \code{FormalContext} object representing the subcontext.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}

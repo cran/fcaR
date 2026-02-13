@@ -24,7 +24,7 @@
   conclusions <- imps$get_RHS_matrix()
   I <- fc$incidence()
 
-  holds <- sapply(seq(ncol(premises)),
+  holds <- sapply(seq_len(ncol(premises)),
                      function(i) {
 
                        p <- .extract_column(premises, i)
@@ -35,8 +35,8 @@
                        .subset(.extract_column(conclusions, i),
                                p)
 
-                     }) %>%
-    purrr::reduce(cbind) %>%
+                     }) |>
+    purrr::reduce(cbind) |>
     as.vector()
 
   return(holds)
@@ -83,7 +83,7 @@
       (length(set) > 0) &&
       inherits(set[[1]], "Set")) {
 
-    res <- lapply(set, function(s) .respect(s, imps)) %>%
+    res <- lapply(set, function(s) .respect(s, imps)) |>
       purrr::reduce(cbind)
 
     setnumber <- stringr::str_pad(seq_along(set),

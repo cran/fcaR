@@ -87,8 +87,7 @@ FormalContext <- R6::R6Class(
     #' @return An object of the \code{FormalContext} class.
     #' @export
     #'
-    initialize = function(I, filename,
-                          remove_const = FALSE) {
+    initialize = function(I, filename, remove_const = FALSE) {
       if (missing(I)) {
         if (!missing(filename) && file.exists(filename)) {
           self$load(filename)
@@ -104,7 +103,12 @@ FormalContext <- R6::R6Class(
       }
 
       if ((length(I) == 1) && is.character(I) && !file.exists(I)) {
-        stop(glue::glue("File '{I}' not found. If you want to download it from the repository, please use `fcaR::fetch_context('{I}')` instead."), call. = FALSE)
+        stop(
+          glue::glue(
+            "File '{I}' not found. If you want to download it from the repository, please use `fcaR::fetch_context('{I}')` instead."
+          ),
+          call. = FALSE
+        )
       }
 
       # version
@@ -115,26 +119,25 @@ FormalContext <- R6::R6Class(
 
       # Transform the formal context to sparse
       if (inherits(I, "transactions")) {
-
         check_needed_pkg("arules", "process 'transactions' objects")
 
         # If it comes from the arules package
         attributes <- I@itemInfo$labels
         I <- convert_to_sparse(I@data)
-        objects <- paste0(seq(ncol(I)))
+        objects <- paste0(seq_len(ncol(I)))
         dimnames(I) <- list(attributes, objects)
       } else {
         # Or if it comes from a numeric table
         if (length(colnames(I)) > 0) {
           attributes <- colnames(I)
         } else {
-          attributes <- paste0("A", seq(ncol(I)))
+          attributes <- paste0("A", seq_len(ncol(I)))
         }
 
         if (length(rownames(I)) > 0) {
           objects <- rownames(I)
         } else {
-          objects <- paste0("O", seq(nrow(I)))
+          objects <- paste0("O", seq_len(nrow(I)))
         }
 
         private$is_many_valued <- check_many_valued(I)
@@ -147,12 +150,12 @@ FormalContext <- R6::R6Class(
             constant_cols <- which(apply(I, 2, max) == apply(I, 2, min))
 
             if (length(constant_cols) > 0) {
-              str <- paste0("Removed constant columns: ", stringr::str_flatten(attributes[constant_cols], collapse = ", "))
+              str <- paste0(
+                "Removed constant columns: ",
+                stringr::str_flatten(attributes[constant_cols], collapse = ", ")
+              )
 
-              message(stringr::str_wrap(str,
-                exdent = 2,
-                width = 75
-              ))
+              message(stringr::str_wrap(str, exdent = 2, width = 75))
 
               I <- I[, -constant_cols]
               attributes <- attributes[-constant_cols]
@@ -245,7 +248,9 @@ FormalContext <- R6::R6Class(
     scale = function(attributes, type, ...) {
       # TODO: Check that the attributes are in self$attributes
 
-      if (missing(attributes)) attributes <- self$attributes
+      if (missing(attributes)) {
+        attributes <- self$attributes
+      }
       if (is.function(attributes)) {
         I <- self$incidence()
 
@@ -264,12 +269,7 @@ FormalContext <- R6::R6Class(
       I <- self$incidence()
       for (att in attributes) {
         scaled <-
-          scale_context(I,
-            column = att,
-            type = type,
-            bg = bg,
-            dots
-          )
+          scale_context(I, column = att, type = type, bg = bg, dots)
 
         I <- scaled$derived
         private$scales <- c(
@@ -352,7 +352,11 @@ FormalContext <- R6::R6Class(
         if (is.null(private$bg_implications_basis)) {
           private$bg_implications_basis <- private$bg_implications$clone()
           # private$bg_implications_basis$to_basis()
-          suppressMessages(private$bg_implications_basis$apply_rules(c("comp", "simp", "rsimp")))
+          suppressMessages(private$bg_implications_basis$apply_rules(c(
+            "comp",
+            "simp",
+            "rsimp"
+          )))
         }
 
         private$bg_implications_basis$clone()
@@ -390,7 +394,9 @@ FormalContext <- R6::R6Class(
     #'
     #' @export
     intent = function(S) {
-      if (private$is_many_valued) error_many_valued()
+      if (private$is_many_valued) {
+        error_many_valued()
+      }
 
       if (inherits(S, "Set")) {
         if (all(S$get_attributes() == self$objects)) {
@@ -403,7 +409,7 @@ FormalContext <- R6::R6Class(
             " that in the formal context. Attempting to match",
             " attribute names gives ",
             .set_to_string(S, self$objects)
-          ) %>%
+          ) |>
             stringr::str_flatten()
           warning(warn, call. = FALSE, immediate. = TRUE)
           # stop("It is not a set of the required type (set of objects).", call. = FALSE)
@@ -438,7 +444,10 @@ FormalContext <- R6::R6Class(
 
         return(R)
       } else {
-        stop("It is not a set of the required type (set of objects).", call. = FALSE)
+        stop(
+          "It is not a set of the required type (set of objects).",
+          call. = FALSE
+        )
       }
     },
 
@@ -465,7 +474,9 @@ FormalContext <- R6::R6Class(
     extent = function(S) {
       # TODO: Apply scales to Sets.
 
-      if (private$is_many_valued) error_many_valued()
+      if (private$is_many_valued) {
+        error_many_valued()
+      }
 
       if (inherits(S, "Set")) {
         if (all(S$get_attributes() == self$attributes)) {
@@ -478,7 +489,7 @@ FormalContext <- R6::R6Class(
             " that in the formal context. Attempting to match",
             " attribute names gives ",
             .set_to_string(S, self$attributes)
-          ) %>%
+          ) |>
             stringr::str_flatten()
           warning(warn, call. = FALSE, immediate. = TRUE)
           # stop("It is not a set of the required type (set of attributes).", call. = FALSE)
@@ -513,7 +524,10 @@ FormalContext <- R6::R6Class(
 
         return(R)
       } else {
-        stop("It is not a set of the required type (set of objects).", call. = FALSE)
+        stop(
+          "It is not a set of the required type (set of objects).",
+          call. = FALSE
+        )
       }
     },
 
@@ -538,7 +552,9 @@ FormalContext <- R6::R6Class(
     #'
     #' @export
     closure = function(S) {
-      if (private$is_many_valued) error_many_valued()
+      if (private$is_many_valued) {
+        error_many_valued()
+      }
 
       if (inherits(S, "Set")) {
         if (all(S$get_attributes() == self$attributes)) {
@@ -551,7 +567,7 @@ FormalContext <- R6::R6Class(
             " that in the formal context. Attempting to match",
             " attribute names gives ",
             .set_to_string(S, self$attributes)
-          ) %>%
+          ) |>
             stringr::str_flatten()
           warning(warn, call. = FALSE, immediate. = TRUE)
 
@@ -587,7 +603,10 @@ FormalContext <- R6::R6Class(
 
         return(R)
       } else {
-        stop("It is not a set of the required type (set of objects).", call. = FALSE)
+        stop(
+          "It is not a set of the required type (set of objects).",
+          call. = FALSE
+        )
       }
     },
 
@@ -601,7 +620,9 @@ FormalContext <- R6::R6Class(
     #'
     #' @export
     obj_concept = function(object) {
-      if (private$is_many_valued) error_many_valued()
+      if (private$is_many_valued) {
+        error_many_valued()
+      }
 
       S <- Set$new(attributes = self$objects)
       S$assign(attributes = object, values = 1)
@@ -624,7 +645,9 @@ FormalContext <- R6::R6Class(
     #'
     #' @export
     att_concept = function(attribute) {
-      if (private$is_many_valued) error_many_valued()
+      if (private$is_many_valued) {
+        error_many_valued()
+      }
 
       S <- Set$new(attributes = self$attributes)
       S$assign(attributes = attribute, values = 1)
@@ -676,16 +699,20 @@ FormalContext <- R6::R6Class(
     #'
     #' @export
     clarify = function(copy = FALSE) {
-      if (private$is_many_valued) error_many_valued()
+      if (private$is_many_valued) {
+        error_many_valued()
+      }
 
       # Redundant attributes
-      my_I <- .clarify_matrix(Matrix::t(self$I),
+      my_I <- .clarify_matrix(
+        Matrix::t(self$I),
         rows = self$objects,
         cols = self$attributes
       )
 
       # And redundant objects
-      my_I <- .clarify_matrix(Matrix::t(my_I),
+      my_I <- .clarify_matrix(
+        Matrix::t(my_I),
         rows = colnames(my_I),
         cols = self$objects
       )
@@ -712,7 +739,10 @@ FormalContext <- R6::R6Class(
     #' @export
     reduce = function(copy = FALSE) {
       if (!private$is_binary) {
-        stop("This FormalContext is not binary. Reduction is not implemented for fuzzy contexts.", call. = FALSE)
+        stop(
+          "This FormalContext is not binary. Reduction is not implemented for fuzzy contexts.",
+          call. = FALSE
+        )
       }
 
       # Make a copy with the clarified context
@@ -748,7 +778,9 @@ FormalContext <- R6::R6Class(
           )
 
           if (S[1]) {
-            R[Matrix::which(yp_down$get_vector() < R)] <- yp_down$get_vector()[Matrix::which(yp_down$get_vector() < R)]
+            R[Matrix::which(
+              yp_down$get_vector() < R
+            )] <- yp_down$get_vector()[Matrix::which(yp_down$get_vector() < R)]
           }
         }
 
@@ -797,7 +829,9 @@ FormalContext <- R6::R6Class(
     #' The standard context using the join- and meet- irreducible elements.
     #' @export
     standardize = function() {
-      if (private$is_many_valued) error_many_valued()
+      if (private$is_many_valued) {
+        error_many_valued()
+      }
 
       if (self$concepts$is_empty()) {
         stop("Concepts must be computed beforehand.\n", call. = FALSE)
@@ -832,11 +866,12 @@ FormalContext <- R6::R6Class(
     #' @return A list with all the concepts in the formal context.
     #'
     #' @export
-    find_concepts = function(method = "InClose",
-                             verbose = FALSE) {
+    find_concepts = function(method = "InClose", verbose = FALSE) {
       private$check_empty()
 
-      if (private$is_many_valued) error_many_valued()
+      if (private$is_many_valued) {
+        error_many_valued()
+      }
 
       # my_I <- Matrix::as.matrix(Matrix::t(self$I))
 
@@ -910,7 +945,6 @@ FormalContext <- R6::R6Class(
         my_extents <- L$extents
       }
 
-
       self$concepts <- ConceptLattice$new(
         extents = my_extents,
         intents = my_intents,
@@ -937,23 +971,21 @@ FormalContext <- R6::R6Class(
     #'
     #'
     #' @export
-    find_implications = function(save_concepts = TRUE,
-                                 verbose = FALSE) {
+    find_implications = function(save_concepts = TRUE, verbose = FALSE) {
       private$check_empty()
 
-      if (private$is_many_valued) error_many_valued()
+      if (private$is_many_valued) {
+        error_many_valued()
+      }
 
       if (all(self$I@x == 1)) {
-
         I <- self$incidence()
         mode(I) <- "integer"
         L <- binary_next_closure_implications(
           I,
           verbose = verbose
         )
-
       } else {
-
         my_I <- Matrix::as.matrix(Matrix::t(self$I))
         grades_set <- rep(list(self$grades_set), length(self$attributes))
         attrs <- self$attributes
@@ -967,12 +999,12 @@ FormalContext <- R6::R6Class(
           name = private$logic,
           verbose = verbose
         )
-
       }
 
-
-      if (!is.null(private$bg_implications) && private$bg_implications$cardinality() > 0) {
-
+      if (
+        !is.null(private$bg_implications) &&
+          private$bg_implications$cardinality() > 0
+      ) {
         private$bg_implications <- reorder_attributes(
           private$bg_implications,
           self$attributes
@@ -1047,6 +1079,88 @@ FormalContext <- R6::R6Class(
     },
 
     #' @description
+    #' Find causal rules
+    #'
+    #' @param response_var (character) The name of the response variable.
+    #' @param min_support (numeric) Minimum support for the premise attributes.
+    #' @param confidence_level (numeric) Confidence level for the causality test.
+    #' @param max_length (integer) Maximum length of the premise.
+    #' @param verbose (logical) Show verbose output.
+    #'
+    #' @return A \code{RuleSet} object containing the discovered causal rules and their quality metrics.
+    #' @export
+    find_causal_rules = function(
+      response_var,
+      min_support = 0.1,
+      confidence_level = 0.95,
+      max_length = 3,
+      verbose = FALSE
+    ) {
+      df <- find_causal_rules(
+        self,
+        response_var,
+        min_support,
+        confidence_level,
+        max_length,
+        verbose
+      )
+
+      if (nrow(df) == 0) {
+        return(RuleSet$new(attributes = self$attributes))
+      }
+
+      # Convert data frame to RuleSet
+      n_rules <- nrow(df)
+      n_attrs <- length(self$attributes)
+
+      # Create sparse matrices
+      # Using triplet format for efficiency if many rules, but dgCMatrix construction is fine
+      lhs_i <- integer(0)
+      lhs_j <- integer(0)
+
+      rhs_i <- integer(0)
+      rhs_j <- integer(0)
+
+      for (k in seq_len(n_rules)) {
+        # Parse premise
+        if (df$premise[k] != "") {
+          p_attrs <- unlist(strsplit(df$premise[k], ", "))
+          p_idx <- match(p_attrs, self$attributes)
+          lhs_i <- c(lhs_i, p_idx)
+          lhs_j <- c(lhs_j, rep(k, length(p_idx)))
+        }
+
+        # Conclusion
+        c_attrs <- df$conclusion[k]
+        c_idx <- match(c_attrs, self$attributes)
+        rhs_i <- c(rhs_i, c_idx)
+        rhs_j <- c(rhs_j, rep(k, length(c_idx)))
+      }
+
+      lhs_mat <- Matrix::sparseMatrix(
+        i = lhs_i,
+        j = lhs_j,
+        dims = c(n_attrs, n_rules)
+      )
+      rhs_mat <- Matrix::sparseMatrix(
+        i = rhs_i,
+        j = rhs_j,
+        dims = c(n_attrs, n_rules)
+      )
+
+      qual <- df[, setdiff(names(df), c("premise", "conclusion")), drop = FALSE]
+
+      rs <- RuleSet$new(
+        attributes = self$attributes,
+        lhs = lhs_mat,
+        rhs = rhs_mat,
+        quality = qual
+      )
+
+      return(rs)
+    },
+
+    #' @description
     #' Factorize the formal context using Boolean/Fuzzy Matrix Factorization algorithms.
     #'
     #' @param method (character) The algorithm to use. Currently supported: "GreConD", "ASSO".
@@ -1063,7 +1177,9 @@ FormalContext <- R6::R6Class(
     #' }
     #' @export
     factorize = function(method = "GreConD", ...) {
-      if (self$is_empty()) stop("Context is empty.")
+      if (self$is_empty()) {
+        stop("Context is empty.")
+      }
 
       # Convertir a densa para algoritmos numéricos complejos
       I_mat <- as.matrix(self$incidence())
@@ -1073,7 +1189,11 @@ FormalContext <- R6::R6Class(
 
       if (method == "GreConD" || method == "GreConD+") {
         w <- ifelse(is.null(dots$w), 1.0, dots$w)
-        stop_ratio <- ifelse(is.null(dots$stop_threshold_ratio), 0.0, dots$stop_threshold_ratio)
+        stop_ratio <- ifelse(
+          is.null(dots$stop_threshold_ratio),
+          0.0,
+          dots$stop_threshold_ratio
+        )
 
         # --- INTEGRACIÓN DIFUSA ---
         # Recuperamos la lógica actual del objeto
@@ -1133,12 +1253,13 @@ FormalContext <- R6::R6Class(
     #'
     #' @export
     to_transactions = function() {
-
       check_needed_pkg("arules", "exporting to transactions format")
 
       private$check_empty()
 
-      if (private$is_many_valued) error_many_valued()
+      if (private$is_many_valued) {
+        error_many_valued()
+      }
 
       return(methods::as(methods::as(self$I, "nMatrix"), "transactions"))
       # return(to_transactions.SpM(self$I))
@@ -1159,9 +1280,9 @@ FormalContext <- R6::R6Class(
 
       pattern <- "(?<!^|[.]|/)[.]([^.]+)$"
 
-      extension <- filename %>%
-        stringr::str_extract_all(pattern) %>%
-        unlist() %>%
+      extension <- filename |>
+        stringr::str_extract_all(pattern) |>
+        unlist() |>
         tolower()
 
       if (extension == ".cxt") {
@@ -1228,9 +1349,9 @@ FormalContext <- R6::R6Class(
     load = function(filename) {
       pattern <- "(?<!^|[.]|/)[.]([^.]+)$"
 
-      extension <- filename %>%
-        stringr::str_extract_all(pattern) %>%
-        unlist() %>%
+      extension <- filename |>
+        stringr::str_extract_all(pattern) |>
+        unlist() |>
         tolower()
 
       if (extension == ".rds") {
@@ -1253,7 +1374,6 @@ FormalContext <- R6::R6Class(
           lhs = L$implications$get_LHS_matrix(),
           rhs = L$implications$get_RHS_matrix()
         )
-
 
         if (!is.null(L$extents)) {
           self$concepts <- ConceptLattice$new(
@@ -1283,8 +1403,8 @@ FormalContext <- R6::R6Class(
       if (extension == ".cxt") {
         txt <- readLines(filename)
 
-        n_objects <- txt[3] %>% as.numeric()
-        n_attributes <- txt[4] %>% as.numeric()
+        n_objects <- txt[3] |> as.numeric()
+        n_attributes <- txt[4] |> as.numeric()
 
         obj_idx <- seq(6, 6 + n_objects - 1)
         att_idx <- seq(
@@ -1298,17 +1418,17 @@ FormalContext <- R6::R6Class(
 
         objects <- txt[obj_idx]
         attributes <- txt[att_idx]
-        matrix <- txt[matrix_idx] %>%
+        matrix <- txt[matrix_idx] |>
           stringr::str_replace_all(
             pattern = "[X|x]",
             replacement = "1"
-          ) %>%
+          ) |>
           stringr::str_replace_all(
             pattern = stringr::fixed("."),
             replacement = "0"
-          ) %>%
-          as.list() %>%
-          stringr::str_split(pattern = "") %>%
+          ) |>
+          as.list() |>
+          stringr::str_split(pattern = "") |>
           purrr::map(as.numeric)
 
         I <- do.call(rbind, matrix)
@@ -1329,6 +1449,93 @@ FormalContext <- R6::R6Class(
     #' @export
     dim = function() {
       return(c(length(self$objects), length(self$attributes)))
+    },
+
+    #' @description
+    #' Export the formal context to JSON
+    #'
+    #' @param file (character) The path of the file to save the JSON to.
+    #' @return A JSON string representing the formal context.
+    #' @export
+    to_json = function(file = NULL) {
+      check_needed_pkg("jsonlite", "exporting to JSON")
+
+      # We export the transpose of I so that it is row-major (Objects x Attributes)
+
+      # Helper to convert sparse matrix
+      mat_to_list <- function(M) {
+        if (is.null(M)) {
+          warning("mat_to_list received NULL matrix")
+          return(list(
+            indices = integer(0),
+            columns = integer(0),
+            values = numeric(0)
+          ))
+        }
+
+        # Use summary to get triplets (works for dgCMatrix)
+        s <- summary(M)
+
+        # If summary returns a table-like object (e.g. for ddiMatrix), force conversion
+        if (!all(c("i", "j", "x") %in% names(s))) {
+          # Fallback: try to convert to TsparseMatrix if summary didn't give triplets
+          T <- as(M, "TsparseMatrix")
+          s <- summary(T)
+        }
+
+        if (nrow(s) == 0) {
+          return(list(
+            indices = integer(0),
+            columns = integer(0),
+            values = numeric(0)
+          ))
+        }
+
+        # Convert to 0-based indexing for JSON
+        res <- list(
+          indices = as.integer(s$j) - 1L,
+          columns = as.integer(s$i) - 1L,
+          values = as.numeric(s$x)
+        )
+        return(res)
+      }
+
+      tr_I <- Matrix::t(self$I)
+
+      I_data <- mat_to_list(tr_I)
+
+      # Concepts
+      concepts_data <- NULL
+      if (inherits(self$concepts, "ConceptLattice")) {
+        concepts_data <- self$concepts$to_json(return_list = TRUE)
+      }
+
+      # Implications
+      implications_data <- NULL
+      if (inherits(self$implications, "ImplicationSet")) {
+        implications_data <- self$implications$to_json(return_list = TRUE)
+      }
+
+      context_data <- list(
+        type = "FormalContext",
+        objects = self$objects,
+        attributes = self$attributes,
+        I = I_data,
+        grades_set = self$grades_set,
+        description = self$description,
+        is_many_valued = private$is_many_valued,
+        concepts = concepts_data,
+        implications = implications_data
+      )
+
+      json_string <- jsonlite::toJSON(context_data, auto_unbox = TRUE)
+
+      if (!is.null(file)) {
+        writeLines(json_string, file)
+        return(invisible(json_string))
+      } else {
+        return(json_string)
+      }
     },
 
     #' @description
@@ -1358,8 +1565,8 @@ FormalContext <- R6::R6Class(
           objects <- objects[1:10]
         }
 
-
-        matp <- .print_matrix(I,
+        matp <- .print_matrix(
+          I,
           objects = objects,
           attributes = self$attributes
         )
@@ -1368,10 +1575,12 @@ FormalContext <- R6::R6Class(
         last_attribute <- max(ids) - 1
 
         str <- paste0(
-          "FormalContext with ", dims[1],
+          "FormalContext with ",
+          dims[1],
           " objects and ",
-          dims[2], " attributes."
-        ) %>%
+          dims[2],
+          " attributes."
+        ) |>
           stringr::str_wrap(width = getOption("width"))
 
         cat(str)
@@ -1387,20 +1596,22 @@ FormalContext <- R6::R6Class(
             remaining <- c(remaining[1:6], "...")
           }
 
-          remaining <- remaining %>%
+          remaining <- remaining |>
             stringr::str_flatten(", ")
 
-          str <- paste0("Other attributes are: ", remaining) %>%
+          str <- paste0("Other attributes are: ", remaining) |>
             stringr::str_wrap(width = getOption("width"))
 
           cat(str, "\n")
         }
       } else {
         str <- paste0(
-          "FormalContext with ", dims[1],
+          "FormalContext with ",
+          dims[1],
           " objects and ",
-          dims[2], " attributes."
-        ) %>%
+          dims[2],
+          " attributes."
+        ) |>
           stringr::str_wrap(width = getOption("width"))
 
         cat(str)
@@ -1411,7 +1622,6 @@ FormalContext <- R6::R6Class(
         # print(tibble::tibble(private$many_valued_I))
       }
     },
-
 
     #' @description
     #' Write the context in LaTeX format
@@ -1427,11 +1637,11 @@ FormalContext <- R6::R6Class(
     #' @export
     #' @importFrom glue glue
     #'
-    to_latex = function(table = TRUE,
-                        label = "",
-                        caption = "") {
+    to_latex = function(table = TRUE, label = "", caption = "") {
       # TODO: export a many-valued context to LaTeX
-      if (private$is_many_valued) error_many_valued()
+      if (private$is_many_valued) {
+        error_many_valued()
+      }
 
       fraction <- fcaR_options("latex_fraction")
 
@@ -1441,14 +1651,11 @@ FormalContext <- R6::R6Class(
         I <- .print_binary(I, latex = TRUE)
       } else {
         if (fraction != "none") {
-          I <- .to_fraction(I,
-            latex = TRUE,
-            type = fraction
-          )
+          I <- .to_fraction(I, latex = TRUE, type = fraction)
         } else {
           decimal_places <- fcaR_options("decimal_places")
-          I[] <- I %>%
-            formatC(digits = decimal_places) %>%
+          I[] <- I |>
+            formatC(digits = decimal_places) |>
             stringr::str_replace_all("\\s*", "")
         }
       }
@@ -1511,59 +1718,103 @@ FormalContext <- R6::R6Class(
     },
 
     #' @description
-    #' Subcontext of the formal context
+    #' Generates a new FormalContext restricted to a subset of objects and/or attributes.
     #'
-    #' @param objects (character array) Name of the objects to
-    #' keep.
-    #' @param attributes (character array) Names of the attributes
-    #' to keep.
+    #' @param objects (character or integer vector) The names or indices of the objects to keep. If NULL, keeps all.
+    #' @param attributes (character or integer vector) The names or indices of the attributes to keep. If NULL, keeps all.
     #'
-    #' @details
-    #' A warning will be issued if any of the names is not present
-    #' in the list of objects or attributes of the formal context.
+    #' @return A new \code{FormalContext} object representing the subcontext.
     #'
-    #' If \code{objects} or \code{attributes} is empty, then it is
-    #' assumed to represent the whole set of objects or attributes
-    #' of the original formal context.
-    #'
-    #' @return Another \code{FormalContext} that is a subcontext
-    #' of the original one, with only the objects and attributes
-    #' selected.
     #' @export
     #'
     #' @examples
     #' fc <- FormalContext$new(planets)
     #' fc$subcontext(attributes = c("moon", "no_moon"))
-    subcontext = function(objects,
-                          attributes) {
-      if (missing(objects)) objects <- self$objects
-      if (missing(attributes)) attributes <- self$attributes
-
-      if (is.numeric(objects)) {
-        final_objects <- self$objects[objects[objects > 0 & objects < length(self$objects)]]
-      } else {
-        final_objects <- intersect(objects, self$objects)
+    subcontext = function(objects, attributes) {
+      if (missing(objects)) {
+        objects <- self$objects
+      }
+      if (missing(attributes)) {
+        attributes <- self$attributes
       }
 
-      if (is.numeric(attributes)) {
-        final_attributes <- self$attributes[attributes[attributes > 0 & attributes < length(self$attributes)]]
+      # --- 1. Resolver Índices de Objetos ---
+      if (is.null(objects)) {
+        # Si es NULL, mantenemos todos los índices
+        idx_objs <- seq_len(self$dim()[1])
+      } else if (is.character(objects)) {
+        # Si son nombres, buscamos sus índices
+        idx_objs <- match(objects, self$objects)
+        # Filtramos NAs (nombres que no existen)
+        idx_objs <- idx_objs[!is.na(idx_objs)]
       } else {
-        final_attributes <- intersect(attributes, self$attributes)
+        # Asumimos numérico/lógico
+        idx_objs <- objects
       }
 
-      if (length(objects) == 0) objects <- self$objects
-      if (length(attributes) == 0) attributes <- self$attributes
+      # --- 2. Resolver Índices de Atributos ---
+      if (is.null(attributes)) {
+        idx_attrs <- seq_len(self$dim()[2])
+      } else if (is.character(attributes)) {
+        idx_attrs <- match(attributes, self$attributes)
+        idx_attrs <- idx_attrs[!is.na(idx_attrs)]
+      } else {
+        idx_attrs <- attributes
+      }
 
-      I <- self$incidence()[final_objects, final_attributes]
-      I <- matrix(I,
-        nrow = length(final_objects),
-        ncol = length(final_attributes)
-      )
-      rownames(I) <- final_objects
-      colnames(I) <- final_attributes
+      # --- 3. Subconjunto de la Matriz (CRÍTICO) ---
+      I_sub <- self$incidence()[idx_objs, idx_attrs, drop = FALSE]
+      # rownames(I_sub) <- self$objects[idx_objs]
+      # rownames(I_sub) <- self$attributes[idx_attrs]
 
-      return(FormalContext$new(I))
+      # --- 4. Crear el Nuevo Contexto ---
+      # FormalContext$new es capaz de ingerir una matriz dispersa directamente.
+      # Esto reinicia automáticamente conceptos e implicaciones a NULL (lo correcto).
+      new_fc <- FormalContext$new(I_sub)
+
+      # --- 5. Preservar Metadatos Vitales ---
+      # El subcontexto debe operar bajo las mismas reglas matemáticas que el padre.
+      # Copiamos la lógica difusa actual.
+      new_fc$use_logic(private$logic)
+
+      # (Opcional) Si hubiera Background Knowledge cargado, ¿debería copiarse?
+      # Generalmente no, porque las escalas dependen de los atributos originales.
+      # Si se han borrado atributos, el BG knowledge podría ser inválido.
+      # Por seguridad, es mejor dejarlo limpio.
+
+      return(new_fc)
     },
+    # subcontext = function(objects,
+    #                       attributes) {
+    #   if (missing(objects)) objects <- self$objects
+    #   if (missing(attributes)) attributes <- self$attributes
+    #
+    #   if (is.numeric(objects)) {
+    #
+    #     final_objects <- self$objects[objects[objects > 0 & objects < length(self$objects)]]
+    #   } else {
+    #     final_objects <- intersect(objects, self$objects)
+    #   }
+    #
+    #   if (is.numeric(attributes)) {
+    #     final_attributes <- self$attributes[attributes[attributes > 0 & attributes < length(self$attributes)]]
+    #   } else {
+    #     final_attributes <- intersect(attributes, self$attributes)
+    #   }
+    #
+    #   if (length(objects) == 0) objects <- self$objects
+    #   if (length(attributes) == 0) attributes <- self$attributes
+    #
+    #   I <- self$incidence()[final_objects, final_attributes]
+    #   I <- matrix(I,
+    #     nrow = length(final_objects),
+    #     ncol = length(final_attributes)
+    #   )
+    #   rownames(I) <- final_objects
+    #   colnames(I) <- final_attributes
+    #
+    #   return(FormalContext$new(I))
+    # },
 
     #' @description
     #' Subcontext of the formal context
@@ -1607,13 +1858,15 @@ FormalContext <- R6::R6Class(
     #' @return If \code{to_latex} is \code{FALSE}, it returns nothing, just plots the graph of the formal context. Otherwise, this function returns the \code{LaTeX} code to reproduce the formal context plot.
     #'
     #' @export
-    plot = function(to_latex = FALSE,
-                    ...) {
-      if (private$is_many_valued) error_many_valued()
+    plot = function(to_latex = FALSE, ...) {
+      if (private$is_many_valued) {
+        error_many_valued()
+      }
 
       private$check_empty()
       if (!private$can_plot) {
-        warning("The R system has not the needed capabilities to plot.",
+        warning(
+          "The R system has not the needed capabilities to plot.",
           call. = FALSE
         )
         return(invisible(FALSE))
@@ -1680,10 +1933,87 @@ FormalContext <- R6::R6Class(
     bg_implications_basis = NULL,
     check_empty = function() {
       if (self$is_empty()) {
-        stop("The formal context is empty. The only allowed method is 'load' to import from a previously saved RDS file.", call. = FALSE)
+        stop(
+          "The formal context is empty. The only allowed method is 'load' to import from a previously saved RDS file.",
+          call. = FALSE
+        )
       }
 
       return(invisible(NULL))
     }
   )
 )
+
+#' @title Import FormalContext from JSON
+#' @description Reconstructs a FormalContext object from a JSON string.
+#' @param json_str A JSON string generated by \code{to_json()}.
+#' @return A \code{FormalContext} object.
+#' @export
+context_from_json <- function(json_str) {
+  check_needed_pkg("jsonlite", "import from JSON")
+
+  data <- jsonlite::fromJSON(json_str, simplifyVector = FALSE)
+
+  if (data$type != "FormalContext") {
+    stop("Invalid JSON: type must be 'FormalContext'")
+  }
+
+  objects <- unlist(data$objects)
+  attributes <- unlist(data$attributes)
+
+  # Reconstruct I
+  i <- unlist(data$I$columns)
+  j <- unlist(data$I$indices)
+  x <- unlist(data$I$values)
+
+  if (length(i) > 0) {
+    I <- Matrix::sparseMatrix(
+      i = i + 1,
+      j = j + 1,
+      x = x,
+      dims = c(length(objects), length(attributes)),
+      dimnames = list(objects, attributes)
+    )
+  } else {
+    I <- Matrix::Matrix(
+      0,
+      nrow = length(objects),
+      ncol = length(attributes),
+      sparse = TRUE
+    )
+    dimnames(I) <- list(objects, attributes)
+  }
+
+  fc <- FormalContext$new(I)
+
+  # Restore other fields
+  if (!is.null(data$grades_set)) {
+    fc$grades_set <- unlist(data$grades_set)
+  }
+  if (!is.null(data$description)) {
+    fc$description <- unlist(data$description)
+  }
+
+  # Restore Concepts
+  if (!is.null(data$concepts)) {
+    # Reconstruct lattice from list data
+    # We can invoke lattice_from_json by passing the sub-json
+    # parsing sub-json from data object is tricky as we have list
+    # Use toJSON to get string? Or refactor lattice_from_json to accept list?
+    # Refactoring lattice_from_json to accept list is cleaner.
+    # But for now, convert list to JSON string is easier.
+
+    concepts_json <- jsonlite::toJSON(data$concepts, auto_unbox = TRUE)
+    cl <- lattice_from_json(concepts_json)
+    fc$concepts <- cl
+  }
+
+  # Restore Implications
+  if (!is.null(data$implications)) {
+    implications_json <- jsonlite::toJSON(data$implications, auto_unbox = TRUE)
+    imp <- implications_from_json(implications_json)
+    fc$implications <- imp
+  }
+
+  return(fc)
+}
