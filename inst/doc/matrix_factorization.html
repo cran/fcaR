@@ -344,152 +344,273 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(fcaR)</span></code></pre></div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p><strong>Matrix Factorization</strong> (also known as Decomposition)
-is a technique used to reduce a complex dataset into a smaller set of
-fundamental “factors” or patterns. In the context of Formal Concept
-Analysis (FCA), this corresponds to finding a small subset of concepts
-that can explain or reconstruct the original data with minimal
-error.</p>
-<p>Given an object-attribute matrix <span class="math inline">\(I\)</span> of size <span class="math inline">\(n
-\times m\)</span>, we seek to factorize it into two matrices:</p>
+<p><strong>Boolean Matrix Factorization (BMF)</strong> is a technique
+used to decompose a binary matrix <span class="math inline">\(I\)</span>
+(representing a formal context) into two smaller binary matrices:</p>
 <ol style="list-style-type: decimal">
 <li><strong>Object-Factor Matrix (<span class="math inline">\(A\)</span>)</strong> (<span class="math inline">\(n \times k\)</span>): Describes to what degree
-each object possesses each factor.</li>
+each object belongs to or possesses each factor.</li>
 <li><strong>Factor-Attribute Matrix (<span class="math inline">\(B\)</span>)</strong> (<span class="math inline">\(k \times m\)</span>): Describes to what degree
-each factor manifests as specific attributes.</li>
+each factor exhibits or manifests as specific attributes.</li>
 </ol>
-<p>The goal is that the composition of these matrices approximates the
-original data: <span class="math display">\[ I \approx A \circ B
-\]</span></p>
-<p><code>fcaR</code> implements two powerful algorithms for this
-purpose:</p>
+<p>The goal is that the Boolean product of these matrices approximates
+the original data: <span class="math display">\[ I \approx A \circ B
+\]</span> where the composition <span class="math inline">\(\circ\)</span> is the standard Boolean matrix
+product (i.e., using logical OR for addition and logical AND for
+multiplication). In the context of Formal Concept Analysis (FCA), this
+corresponds to finding a small subset of formal concepts (which act as
+factors) that can explain or reconstruct the original data.</p>
+<blockquote>
+<p>[!NOTE] Currently, <code>fcaR</code> only supports factorization for
+Boolean (binary) contexts. If you have a fuzzy context, you must
+binarize it first.</p>
+</blockquote>
+<p><code>fcaR</code> implements several state-of-the-art Boolean Matrix
+Factorization algorithms:</p>
 <ul>
-<li><strong>GreConD+:</strong> A state-of-the-art algorithm for
-<strong>fuzzy</strong> and boolean data. It finds an exact or
-approximate decomposition based on Formal Concepts (Belohlavek,
-2010).</li>
-<li><strong>ASSO:</strong> A heuristic algorithm for
-<strong>binary</strong> (boolean) data based on association rules. It is
-often faster but approximate (Miettinen et al., 2008).</li>
+<li><strong>RSF / RSF-ES:</strong> <em>Rice-Siff Factorization</em>
+algorithms based on agglomerative clustering and a state-dependent
+semi-metric (Antoni et al., 2026). Rather than doing an exhaustive
+search of the attribute space, RSF guides factor selection by merging
+concepts dynamically. <strong>RSF-ES</strong> (Early Stopping)
+accelerates this by filtering out zero-coverage concepts and stopping
+when the distance reaches <span class="math inline">\(1.0\)</span>
+(disjoint connected components), achieving up to a 10x speedup while
+preserving exactness.</li>
+<li><strong>GreConD:</strong> <em>Greedy Concept on Demand</em>
+(Belohlavek &amp; Vychodil, 2010). An exact BMF solver that greedily
+computes and selects formal concepts as factors to cover the remaining
+ones in the incidence relation.</li>
+<li><strong>ASSO:</strong> A classic heuristic BMF algorithm based on
+association rules (Miettinen et al., 2008). It generates candidate
+factors using pairwise association confidence and is often fast, but it
+is approximate and allows overcovering (reconstructing a 1 where the
+original matrix had a 0).</li>
+<li><strong>GreEss:</strong> A greedy BMF solver based on essential
+elements (Belohlavek &amp; Trnecka, 2015). It restricts factor search
+strictly to mandatory submatrices (intervals) derived from essential
+entries of the context, producing a more parsimonious
+factorization.</li>
+<li><strong>PaNDa+:</strong> A unifying framework for mining approximate
+top-<span class="math inline">\(k\)</span> binary patterns based on the
+Minimum Description Length (MDL) principle (Lucchese et al., 2013). It
+extracts components that minimize data description complexity, adjusting
+to noise and pattern complexity.</li>
+<li><strong>Hyper / Hyper+:</strong> Overlapped hyperrectangles
+summarization methods (Xiang et al., 2011). Hyper extracts closed
+patterns, and Hyper+ optimizes the representation cost under a false
+positive error budget. If the error budget is set to zero, it works as
+an exact BMF solver.</li>
 </ul>
+<hr />
 </div>
-<div id="fuzzy-matrix-factorization-grecond" class="section level2">
-<h2>1. Fuzzy Matrix Factorization (GreConD+)</h2>
-<p>Let’s use a fuzzy dataset describing different dog breeds and their
+<div id="boolean-matrix-factorization-with-grecond" class="section level2">
+<h2>1. Boolean Matrix Factorization with GreConD</h2>
+<p>Let’s use a binary dataset describing different dog breeds and their
 characteristics. We want to see if we can reduce these breeds to a few
 “archetypes” (factors).</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Create a fuzzy matrix (6 breeds x 5 attributes)</span></span>
+<div id="dataset-creation" class="section level3">
+<h3>Dataset Creation</h3>
+<p>We define a binary matrix where each row represents a dog breed and
+each column represents a characteristic:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Create a binary matrix (5 breeds x 5 attributes)</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>I <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="fl">0.9</span>, <span class="fl">0.9</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.2</span>, <span class="co"># Labrador</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="fl">0.8</span>, <span class="fl">0.9</span>, <span class="fl">0.1</span>, <span class="fl">0.0</span>, <span class="fl">0.1</span>, <span class="co"># Golden Ret.</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.9</span>, <span class="fl">0.9</span>, <span class="fl">0.8</span>, <span class="co"># German Shepherd</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.8</span>, <span class="fl">0.9</span>, <span class="fl">0.9</span>, <span class="co"># Rottweiler</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="fl">0.9</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="co"># Beagle</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="fl">0.2</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.9</span>  <span class="co"># Chihuahua</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">6</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="fu">rownames</span>(I) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Labrador&quot;</span>, <span class="st">&quot;Golden Ret.&quot;</span>, <span class="st">&quot;G. Shepherd&quot;</span>, <span class="st">&quot;Rottweiler&quot;</span>, <span class="st">&quot;Beagle&quot;</span>, <span class="st">&quot;Chihuahua&quot;</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="fu">colnames</span>(I) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Friendly&quot;</span>, <span class="st">&quot;Playful&quot;</span>, <span class="st">&quot;Guard&quot;</span>, <span class="st">&quot;Aggressive&quot;</span>, <span class="st">&quot;Small&quot;</span>)</span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="co"># Labrador: Friendly, Playful</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="co"># Golden Retriever: Friendly, Playful</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="co"># German Shepherd: Guard, Aggressive</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="co"># Rottweiler: Guard, Aggressive</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>  <span class="co"># Chihuahua: Friendly, Small</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">5</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="fu">rownames</span>(I) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Labrador&quot;</span>, <span class="st">&quot;Golden Ret.&quot;</span>, <span class="st">&quot;G. Shepherd&quot;</span>, <span class="st">&quot;Rottweiler&quot;</span>, <span class="st">&quot;Chihuahua&quot;</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="fu">colnames</span>(I) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Friendly&quot;</span>, <span class="st">&quot;Playful&quot;</span>, <span class="st">&quot;Guard&quot;</span>, <span class="st">&quot;Aggressive&quot;</span>, <span class="st">&quot;Small&quot;</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co"># Initialize the FormalContext</span></span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>fc <span class="ot">&lt;-</span> FormalContext<span class="sc">$</span><span class="fu">new</span>(I)</span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co"># Use Lukasiewicz logic for fuzzy operations</span></span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">use_logic</span>(<span class="st">&quot;Lukasiewicz&quot;</span>) </span></code></pre></div>
-<p>We apply <strong>GreConD+</strong>. We can tune the weight
-<code>w</code> (penalty for overcovering) or the stopping threshold.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Factorize using GreConD+</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>factors <span class="ot">&lt;-</span> fc<span class="sc">$</span><span class="fu">factorize</span>(<span class="at">method =</span> <span class="st">&quot;GreConD&quot;</span>, <span class="at">w =</span> <span class="fl">1.0</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="fu">print</span>(fc)</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; FormalContext with 5 objects and 5 attributes.</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt;              Friendly  Playful  Guard  Aggressive  Small  </span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt;     Labrador     X        X                               </span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt;  Golden Ret.     X        X                               </span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt;  G. Shepherd                      X         X             </span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt;   Rottweiler                      X         X             </span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt;    Chihuahua     X                                   X</span></span></code></pre></div>
+</div>
+<div id="performing-factorization" class="section level3">
+<h3>Performing Factorization</h3>
+<p>We apply the <strong>GreConD</strong> algorithm to decompose the
+context:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Factorize using GreConD</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>factors <span class="ot">&lt;-</span> fc<span class="sc">$</span><span class="fu">factorize</span>(<span class="at">method =</span> <span class="st">&quot;GreConD&quot;</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># The result contains two new FormalContext objects</span></span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>A <span class="ot">&lt;-</span> factors<span class="sc">$</span>object_factor</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>B <span class="ot">&lt;-</span> factors<span class="sc">$</span>factor_attribute</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Matrix A (Object-Factor):&quot;</span>)</span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Matrix A (Object-Factor):&quot;</span></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="fu">print</span>(A<span class="sc">$</span><span class="fu">incidence</span>())</span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt;              F1  F2  F3  F4  F5  F6  F7</span></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; Labrador    0.2 1.0 0.3 1.0 0.1 1.0 0.1</span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; Golden Ret. 0.3 0.9 0.2 0.9 0.1 1.0 0.2</span></span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; G. Shepherd 1.0 0.3 0.9 0.3 1.0 0.3 1.0</span></span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; Rottweiler  1.0 0.2 1.0 0.2 1.0 0.2 0.9</span></span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; Beagle      0.4 0.3 0.3 1.0 0.2 0.3 0.3</span></span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; Chihuahua   0.3 0.2 1.0 0.3 0.2 0.2 0.2</span></span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a></span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Matrix B (Factor-Attribute):&quot;</span>)</span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Matrix B (Factor-Attribute):&quot;</span></span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="fu">print</span>(B<span class="sc">$</span><span class="fu">incidence</span>())</span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt;    Friendly Playful Guard Aggressive Small</span></span>
-<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; F1      0.1     0.1   0.8        0.7   0.8</span></span>
-<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; F2      0.9     0.9   0.0        0.0   0.2</span></span>
-<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt; F3      0.1     0.1   0.1        0.1   0.9</span></span>
-<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt; F4      0.9     0.2   0.0        0.0   0.2</span></span>
-<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co">#&gt; F5      0.1     0.1   0.8        0.9   0.8</span></span>
-<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co">#&gt; F6      0.8     0.9   0.0        0.0   0.1</span></span>
-<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt; F7      0.2     0.2   0.9        0.8   0.8</span></span></code></pre></div>
-<div id="interpretation" class="section level3">
-<h3>Interpretation</h3>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>B <span class="ot">&lt;-</span> factors<span class="sc">$</span>factor_attribute</span></code></pre></div>
+</div>
+<div id="interpreting-the-factors" class="section level3">
+<h3>Interpreting the Factors</h3>
+<p>Let’s print the two factor matrices to see how they describe our
+data:</p>
+<div id="the-object-factor-matrix-a" class="section level4">
+<h4>The Object-Factor Matrix (<span class="math inline">\(A\)</span>)</h4>
+<p>This matrix connects the original dog breeds (objects) to the
+discovered latent factors:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">print</span>(A<span class="sc">$</span><span class="fu">incidence</span>())</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt;             F1 F2 F3</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; Labrador     1  0  0</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; Golden Ret.  1  0  0</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; G. Shepherd  0  1  0</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; Rottweiler   0  1  0</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; Chihuahua    0  0  1</span></span></code></pre></div>
 <ul>
-<li><strong>Factor 1:</strong> Likely represents “Companion/Family Dogs”
-(High in Friendly, Playful).</li>
-<li><strong>Factor 2:</strong> Likely represents “Guard Dogs” (High in
-Guard, Aggressive).</li>
-<li><strong>Factor 3:</strong> Likely represents “Small Dogs” (High in
-Small).</li>
+<li><strong>Factor 1 (<code>F1</code>)</strong> is present in
+<code>Labrador</code> and <code>Golden Ret.</code>.</li>
+<li><strong>Factor 2 (<code>F2</code>)</strong> is present in
+<code>G. Shepherd</code> and <code>Rottweiler</code>.</li>
+<li><strong>Factor 3 (<code>F3</code>)</strong> is present only in
+<code>Chihuahua</code>.</li>
 </ul>
 </div>
-<div id="verification" class="section level3">
-<h3>Verification</h3>
-<p>We can verify the quality of the decomposition by reconstructing the
-matrix using the Lukasiewicz product (<span class="math inline">\(A
-\circ B\)</span>).</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Reconstruct I&#39; = A o B</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>rec_I <span class="ot">&lt;-</span> A<span class="sc">$</span><span class="fu">incidence</span>() <span class="sc">%*%</span> B<span class="sc">$</span><span class="fu">incidence</span>() <span class="co"># Note: standard matrix product is just an approximation</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co"># For exact fuzzy reconstruction we would loop using the T-norm, but let&#39;s check the error:</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co"># (In a real scenario, we use the logic&#39;s operators)</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>mae <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">abs</span>(I <span class="sc">-</span> A<span class="sc">$</span><span class="fu">incidence</span>() <span class="sc">%*%</span> B<span class="sc">$</span><span class="fu">incidence</span>())) <span class="co"># Simplified check</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co"># For exact reconstruction, GreConD+ guarantees I &lt;= A o B if w is high.</span></span></code></pre></div>
+<div id="the-factor-attribute-matrix-b" class="section level4">
+<h4>The Factor-Attribute Matrix (<span class="math inline">\(B\)</span>)</h4>
+<p>This matrix connects the latent factors to the original
+characteristics (attributes):</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">print</span>(B<span class="sc">$</span><span class="fu">incidence</span>())</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt;    Friendly Playful Guard Aggressive Small</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; F1        1       1     0          0     0</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; F2        0       0     1          1     0</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; F3        1       0     0          0     1</span></span></code></pre></div>
+<ul>
+<li><strong>Factor 1 (<code>F1</code>)</strong> is characterized by the
+attributes <code>Friendly</code> and <code>Playful</code>.</li>
+<li><strong>Factor 2 (<code>F2</code>)</strong> is characterized by the
+attributes <code>Guard</code> and <code>Aggressive</code>.</li>
+<li><strong>Factor 3 (<code>F3</code>)</strong> is characterized by the
+attributes <code>Friendly</code> and <code>Small</code>.</li>
+</ul>
+<p>Combining these observations: 1. <strong>Factor 1
+(<code>F1</code>)</strong> represents the archetype of a
+<strong>“Friendly and Playful Dog”</strong> (exhibited by Labradors and
+Golden Retrievers). 2. <strong>Factor 2 (<code>F2</code>)</strong>
+represents the archetype of a <strong>“Guard/Protective Dog”</strong>
+(exhibited by German Shepherds and Rottweilers). 3. <strong>Factor 3
+(<code>F3</code>)</strong> represents the archetype of a <strong>“Small
+and Friendly Dog”</strong> (exhibited by Chihuahuas).</p>
+<hr />
 </div>
 </div>
-<div id="boolean-matrix-factorization-asso" class="section level2">
-<h2>2. Boolean Matrix Factorization (ASSO)</h2>
+</div>
+<div id="rice-siff-factorization-rsf-and-rsf-es" class="section level2">
+<h2>2. Rice-Siff Factorization (RSF and RSF-ES)</h2>
+<p>The <strong>Rice-Siff Factorization (RSF)</strong> family represents
+a hybrid BMF approach. Instead of performing an exhaustive combinatorial
+sweep of the attribute space (like GreConD), it guides the greedy
+selection of factors using a hierarchical agglomerative clustering
+method derived from the Rice-Siff algorithm.</p>
+<p>The core of the RSF algorithm relies on a state-dependent semi-metric
+<span class="math inline">\(\rho_{un}\)</span>, which quantifies the
+distance between candidate concepts based on the currently uncovered
+cells in the residual relation <span class="math inline">\(R_{un}\)</span>: <span class="math display">\[
+\rho_{un}((X_1, Y_1), (X_2, Y_2)) = 1 - \frac{|(X_1 \times Y_1) \cap
+(X_2 \times Y_2) \cap R_{un}|}{|(X_1 \times Y_1) \cup (X_2 \times Y_2)|}
+\]</span></p>
+<p>By prioritizing merges that overlap on remaining uncovered cells, the
+agglomeration natively converges to formal concepts that maximize the
+coverage of the residual matrix.</p>
+<div id="rsf-with-early-stopping-rsf-es" class="section level3">
+<h3>RSF with Early Stopping (RSF-ES)</h3>
+<p>To prevent the combinatorial explosion in high-dimensional contexts,
+<strong>RSF-ES</strong> introduces two key optimizations: 1.
+<strong>Zero-weight Filtering:</strong> Candidates whose generating
+components have no coverage on <span class="math inline">\(R_{un}\)</span> (<span class="math inline">\(w =
+0\)</span>) are pruned early. 2. <strong>Topological Pruning:</strong>
+The agglomerative loop is immediately broken when the minimum distance
+reaches <span class="math inline">\(\rho_{un} = 1.0\)</span>. In
+graph-theoretic terms, a distance of <span class="math inline">\(1.0\)</span> indicates that the candidates belong
+to disjoint connected components in the residual relation. Fusing them
+would restrict the resulting formal intent without yielding any
+structural gain, making further merging redundant.</p>
+<p>These optimizations allow RSF-ES to achieve up to a <strong>10x
+speedup</strong> on dense or high-dimensional matrices compared to
+standard RSF while maintaining mathematical exactness.</p>
+</div>
+<div id="performing-rsf-factorization" class="section level3">
+<h3>Performing RSF Factorization</h3>
+<p>You can use both <code>RSF</code> and <code>RSF-ES</code> directly
+inside the <code>factorize</code> method:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Factorize using RSF</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>res_rsf <span class="ot">&lt;-</span> fc<span class="sc">$</span><span class="fu">factorize</span>(<span class="at">method =</span> <span class="st">&quot;RSF&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">print</span>(res_rsf<span class="sc">$</span>factor_attribute<span class="sc">$</span><span class="fu">incidence</span>())</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;    Friendly Playful Guard Aggressive Small</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; F1        1       1     0          0     0</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; F2        0       0     1          1     0</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; F3        1       0     0          0     1</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co"># Factorize using RSF-ES (Highly optimized)</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>res_rsfes <span class="ot">&lt;-</span> fc<span class="sc">$</span><span class="fu">factorize</span>(<span class="at">method =</span> <span class="st">&quot;RSF-ES&quot;</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="fu">print</span>(res_rsfes<span class="sc">$</span>factor_attribute<span class="sc">$</span><span class="fu">incidence</span>())</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;    Friendly Playful Guard Aggressive Small</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; F1        1       1     0          0     0</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; F2        0       0     1          1     0</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; F3        1       0     0          0     1</span></span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="other-algorithms-asso" class="section level2">
+<h2>3. Other Algorithms: ASSO</h2>
 <p>For large binary datasets, <strong>ASSO</strong> is a classic
-heuristic. It uses pairwise association confidence to generate candidate
-factors.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Create a binary dataset</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>I_bin <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>,</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>,</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">5</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="fu">rownames</span>(I_bin) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;O&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="fu">colnames</span>(I_bin) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;A&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>fc_bin <span class="ot">&lt;-</span> FormalContext<span class="sc">$</span><span class="fu">new</span>(I_bin)</span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co"># Factorize using ASSO</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co"># threshold: confidence threshold for candidate generation</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>res_asso <span class="ot">&lt;-</span> fc_bin<span class="sc">$</span><span class="fu">factorize</span>(<span class="at">method =</span> <span class="st">&quot;ASSO&quot;</span>, <span class="at">threshold =</span> <span class="fl">0.6</span>)</span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="fu">print</span>(res_asso<span class="sc">$</span>factor_attribute<span class="sc">$</span><span class="fu">incidence</span>())</span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt;    A1 A2 A3 A4 A5</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; F1  1  1  1  0  0</span></span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; F2  0  0  0  1  1</span></span></code></pre></div>
+alternative heuristic. It uses pairwise association confidence to
+generate candidate factors.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Factorize using ASSO</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>res_asso <span class="ot">&lt;-</span> fc<span class="sc">$</span><span class="fu">factorize</span>(<span class="at">method =</span> <span class="st">&quot;ASSO&quot;</span>, <span class="at">threshold =</span> <span class="fl">0.6</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co"># Print the resulting factor-attribute matrix</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">print</span>(res_asso<span class="sc">$</span>factor_attribute<span class="sc">$</span><span class="fu">incidence</span>())</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt;    Friendly Playful Guard Aggressive Small</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; F1        1       1     0          0     0</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; F2        0       0     1          1     0</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; F3        1       0     0          0     1</span></span></code></pre></div>
+<hr />
+</div>
+<div id="acknowledgments" class="section level2">
+<h2>Acknowledgments</h2>
+<p>The authors are grateful to <strong>Dr. Martin Trnecka</strong>, from
+Palacký University Olomouc, for his generosity in sharing the original
+source code and granting permission for its porting to R and C/C++. This
+contribution was pivotal in enabling the high-performance implementation
+of these algorithms and the subsequent rigorous comparative
+analysis.</p>
+<hr />
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>
 <ol style="list-style-type: decimal">
+<li><strong>Antoni, L., Kotlárová, D., Krídlo, O., López-Rodríguez, D.,
+&amp; Ojeda-Aciego, M. (2026).</strong> Effective greedy Boolean matrix
+factorization via the Rice-Siff algorithm. <em>International Journal of
+Approximate Reasoning</em>, 197, 109747.</li>
 <li><strong>Belohlavek, R. (2010).</strong> Discovery of optimal factors
 in binary data via a novel method of matrix decomposition. <em>Journal
 of Computer and System Sciences</em>, 76(1), 3-20.</li>
 <li><strong>Belohlavek, R., &amp; Trneckova, M. (2015).</strong> Optimal
 decomposition of finite fuzzy relations: The problem and the GreConD
 algorithm. <em>Information Sciences</em>, 309, 133-157.</li>
+<li><strong>Belohlavek, R., &amp; Trnecka, M. (2015).</strong>
+From-below approximations in Boolean matrix factorization: Geometry and
+new algorithm. <em>Journal of Computer and System Sciences</em>, 81(8),
+1678-1714.</li>
+<li><strong>Lucchese, C., Orlando, S., &amp; Perego, R. (2013).</strong>
+A unifying framework for mining approximate top-k binary patterns.
+<em>IEEE Transactions on Knowledge and Data Engineering</em>, 26(12),
+2900-2913.</li>
 <li><strong>Miettinen, P., Mielikainen, T., Gionis, A., Das, G., &amp;
 Mannila, H. (2008).</strong> The discrete basis problem. <em>IEEE
 Transactions on Knowledge and Data Engineering</em>, 20(10),
 1348-1362.</li>
+<li><strong>Xiang, Y., Jin, R., Fuhry, D., &amp; Dragan, F. F.
+(2011).</strong> Summarizing transactional databases with overlapped
+hyperrectangles. <em>Data Mining and Knowledge Discovery</em>, 23(2),
+215-251.</li>
 </ol>
 </div>
 

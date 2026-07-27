@@ -141,6 +141,7 @@ Hahsler M, Grun B, Hornik K (2005). “arules - a computational environment for 
 \item \href{#method-FormalContext-standardize}{\code{FormalContext$standardize()}}
 \item \href{#method-FormalContext-find_concepts}{\code{FormalContext$find_concepts()}}
 \item \href{#method-FormalContext-find_implications}{\code{FormalContext$find_implications()}}
+\item \href{#method-FormalContext-find_protoconcepts}{\code{FormalContext$find_protoconcepts()}}
 \item \href{#method-FormalContext-find_causal_rules}{\code{FormalContext$find_causal_rules()}}
 \item \href{#method-FormalContext-factorize}{\code{FormalContext$factorize()}}
 \item \href{#method-FormalContext-to_transactions}{\code{FormalContext$to_transactions()}}
@@ -149,6 +150,13 @@ Hahsler M, Grun B, Hornik K (2005). “arules - a computational environment for 
 \item \href{#method-FormalContext-dim}{\code{FormalContext$dim()}}
 \item \href{#method-FormalContext-to_json}{\code{FormalContext$to_json()}}
 \item \href{#method-FormalContext-print}{\code{FormalContext$print()}}
+\item \href{#method-FormalContext-calculate_arrow_relations}{\code{FormalContext$calculate_arrow_relations()}}
+\item \href{#method-FormalContext-get_arrow_relations}{\code{FormalContext$get_arrow_relations()}}
+\item \href{#method-FormalContext-get_irreducible_objects}{\code{FormalContext$get_irreducible_objects()}}
+\item \href{#method-FormalContext-get_irreducible_attributes}{\code{FormalContext$get_irreducible_attributes()}}
+\item \href{#method-FormalContext-is_distributive}{\code{FormalContext$is_distributive()}}
+\item \href{#method-FormalContext-reduce_arrows}{\code{FormalContext$reduce_arrows()}}
+\item \href{#method-FormalContext-get_core}{\code{FormalContext$get_core()}}
 \item \href{#method-FormalContext-to_latex}{\code{FormalContext$to_latex()}}
 \item \href{#method-FormalContext-incidence}{\code{FormalContext$incidence()}}
 \item \href{#method-FormalContext-subcontext}{\code{FormalContext$subcontext()}}
@@ -332,13 +340,13 @@ A \code{FormalContext} where objects and attributes have interchanged their role
 \subsection{Method \code{intent()}}{
 Get the intent of a fuzzy set of objects
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FormalContext$intent(S)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$intent(...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{S}}{(\code{Set}) The set of objects to compute the intent for.}
+\item{\code{...}}{A \code{Set} of objects, or object names.}
 }
 \if{html}{\out{</div>}}
 }
@@ -372,13 +380,13 @@ A \code{Set} with the intent.
 \subsection{Method \code{extent()}}{
 Get the extent of a fuzzy set of attributes
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FormalContext$extent(S)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$extent(...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{S}}{(\code{Set}) The set of attributes to compute the extent for.}
+\item{\code{...}}{A \code{Set} of attributes, or attribute names.}
 }
 \if{html}{\out{</div>}}
 }
@@ -412,13 +420,13 @@ A \code{Set} with the intent.
 \subsection{Method \code{closure()}}{
 Get the closure of a fuzzy set of attributes
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FormalContext$closure(S)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$closure(...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{S}}{(\code{Set}) The set of attributes to compute the closure for.}
+\item{\code{...}}{A \code{Set} of attributes, or attribute names.}
 }
 \if{html}{\out{</div>}}
 }
@@ -492,13 +500,13 @@ Is a Concept?
 \subsection{Method \code{is_closed()}}{
 Testing closure of attribute sets
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FormalContext$is_closed(S)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$is_closed(...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{S}}{A \code{Set} of attributes}
+\item{\code{...}}{A \code{Set} of attributes, or attribute names.}
 }
 \if{html}{\out{</div>}}
 }
@@ -532,13 +540,15 @@ The clarified \code{FormalContext}.
 \subsection{Method \code{reduce()}}{
 Reduce a formal context
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FormalContext$reduce(copy = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$reduce(copy = FALSE, method = c("arrows", "concepts"))}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{copy}}{(logical) If \code{TRUE}, a new \code{FormalContext} object is created with the clarified and reduced context, otherwise the current one is overwritten.}
+
+\item{\code{method}}{(character) The method to use for reduction. One of \code{"arrows"} (default, uses arrow relations, only for binary contexts) or \code{"concepts"} (uses irreducible concepts, works for fuzzy).}
 }
 \if{html}{\out{</div>}}
 }
@@ -556,7 +566,8 @@ Build the Standard Context
 }
 
 \subsection{Details}{
-All concepts must be previously computed.
+This is a wrapper around \code{reduce(copy = TRUE, method = "arrows")} for binary contexts,
+or \code{reduce(copy = TRUE, method = "concepts")} for fuzzy contexts.
 }
 
 \subsection{Returns}{
@@ -591,7 +602,11 @@ A list with all the concepts in the formal context.
 \subsection{Method \code{find_implications()}}{
 Use modified Ganter algorithm to compute both concepts and implications
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FormalContext$find_implications(save_concepts = TRUE, verbose = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$find_implications(
+  save_concepts = TRUE,
+  verbose = FALSE,
+  method = c("LinCbO", "NextClosure")
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -600,11 +615,33 @@ Use modified Ganter algorithm to compute both concepts and implications
 \item{\code{save_concepts}}{(logical) \code{TRUE} will also compute and save the concept lattice. \code{FALSE} is usually faster, since it only computes implications.}
 
 \item{\code{verbose}}{(logical) \code{TRUE} will provide a verbose output.}
+
+\item{\code{method}}{(character) Algorithm to use for binary contexts. One of \code{"LinCbO"} (default, Janostik, Konecny, Krajca) or \code{"NextClosure"} (Ganter's algorithm). For non-binary (fuzzy) contexts, NextClosure is always used.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 Nothing, just updates the internal fields \code{concepts} and \code{implications}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-FormalContext-find_protoconcepts"></a>}}
+\if{latex}{\out{\hypertarget{method-FormalContext-find_protoconcepts}{}}}
+\subsection{Method \code{find_protoconcepts()}}{
+Find protoconcepts
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$find_protoconcepts(verbose = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{verbose}}{(logical) Show verbose output.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list of protoconcepts, where each protoconcept is a list of two Sets (extent and intent).
 }
 }
 \if{html}{\out{<hr>}}
@@ -645,7 +682,8 @@ A \code{RuleSet} object containing the discovered causal rules and their quality
 \if{html}{\out{<a id="method-FormalContext-factorize"></a>}}
 \if{latex}{\out{\hypertarget{method-FormalContext-factorize}{}}}
 \subsection{Method \code{factorize()}}{
-Factorize the formal context using Boolean/Fuzzy Matrix Factorization algorithms.
+Factorize the formal context using Boolean Matrix Factorization (BMF) algorithms.
+Note: Fuzzy contexts are currently not supported and will result in an error.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{FormalContext$factorize(method = "GreConD", ...)}\if{html}{\out{</div>}}
 }
@@ -653,12 +691,17 @@ Factorize the formal context using Boolean/Fuzzy Matrix Factorization algorithms
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{method}}{(character) The algorithm to use. Currently supported: "GreConD", "ASSO".}
+\item{\code{method}}{(character) The algorithm to use. Supported algorithms:
+"RSF", "RSF-ES", "GreConD", "GreEss", "ASSO", "PaNDa+ MDL", "PaNDa+ ASSO-style",
+"PaNDa+ Weighted", "Hyper", "Hyper+".}
 
-\item{\code{...}}{Additional arguments:
+\item{\code{...}}{Additional arguments depending on the method:
 \itemize{
-\item For \code{GreConD}: \code{w} (weight, default 1.0), \code{stop_threshold_ratio} (error tolerance, default 0.0).
-\item For \code{ASSO}: \code{threshold} (confidence threshold, default 0.7), \code{w_pos} (reward), \code{w_neg} (penalty).
+\item \code{GreConD}, \code{PaNDa+ *}, \code{ASSO}: \code{k} (integer) maximum factors to extract.
+\item \code{ASSO}: \code{threshold} (default 0.6), \code{w_pos} (default 1.0), \code{w_neg} (default 1.0).
+\item \code{PaNDa+ Weighted}: \code{rho} (default 1.0).
+\item \code{Hyper}, \code{Hyper+}: \code{min_support} (ratio, default 0.05).
+\item \code{Hyper+}: \code{beta} (default 0.1).
 }}
 }
 \if{html}{\out{</div>}}
@@ -666,8 +709,8 @@ Factorize the formal context using Boolean/Fuzzy Matrix Factorization algorithms
 \subsection{Returns}{
 A list with two \code{FormalContext} objects:
 \itemize{
-\item \code{object_factor}: The context mapping Objects to Factors (Matrix A).
-\item \code{factor_attribute}: The context mapping Factors to Attributes (Matrix B).
+\item \code{object_factor}: The context mapping Objects to Factors (Matrix A / U).
+\item \code{factor_attribute}: The context mapping Factors to Attributes (Matrix B / V).
 }
 }
 }
@@ -776,6 +819,106 @@ Prints the formal context
 
 \subsection{Returns}{
 Prints information regarding the formal context.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-FormalContext-calculate_arrow_relations"></a>}}
+\if{latex}{\out{\hypertarget{method-FormalContext-calculate_arrow_relations}{}}}
+\subsection{Method \code{calculate_arrow_relations()}}{
+Calculate arrow relations for a binary context.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$calculate_arrow_relations()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+This method computes the arrow relations (swarrow, nearrow, and double arrow).
+}
+
+\subsection{Returns}{
+Nothing, updates the internal state.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-FormalContext-get_arrow_relations"></a>}}
+\if{latex}{\out{\hypertarget{method-FormalContext-get_arrow_relations}{}}}
+\subsection{Method \code{get_arrow_relations()}}{
+Get arrow relations
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$get_arrow_relations()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+An integer matrix with the arrow relations.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-FormalContext-get_irreducible_objects"></a>}}
+\if{latex}{\out{\hypertarget{method-FormalContext-get_irreducible_objects}{}}}
+\subsection{Method \code{get_irreducible_objects()}}{
+Get irreducible objects
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$get_irreducible_objects()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A character vector with the names of the irreducible objects.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-FormalContext-get_irreducible_attributes"></a>}}
+\if{latex}{\out{\hypertarget{method-FormalContext-get_irreducible_attributes}{}}}
+\subsection{Method \code{get_irreducible_attributes()}}{
+Get irreducible attributes
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$get_irreducible_attributes()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A character vector with the names of the irreducible attributes.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-FormalContext-is_distributive"></a>}}
+\if{latex}{\out{\hypertarget{method-FormalContext-is_distributive}{}}}
+\subsection{Method \code{is_distributive()}}{
+Check if the context (and its lattice) is distributive
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$is_distributive()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Logical: \code{TRUE} if the lattice is distributive.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-FormalContext-reduce_arrows"></a>}}
+\if{latex}{\out{\hypertarget{method-FormalContext-reduce_arrows}{}}}
+\subsection{Method \code{reduce_arrows()}}{
+Reduce the formal context using arrow relations
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$reduce_arrows()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A new \code{FormalContext} object that is clarified and reduced.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-FormalContext-get_core"></a>}}
+\if{latex}{\out{\hypertarget{method-FormalContext-get_core}{}}}
+\subsection{Method \code{get_core()}}{
+Get the Core of the Formal Context
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$get_core()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+The core is the minimal subcontext that generates the same concept lattice.
+For binary contexts, this is equivalent to \code{standardize()}.
+}
+
+\subsection{Returns}{
+A new \code{FormalContext} object containing only irreducible rows and columns.
 }
 }
 \if{html}{\out{<hr>}}

@@ -120,6 +120,10 @@ fc_planets$concepts
 fc_planets$implications
 
 ## -----------------------------------------------------------------------------
+P <- fc_planets$find_protoconcepts()
+length(P)
+
+## -----------------------------------------------------------------------------
 fc_planets$standardize()
 fc_I$standardize()
 

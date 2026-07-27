@@ -48,6 +48,7 @@ fc$concepts$bottom()
 \item \href{#method-ConceptLattice-new}{\code{ConceptLattice$new()}}
 \item \href{#method-ConceptLattice-plot}{\code{ConceptLattice$plot()}}
 \item \href{#method-ConceptLattice-sublattice}{\code{ConceptLattice$sublattice()}}
+\item \href{#method-ConceptLattice-sublattice_from}{\code{ConceptLattice$sublattice_from()}}
 \item \href{#method-ConceptLattice-top}{\code{ConceptLattice$top()}}
 \item \href{#method-ConceptLattice-bottom}{\code{ConceptLattice$bottom()}}
 \item \href{#method-ConceptLattice-join_irreducibles}{\code{ConceptLattice$join_irreducibles()}}
@@ -66,6 +67,8 @@ fc$concepts$bottom()
 \item \href{#method-ConceptLattice-is_modular}{\code{ConceptLattice$is_modular()}}
 \item \href{#method-ConceptLattice-is_semimodular}{\code{ConceptLattice$is_semimodular()}}
 \item \href{#method-ConceptLattice-is_atomic}{\code{ConceptLattice$is_atomic()}}
+\item \href{#method-ConceptLattice-width}{\code{ConceptLattice$width()}}
+\item \href{#method-ConceptLattice-dimension}{\code{ConceptLattice$dimension()}}
 \item \href{#method-ConceptLattice-set_state}{\code{ConceptLattice$set_state()}}
 \item \href{#method-ConceptLattice-to_json}{\code{ConceptLattice$to_json()}}
 \item \href{#method-ConceptLattice-clone}{\code{ConceptLattice$clone()}}
@@ -126,6 +129,8 @@ Plot the concept lattice
   to_latex = FALSE,
   method = c("sugiyama", "force"),
   mode = NULL,
+  viewer = c("ggraph", "base"),
+  theme = "standard",
   ...
 )}\if{html}{\out{</div>}}
 }
@@ -151,12 +156,20 @@ Plot the concept lattice
 \item \code{"empty"}: Nodes are drawn as points without labels. Recommended for very large lattices (>50 concepts).
 }}
 
-\item{\code{...}}{Other parameters passed to the internal plotting function (e.g., graphical parameters for \code{ggraph}).}
+\item{\code{viewer}}{(character) The viewer to use for plotting. Options are:
+\itemize{
+\item \code{"ggraph"} (default): Use \code{ggraph} for drawing.
+\item \code{"base"}: Use R base graphics. This is a lightweight alternative that supports themes.
+}}
+
+\item{\code{theme}}{(character) The color theme to use for the \code{"base"} viewer. Options are: \code{"standard"}, \code{"nord"}, \code{"latex"}, \code{"vibrant"}.}
+
+\item{\code{...}}{Other parameters passed to the internal plotting function (e.g., graphical parameters for \code{ggraph} or \code{base}).}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-If \code{to_latex} is \code{FALSE}, it returns (invisibly) the \code{ggplot2} object representing the graph.
+If \code{to_latex} is \code{FALSE}, it returns (invisibly) the \code{ggplot2} object representing the graph (for \code{ggraph}) or \code{NULL} (for \code{base}).
 If \code{to_latex} is \code{TRUE}, it returns a \code{tikz_code} object containing the LaTeX code.
 }
 }
@@ -182,6 +195,40 @@ As argument, one can provide both integer indices or \code{Concepts}, separated 
 
 \subsection{Returns}{
 The generated sublattice as a new \code{ConceptLattice} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ConceptLattice-sublattice_from"></a>}}
+\if{latex}{\out{\hypertarget{method-ConceptLattice-sublattice_from}{}}}
+\subsection{Method \code{sublattice_from()}}{
+Build a sublattice from selected concepts
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ConceptLattice$sublattice_from(
+  attributes = NULL,
+  match = c("all", "any"),
+  min_support = 0,
+  top_n = 7L,
+  verbose = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{attributes}}{Character vector of attribute names, or \code{NULL} (default).}
+
+\item{\code{match}}{\code{"all"} (default) or \code{"any"}: how to combine several attributes.}
+
+\item{\code{min_support}}{Numeric in \eqn{[0, 1]}. Discard concepts with smaller support.}
+
+\item{\code{top_n}}{Integer or \code{NULL}. Keep the \code{top_n} concepts with highest support.}
+
+\item{\code{verbose}}{Logical; print a short summary.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A \code{ConceptLattice} object.
 }
 }
 \if{html}{\out{<hr>}}
@@ -509,6 +556,34 @@ Atoms are elements that cover the bottom element.
 
 \subsection{Returns}{
 Logical.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ConceptLattice-width"></a>}}
+\if{latex}{\out{\hypertarget{method-ConceptLattice-width}{}}}
+\subsection{Method \code{width()}}{
+Computes the Dilworth's width of the lattice.
+The width is the size of the largest antichain.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ConceptLattice$width()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Integer.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ConceptLattice-dimension"></a>}}
+\if{latex}{\out{\hypertarget{method-ConceptLattice-dimension}{}}}
+\subsection{Method \code{dimension()}}{
+Computes the order dimension (Dushnik-Miller) of the lattice.
+Note: This uses a heuristic and may return an estimate for large lattices.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ConceptLattice$dimension()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Integer.
 }
 }
 \if{html}{\out{<hr>}}

@@ -526,40 +526,41 @@ validity of these rules depends on the selected logic.</p>
 <p><code>fcaR</code> uses advanced algorithms (such as GreConD) adapted
 to handle degrees of confidence.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">find_implications</span>()</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>fc<span class="sc">$</span>implications</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; Implication set with 26 implications.</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; Rule 1: {} -&gt; {Romance [0.1]}</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; Rule 2: {Romance [0.1], Drama [0.1]} -&gt; {Romance [0.2]}</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; Rule 3: {Romance [0.1], SciFi [0.2]} -&gt; {Action [0.1]}</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; Rule 4: {Romance [0.2]} -&gt; {Drama [0.1]}</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; Rule 5: {Romance [0.2], Drama [0.2]} -&gt; {Romance [0.3]}</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; Rule 6: {Romance [0.5], Drama [0.1]} -&gt; {Drama [0.4]}</span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; Rule 7: {Romance [0.5], Drama [0.8]} -&gt; {Romance [0.8]}</span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; Rule 8: {Romance [0.8], Drama [0.4]} -&gt; {Drama [0.7]}</span></span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; Rule 9: {Romance [0.8], Drama} -&gt; {SciFi [0.1]}</span></span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; Rule 10: {Romance [0.9], Drama [0.7]} -&gt; {Action [0.1], Drama [0.8]}</span></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; Rule 11: {Action [0.1], Romance [0.1], SciFi [0.5]} -&gt; {Action [0.4]}</span></span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; Rule 12: {Action [0.1], Romance [0.8], Drama [0.9]} -&gt; {Romance [0.9]}</span></span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; Rule 13: {Action [0.1], Romance, Drama [0.8]} -&gt; {Action [0.2], Drama [0.9]}</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; Rule 14: {Action [0.2], Romance [0.9], SciFi [0.1], Drama} -&gt; {Romance}</span></span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; Rule 15: {Action [0.5], Romance [0.1]} -&gt; {SciFi [0.3]}</span></span>
-<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt; Rule 16: {Action [0.5], Romance [0.1], SciFi [0.8]} -&gt; {Action [0.7]}</span></span>
-<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt; Rule 17: {Action [0.8], Romance [0.1], SciFi [0.3]} -&gt; {SciFi [0.6]}</span></span>
-<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt; Rule 18: {Action [0.8], Romance [0.1], SciFi [0.9]} -&gt; {Romance [0.2], Drama</span></span>
-<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt;   [0.1]}</span></span>
-<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt; Rule 19: {Action [0.8], Romance [0.2], SciFi, Drama [0.1]} -&gt; {Action [0.9],</span></span>
-<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">#&gt;   Romance [0.3], Drama [0.2]}</span></span>
-<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a><span class="co">#&gt; Rule 20: {Action [0.8], Romance [0.5], SciFi [0.6], Drama [0.5]} -&gt; {Romance</span></span>
-<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a><span class="co">#&gt;   [0.6]}</span></span>
-<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a><span class="co">#&gt; Rule 21: {Action [0.8], Romance [0.8], SciFi [0.9], Drama [0.8]} -&gt; {Romance</span></span>
-<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a><span class="co">#&gt;   [0.9]}</span></span>
-<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a><span class="co">#&gt; Rule 22: {Action [0.9], Romance [0.1], SciFi [0.6]} -&gt; {SciFi [0.7]}</span></span>
-<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a><span class="co">#&gt; Rule 23: {Action [0.9], Romance [0.8], SciFi [0.7], Drama [0.8]} -&gt; {Romance</span></span>
-<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a><span class="co">#&gt;   [0.9]}</span></span>
-<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a><span class="co">#&gt; Rule 24: {Action [0.9], Romance [0.9], SciFi, Drama [0.9]} -&gt; {Romance}</span></span>
-<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a><span class="co">#&gt; Rule 25: {Action, Romance [0.1], SciFi [0.7]} -&gt; {Romance [0.2], SciFi [0.8],</span></span>
-<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a><span class="co">#&gt;   Drama [0.1]}</span></span>
-<span id="cb7-35"><a href="#cb7-35" tabindex="-1"></a><span class="co">#&gt; Rule 26: {Action, Romance [0.9], SciFi [0.8], Drama [0.9]} -&gt; {Romance}</span></span></code></pre></div>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; LinCbO is only available for binary contexts. Falling back to NextClosure.FALSE</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>fc<span class="sc">$</span>implications</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; Implication set with 26 implications.</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; Rule 1: {} -&gt; {Romance [0.1]}</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; Rule 2: {Romance [0.1], Drama [0.1]} -&gt; {Romance [0.2]}</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; Rule 3: {Romance [0.1], SciFi [0.2]} -&gt; {Action [0.1]}</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; Rule 4: {Romance [0.2]} -&gt; {Drama [0.1]}</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; Rule 5: {Romance [0.2], Drama [0.2]} -&gt; {Romance [0.3]}</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; Rule 6: {Romance [0.5], Drama [0.1]} -&gt; {Drama [0.4]}</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; Rule 7: {Romance [0.5], Drama [0.8]} -&gt; {Romance [0.8]}</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; Rule 8: {Romance [0.8], Drama [0.4]} -&gt; {Drama [0.7]}</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; Rule 9: {Romance [0.8], Drama} -&gt; {SciFi [0.1]}</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; Rule 10: {Romance [0.9], Drama [0.7]} -&gt; {Action [0.1], Drama [0.8]}</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; Rule 11: {Action [0.1], Romance [0.1], SciFi [0.5]} -&gt; {Action [0.4]}</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; Rule 12: {Action [0.1], Romance [0.8], Drama [0.9]} -&gt; {Romance [0.9]}</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; Rule 13: {Action [0.1], Romance, Drama [0.8]} -&gt; {Action [0.2], Drama [0.9]}</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; Rule 14: {Action [0.2], Romance [0.9], SciFi [0.1], Drama} -&gt; {Romance}</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt; Rule 15: {Action [0.5], Romance [0.1]} -&gt; {SciFi [0.3]}</span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt; Rule 16: {Action [0.5], Romance [0.1], SciFi [0.8]} -&gt; {Action [0.7]}</span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt; Rule 17: {Action [0.8], Romance [0.1], SciFi [0.3]} -&gt; {SciFi [0.6]}</span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt; Rule 18: {Action [0.8], Romance [0.1], SciFi [0.9]} -&gt; {Romance [0.2], Drama</span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt;   [0.1]}</span></span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">#&gt; Rule 19: {Action [0.8], Romance [0.2], SciFi, Drama [0.1]} -&gt; {Action [0.9],</span></span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a><span class="co">#&gt;   Romance [0.3], Drama [0.2]}</span></span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a><span class="co">#&gt; Rule 20: {Action [0.8], Romance [0.5], SciFi [0.6], Drama [0.5]} -&gt; {Romance</span></span>
+<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a><span class="co">#&gt;   [0.6]}</span></span>
+<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a><span class="co">#&gt; Rule 21: {Action [0.8], Romance [0.8], SciFi [0.9], Drama [0.8]} -&gt; {Romance</span></span>
+<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a><span class="co">#&gt;   [0.9]}</span></span>
+<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a><span class="co">#&gt; Rule 22: {Action [0.9], Romance [0.1], SciFi [0.6]} -&gt; {SciFi [0.7]}</span></span>
+<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a><span class="co">#&gt; Rule 23: {Action [0.9], Romance [0.8], SciFi [0.7], Drama [0.8]} -&gt; {Romance</span></span>
+<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a><span class="co">#&gt;   [0.9]}</span></span>
+<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a><span class="co">#&gt; Rule 24: {Action [0.9], Romance [0.9], SciFi, Drama [0.9]} -&gt; {Romance}</span></span>
+<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a><span class="co">#&gt; Rule 25: {Action, Romance [0.1], SciFi [0.7]} -&gt; {Romance [0.2], SciFi [0.8],</span></span>
+<span id="cb7-35"><a href="#cb7-35" tabindex="-1"></a><span class="co">#&gt;   Drama [0.1]}</span></span>
+<span id="cb7-36"><a href="#cb7-36" tabindex="-1"></a><span class="co">#&gt; Rule 26: {Action, Romance [0.9], SciFi [0.8], Drama [0.9]} -&gt; {Romance}</span></span></code></pre></div>
 <div id="support-and-confidence" class="section level3">
 <h3>Support and confidence</h3>
 <p>In the fuzzy setting:</p>

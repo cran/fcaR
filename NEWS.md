@@ -1,9 +1,82 @@
+# fcaR 2.1.0
+
+* **Dynamic Method Signatures (`intent`, `extent`, `closure`, `is_closed`):** Updated `FormalContext` methods to natively support both `Set` objects and comma-separated character vectors/names (`...`).
+* **Enhanced ConceptSet Retrieval (`intents`, `extents`):** Added `as_list = FALSE` parameter. Setting it to `TRUE` returns a list of `Set` objects instead of a sparse matrix.
+* **Integrated Lattice and RuleSet Methods:**
+  * Added `ConceptLattice$sublattice_from()` to generate sublattices based on support, attributes, and rank limits.
+  * Added `RuleSet$total_size()` to easily retrieve the total LHS and RHS sizes across a rule set.
+* **New Package-Level Helper Functions:**
+  * Added `attribute_set()` and `object_set()` for quick `Set` initialization from character names.
+  * Added `recommendation_table()` to format recommendations into clean, sorted data frames.
+  * Added `iterative_recommender()` for interactive attribute exploration and recommendations.
+
+# fcaR 2.0.0
+
+* **New Interactive Addin (`fcaRviz`):** Introduced a brand new RStudio Addin and interactive Shiny application called `fcaRviz` to visually explore and analyze formal contexts, concept lattices, and implication sets. Run it using `run_fcaRviz()` or from the RStudio Addins menu.
+* **Codebase Modernization:**
+  * **Matrix Coercions:** Updated sparse matrix coercions from deprecated `"ngCMatrix"` to the modern `"nMatrix"` to align with the latest versions of the `Matrix` package.
+  * **C++ Memory Safety:** Fixed compiler warnings regarding Variable Length Arrays (VLAs) and improved memory safety by using smart pointers (`std::shared_ptr`) to prevent memory leaks during user interrupts.
+  * **Code Cleanup:** Removed extensive dead and commented-out C++ code.
+
+# fcaR 1.7.1
+
+* **Matrix Factorization Update:** Removed fuzzy matrix factorization. Matrix factorization is now exclusively supported for Boolean contexts. Attempting to factorize fuzzy contexts now yields a clean error.
+* **Documentation & Vignettes:** Updated the `matrix_factorization` vignette to focus on Boolean Matrix Factorization (BMF) using a clear binary dog breed example.
+* **Unit Tests:** Refactored `test-factorization.R` to test various Boolean factorization methods and check correct error handling on fuzzy contexts.
+
+# fcaR 1.7.0
+
+New Functionality:
+
+* **Arrow Relations:** Added `calculate_arrow_relations()` method to `FormalContext` to compute the arrow relations ($\swarrow$, $\nearrow$, $\updownarrow$) of a binary formal context using a high-performance C++ implementation based on bitsets.
+* **Structural Analysis:** Added new methods to `FormalContext` for advanced structural analysis based on arrow relations:
+    * `is_distributive()`: Efficiently check if the concept lattice is distributive without computing it.
+    * `get_irreducible_objects()` / `get_irreducible_attributes()`: Identify the core elements needed to reconstruct the lattice.
+    * `get_core()`: Extract the smallest context that generates the same lattice.
+* **Optimized Reduction:** Added `reduce_arrows()` to `FormalContext`. This method clarifies and reduces a context using arrow relations, which is significantly faster than traditional methods for large contexts.
+* **Lattice Plotting Enhancements:**
+    * **Grade Balancing:** New `balance_grades` algorithm to improve visual symmetry in Hasse diagrams (e.g., for $N_5$).
+    * **Base R Viewer:** Added `viewer = "base"` to `plot()`, providing a lightweight alternative to `ggraph` with support for themes (`"standard"`, `"nord"`, `"vibrant"`, `"latex"`).
+    * **Vertical Alignment:** Sugiyama layout now correctly aligns single-node chains vertically.
+
+Improvements:
+
+* **Refactored `standardize()` and `reduce()`**: These methods now use `reduce_arrows()` internally, removing the dependency on pre-calculating the concept lattice and improving performance while preserving original labels.
+* **C++ Layout Engine**: Updated `calculate_lattice_layout_rcpp` to support numeric (decimal) Y coordinates for smooth vertical positioning.
+* **Internal helpers:** Added `.print_arrows()` to handle symbol mapping for both CLI (Unicode) and LaTeX output.
+* **Expanded Documentation:** Updated the `lattice_properties` vignette with a detailed section on arrow relations.
+* **Enhanced Testing:** Added `test-arrow_relations.R` and `test-arrow_advanced.R` with comprehensive unit tests.
+
+# fcaR 1.6.0
+
+New Functionality:
+
+* **New Dataset:** Added the `guesswho` dataset, based on the classic board game, containing 24 characters and their binary attributes. Ideal for demonstrating concept lattices and implications in binary contexts.
+* **Bonds between Formal Contexts:** Added `bonds()` function and `BondLattice` class to compute and analyze the bonds between two formal contexts.
+  * **Optimized Solvers:** Includes two native C++ implementations: `"conexp"` (default, implication-based) and `"mcis"` (backtracking over pre-computed concepts).
+  * **BondLattice Similarity Metrics:** The `BondLattice` class provides 10 similarity and complexity metrics via the `similarity()` method: `"log-bond"`, `"top-density"`, `"complexity"`, `"core-agreement"`, `"entropy"`, `"stability"`, `"width"`, `"dimension"`, `"width-index"`, and `"dimension-index"`.
+* **Dilworth's Width:** Added `width()` method to `ConceptLattice` and `BondLattice`, computing the maximum antichain size via an efficient C++ implementation.
+* **Order Dimension:** Added `dimension()` method to `ConceptLattice` and `BondLattice`, computing a heuristic estimate of the order dimension via C++.
+
+Improvements:
+
+* **LinCbO Stability Fix:** Fixed a symbol collision between the `FastBitset` class used internally by `LinCbO` and other translation units.
+* **New Documentation:** Added a comprehensive `bonds` vignette in English, explaining the theory and usage of bonds, metrics, and visualization.
+* **Expanded Test Coverage:** Added 17 new unit tests specifically for bond calculation, metrics, and verification (`test-bonds.R`). Also added `test-coverage_sniper.R` for general edge cases.
+
 # fcaR 1.5.0
 
 Improvements:
 
 * **OOP Refactoring:** `ImplicationSet` now inherits from `RuleSet`, following proper object-oriented design. Shared methods (filtering, subsetting, printing, serialization, etc.) live in the parent `RuleSet` class, eliminating ~600 lines of duplicated code. `ImplicationSet` retains only FCA-specific methods (`closure()`, `apply_rules()`, `to_basis()`, `to_direct_optimal()`, etc.).
 * **Tidyverse for RuleSet:** The `dplyr` verbs (`filter()`, `arrange()`, `slice()`) now work on `RuleSet` objects in addition to `ImplicationSet`, via S3 method dispatch.
+* **Standard Context:** Added `get_standard_context()` method to `ImplicationSet`, which computes the standard formal context from a set of implications by finding the meet-irreducible closed sets.
+* **Default Implication Algorithm:** The default algorithm for finding the Duquenne-Guigues basis of implications in binary formal contexts is now `LinCbO`, achieving performance improvements of up to 100x compared to `NextClosure`.
+* **Binary Direct Optimal Basis:** introduced a suite of hyper-optimized algorithms for computing the Direct Optimal Basis in binary contexts. These include a new Tree-based closure operator with logarithmic complexity, semi-naive delta evaluation, and candidate deduplication. These improvements achieve speedups of over 10x in dense contexts. The `to_direct_optimal()` method now automatically detects binary contexts and routes the computation to these optimized native routines.
+
+New Functionality:
+
+* **Protoconcepts:** Added `find_protoconcepts()` method to `FormalContext` to compute protoconcepts (pairs $(A, B)$ such that $A' = B''$) using an efficient C++ implementation.
 
 # fcaR 1.4.1
 

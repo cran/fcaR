@@ -20,108 +20,163 @@ library(fcaR)
 
 ## Introduction
 
-**Matrix Factorization** (also known as Decomposition) is a technique used to reduce a complex dataset into a smaller set of fundamental "factors" or patterns. In the context of Formal Concept Analysis (FCA), this corresponds to finding a small subset of concepts that can explain or reconstruct the original data with minimal error.
+**Boolean Matrix Factorization (BMF)** is a technique used to decompose a binary matrix $I$ (representing a formal context) into two smaller binary matrices:
 
-Given an object-attribute matrix $I$ of size $n \times m$, we seek to factorize it into two matrices:
+1.  **Object-Factor Matrix ($A$)** ($n \times k$): Describes to what degree each object belongs to or possesses each factor.
+2.  **Factor-Attribute Matrix ($B$)** ($k \times m$): Describes to what degree each factor exhibits or manifests as specific attributes.
 
-1.  **Object-Factor Matrix ($A$)** ($n \times k$): Describes to what degree each object possesses each factor.
-2.  **Factor-Attribute Matrix ($B$)** ($k \times m$): Describes to what degree each factor manifests as specific attributes.
-
-The goal is that the composition of these matrices approximates the original data:
+The goal is that the Boolean product of these matrices approximates the original data:
 $$ I \approx A \circ B $$
+where the composition $\circ$ is the standard Boolean matrix product (i.e., using logical OR for addition and logical AND for multiplication). In the context of Formal Concept Analysis (FCA), this corresponds to finding a small subset of formal concepts (which act as factors) that can explain or reconstruct the original data.
 
-`fcaR` implements two powerful algorithms for this purpose:
+> [!NOTE]
+> Currently, `fcaR` only supports factorization for Boolean (binary) contexts. If you have a fuzzy context, you must binarize it first.
 
-  * **GreConD+:** A state-of-the-art algorithm for **fuzzy** and boolean data. It finds an exact or approximate decomposition based on Formal Concepts (Belohlavek, 2010).
-  * **ASSO:** A heuristic algorithm for **binary** (boolean) data based on association rules. It is often faster but approximate (Miettinen et al., 2008).
+`fcaR` implements several state-of-the-art Boolean Matrix Factorization algorithms:
 
-## 1\. Fuzzy Matrix Factorization (GreConD+)
 
-Let's use a fuzzy dataset describing different dog breeds and their characteristics. We want to see if we can reduce these breeds to a few "archetypes" (factors).
+*   **RSF / RSF-ES:** *Rice-Siff Factorization* algorithms based on agglomerative clustering and a state-dependent semi-metric (Antoni et al., 2026). Rather than doing an exhaustive search of the attribute space, RSF guides factor selection by merging concepts dynamically. **RSF-ES** (Early Stopping) accelerates this by filtering out zero-coverage concepts and stopping when the distance reaches $1.0$ (disjoint connected components), achieving up to a 10x speedup while preserving exactness.
+*   **GreConD:** *Greedy Concept on Demand* (Belohlavek & Vychodil, 2010). An exact BMF solver that greedily computes and selects formal concepts as factors to cover the remaining ones in the incidence relation.
+*   **ASSO:** A classic heuristic BMF algorithm based on association rules (Miettinen et al., 2008). It generates candidate factors using pairwise association confidence and is often fast, but it is approximate and allows overcovering (reconstructing a 1 where the original matrix had a 0).
+*   **GreEss:** A greedy BMF solver based on essential elements (Belohlavek & Trnecka, 2015). It restricts factor search strictly to mandatory submatrices (intervals) derived from essential entries of the context, producing a more parsimonious factorization.
+*   **PaNDa+:** A unifying framework for mining approximate top-$k$ binary patterns based on the Minimum Description Length (MDL) principle (Lucchese et al., 2013). It extracts components that minimize data description complexity, adjusting to noise and pattern complexity.
+*   **Hyper / Hyper+:** Overlapped hyperrectangles summarization methods (Xiang et al., 2011). Hyper extracts closed patterns, and Hyper+ optimizes the representation cost under a false positive error budget. If the error budget is set to zero, it works as an exact BMF solver.
+
+---
+
+## 1\. Boolean Matrix Factorization with GreConD
+
+Let's use a binary dataset describing different dog breeds and their characteristics. We want to see if we can reduce these breeds to a few "archetypes" (factors).
+
+### Dataset Creation
+
+We define a binary matrix where each row represents a dog breed and each column represents a characteristic:
 
 ```{r data_creation}
-# Create a fuzzy matrix (6 breeds x 5 attributes)
+# Create a binary matrix (5 breeds x 5 attributes)
 I <- matrix(c(
-  0.9, 0.9, 0.0, 0.0, 0.2, # Labrador
-  0.8, 0.9, 0.1, 0.0, 0.1, # Golden Ret.
-  0.2, 0.2, 0.9, 0.9, 0.8, # German Shepherd
-  0.1, 0.1, 0.8, 0.9, 0.9, # Rottweiler
-  0.9, 0.2, 0.2, 0.1, 0.2, # Beagle
-  0.2, 0.1, 0.1, 0.1, 0.9  # Chihuahua
-), nrow = 6, byrow = TRUE)
+  1, 1, 0, 0, 0, # Labrador: Friendly, Playful
+  1, 1, 0, 0, 0, # Golden Retriever: Friendly, Playful
+  0, 0, 1, 1, 0, # German Shepherd: Guard, Aggressive
+  0, 0, 1, 1, 0, # Rottweiler: Guard, Aggressive
+  1, 0, 0, 0, 1  # Chihuahua: Friendly, Small
+), nrow = 5, byrow = TRUE)
 
-rownames(I) <- c("Labrador", "Golden Ret.", "G. Shepherd", "Rottweiler", "Beagle", "Chihuahua")
+rownames(I) <- c("Labrador", "Golden Ret.", "G. Shepherd", "Rottweiler", "Chihuahua")
 colnames(I) <- c("Friendly", "Playful", "Guard", "Aggressive", "Small")
 
+# Initialize the FormalContext
 fc <- FormalContext$new(I)
-# Use Lukasiewicz logic for fuzzy operations
-fc$use_logic("Lukasiewicz") 
+print(fc)
 ```
 
-We apply **GreConD+**. We can tune the weight `w` (penalty for overcovering) or the stopping threshold.
+### Performing Factorization
+
+We apply the **GreConD** algorithm to decompose the context:
 
 ```{r factorization}
-# Factorize using GreConD+
-factors <- fc$factorize(method = "GreConD", w = 1.0)
+# Factorize using GreConD
+factors <- fc$factorize(method = "GreConD")
 
 # The result contains two new FormalContext objects
 A <- factors$object_factor
 B <- factors$factor_attribute
+```
 
-print("Matrix A (Object-Factor):")
+### Interpreting the Factors
+
+Let's print the two factor matrices to see how they describe our data:
+
+#### The Object-Factor Matrix ($A$)
+This matrix connects the original dog breeds (objects) to the discovered latent factors:
+
+```{r print_A}
 print(A$incidence())
+```
 
-print("Matrix B (Factor-Attribute):")
+* **Factor 1 (`F1`)** is present in `Labrador` and `Golden Ret.`.
+* **Factor 2 (`F2`)** is present in `G. Shepherd` and `Rottweiler`.
+* **Factor 3 (`F3`)** is present only in `Chihuahua`.
+
+#### The Factor-Attribute Matrix ($B$)
+This matrix connects the latent factors to the original characteristics (attributes):
+
+```{r print_B}
 print(B$incidence())
 ```
 
-### Interpretation
+* **Factor 1 (`F1`)** is characterized by the attributes `Friendly` and `Playful`.
+* **Factor 2 (`F2`)** is characterized by the attributes `Guard` and `Aggressive`.
+* **Factor 3 (`F3`)** is characterized by the attributes `Friendly` and `Small`.
 
-  * **Factor 1:** Likely represents "Companion/Family Dogs" (High in Friendly, Playful).
-  * **Factor 2:** Likely represents "Guard Dogs" (High in Guard, Aggressive).
-  * **Factor 3:** Likely represents "Small Dogs" (High in Small).
+Combining these observations:
+1. **Factor 1 (`F1`)** represents the archetype of a **"Friendly and Playful Dog"** (exhibited by Labradors and Golden Retrievers).
+2. **Factor 2 (`F2`)** represents the archetype of a **"Guard/Protective Dog"** (exhibited by German Shepherds and Rottweilers).
+3. **Factor 3 (`F3`)** represents the archetype of a **"Small and Friendly Dog"** (exhibited by Chihuahuas).
 
-### Verification
+---
 
-We can verify the quality of the decomposition by reconstructing the matrix using the Lukasiewicz product ($A \circ B$).
+## 2\. Rice-Siff Factorization (RSF and RSF-ES)
 
-```{r verification}
-# Reconstruct I' = A o B
-rec_I <- A$incidence() %*% B$incidence() # Note: standard matrix product is just an approximation
-# For exact fuzzy reconstruction we would loop using the T-norm, but let's check the error:
+The **Rice-Siff Factorization (RSF)** family represents a hybrid BMF approach. Instead of performing an exhaustive combinatorial sweep of the attribute space (like GreConD), it guides the greedy selection of factors using a hierarchical agglomerative clustering method derived from the Rice-Siff algorithm.
 
-# (In a real scenario, we use the logic's operators)
-mae <- mean(abs(I - A$incidence() %*% B$incidence())) # Simplified check
-# For exact reconstruction, GreConD+ guarantees I <= A o B if w is high.
+The core of the RSF algorithm relies on a state-dependent semi-metric $\rho_{un}$, which quantifies the distance between candidate concepts based on the currently uncovered cells in the residual relation $R_{un}$:
+$$ \rho_{un}((X_1, Y_1), (X_2, Y_2)) = 1 - \frac{|(X_1 \times Y_1) \cap (X_2 \times Y_2) \cap R_{un}|}{|(X_1 \times Y_1) \cup (X_2 \times Y_2)|} $$
+
+By prioritizing merges that overlap on remaining uncovered cells, the agglomeration natively converges to formal concepts that maximize the coverage of the residual matrix.
+
+### RSF with Early Stopping (RSF-ES)
+
+To prevent the combinatorial explosion in high-dimensional contexts, **RSF-ES** introduces two key optimizations:
+1. **Zero-weight Filtering:** Candidates whose generating components have no coverage on $R_{un}$ ($w = 0$) are pruned early.
+2. **Topological Pruning:** The agglomerative loop is immediately broken when the minimum distance reaches $\rho_{un} = 1.0$. In graph-theoretic terms, a distance of $1.0$ indicates that the candidates belong to disjoint connected components in the residual relation. Fusing them would restrict the resulting formal intent without yielding any structural gain, making further merging redundant.
+
+These optimizations allow RSF-ES to achieve up to a **10x speedup** on dense or high-dimensional matrices compared to standard RSF while maintaining mathematical exactness.
+
+### Performing RSF Factorization
+
+You can use both `RSF` and `RSF-ES` directly inside the `factorize` method:
+
+```{r rsf_example}
+# Factorize using RSF
+res_rsf <- fc$factorize(method = "RSF")
+print(res_rsf$factor_attribute$incidence())
+
+# Factorize using RSF-ES (Highly optimized)
+res_rsfes <- fc$factorize(method = "RSF-ES")
+print(res_rsfes$factor_attribute$incidence())
 ```
 
-## 2\. Boolean Matrix Factorization (ASSO)
+---
 
-For large binary datasets, **ASSO** is a classic heuristic. It uses pairwise association confidence to generate candidate factors.
+## 3\. Other Algorithms: ASSO
+
+For large binary datasets, **ASSO** is a classic alternative heuristic. It uses pairwise association confidence to generate candidate factors.
 
 ```{r asso_example}
-# Create a binary dataset
-I_bin <- matrix(c(
-  1, 1, 1, 0, 0,
-  1, 1, 1, 0, 0,
-  0, 0, 0, 1, 1,
-  0, 0, 0, 1, 1,
-  1, 0, 0, 0, 1
-), nrow = 5, byrow = TRUE)
-rownames(I_bin) <- paste0("O", 1:5)
-colnames(I_bin) <- paste0("A", 1:5)
-
-fc_bin <- FormalContext$new(I_bin)
-
 # Factorize using ASSO
-# threshold: confidence threshold for candidate generation
-res_asso <- fc_bin$factorize(method = "ASSO", threshold = 0.6)
+res_asso <- fc$factorize(method = "ASSO", threshold = 0.6)
 
+# Print the resulting factor-attribute matrix
 print(res_asso$factor_attribute$incidence())
 ```
 
+---
+
+## Acknowledgments
+
+The authors are grateful to **Dr. Martin Trnecka**, from Palacký University Olomouc, for his generosity in sharing the original source code and granting permission for its porting to R and C/C++. This contribution was pivotal in enabling the high-performance implementation of these algorithms and the subsequent rigorous comparative analysis.
+
+---
+
 ## References
 
-1.  **Belohlavek, R. (2010).** Discovery of optimal factors in binary data via a novel method of matrix decomposition. *Journal of Computer and System Sciences*, 76(1), 3-20.
-2.  **Belohlavek, R., & Trneckova, M. (2015).** Optimal decomposition of finite fuzzy relations: The problem and the GreConD algorithm. *Information Sciences*, 309, 133-157.
-3.  **Miettinen, P., Mielikainen, T., Gionis, A., Das, G., & Mannila, H. (2008).** The discrete basis problem. *IEEE Transactions on Knowledge and Data Engineering*, 20(10), 1348-1362.
+1.  **Antoni, L., Kotlárová, D., Krídlo, O., López-Rodríguez, D., & Ojeda-Aciego, M. (2026).** Effective greedy Boolean matrix factorization via the Rice-Siff algorithm. *International Journal of Approximate Reasoning*, 197, 109747.
+2.  **Belohlavek, R. (2010).** Discovery of optimal factors in binary data via a novel method of matrix decomposition. *Journal of Computer and System Sciences*, 76(1), 3-20.
+3.  **Belohlavek, R., & Trneckova, M. (2015).** Optimal decomposition of finite fuzzy relations: The problem and the GreConD algorithm. *Information Sciences*, 309, 133-157.
+4.  **Belohlavek, R., & Trnecka, M. (2015).** From-below approximations in Boolean matrix factorization: Geometry and new algorithm. *Journal of Computer and System Sciences*, 81(8), 1678-1714.
+5.  **Lucchese, C., Orlando, S., & Perego, R. (2013).** A unifying framework for mining approximate top-k binary patterns. *IEEE Transactions on Knowledge and Data Engineering*, 26(12), 2900-2913.
+6.  **Miettinen, P., Mielikainen, T., Gionis, A., Das, G., & Mannila, H. (2008).** The discrete basis problem. *IEEE Transactions on Knowledge and Data Engineering*, 20(10), 1348-1362.
+7.  **Xiang, Y., Jin, R., Fuhry, D., & Dragan, F. F. (2011).** Summarizing transactional databases with overlapped hyperrectangles. *Data Mining and Knowledge Discovery*, 23(2), 215-251.
+
+

@@ -460,112 +460,7 @@ source) directly from the console.</p>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
 <span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co"># Print a detailed summary to the console</span></span>
 <span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co"># (Shows Title, Dimensions, and Description for each entry)</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="fu">print_repo_details</span>(meta)</span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; Found 20 formal contexts in the repository:</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; ======================================== </span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; * animals_en.cxt</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;     Title:        Animals</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   35 objects x 11 attributes</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;     Description:  animals and their characteristics</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; * binary_relations_en.cxt</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;     Title:        Properties of binary relations</span></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   14 objects x 9 attributes</span></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;     Description:  Properties of binary relations</span></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; * bodiesofwater_de.cxt</span></span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt;     Title:        Gewässer</span></span>
-<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   8 objects x 6 attributes</span></span>
-<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt;     Description:  bodies of water and their properties</span></span>
-<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; * bodiesofwater_en.cxt</span></span>
-<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt;     Title:        Bodies of water</span></span>
-<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   17 objects x 5 attributes</span></span>
-<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt;     Description:  bodies of water and their properties</span></span>
-<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; * driveconcepts_de.cxt</span></span>
-<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt;     Title:        Drive Concepts</span></span>
-<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   5 objects x 25 attributes</span></span>
-<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt;     Description:  drive concepts for motorcars</span></span>
-<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt; * driveconcepts_en.cxt</span></span>
-<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt;     Title:        Drive concepts</span></span>
-<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   5 objects x 25 attributes</span></span>
-<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt;     Description:  drive concepts for motorcars</span></span>
-<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; * famous_animals_en.cxt</span></span>
-<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt;     Title:        Famous Animals</span></span>
-<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   5 objects x 6 attributes</span></span>
-<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co">#&gt;     Description:  famous animals and their characteristics</span></span>
-<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a><span class="co">#&gt; * forum_romanum_en.cxt</span></span>
-<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a><span class="co">#&gt;     Title:        Forum Romanum</span></span>
-<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   14 objects x 7 attributes</span></span>
-<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a><span class="co">#&gt;     Description:  Ratings of monuments on the Forum Romanum in different</span></span>
-<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a><span class="co">#&gt;                travel guides.</span></span>
-<span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a><span class="co">#&gt; * livingbeings_de.cxt</span></span>
-<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a><span class="co">#&gt;     Title:        Lebewesen und Wasser</span></span>
-<span id="cb6-53"><a href="#cb6-53" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   8 objects x 9 attributes</span></span>
-<span id="cb6-54"><a href="#cb6-54" tabindex="-1"></a><span class="co">#&gt;     Description:  conditions different living beings need</span></span>
-<span id="cb6-55"><a href="#cb6-55" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-56"><a href="#cb6-56" tabindex="-1"></a><span class="co">#&gt; * livingbeings_en.cxt</span></span>
-<span id="cb6-57"><a href="#cb6-57" tabindex="-1"></a><span class="co">#&gt;     Title:        Living beings and water</span></span>
-<span id="cb6-58"><a href="#cb6-58" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   8 objects x 9 attributes</span></span>
-<span id="cb6-59"><a href="#cb6-59" tabindex="-1"></a><span class="co">#&gt;     Description:  conditions different living beings need</span></span>
-<span id="cb6-60"><a href="#cb6-60" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-61"><a href="#cb6-61" tabindex="-1"></a><span class="co">#&gt; * missmarple_de.cxt</span></span>
-<span id="cb6-62"><a href="#cb6-62" tabindex="-1"></a><span class="co">#&gt;     Title:        Mordmethoden in Miss-Marple-Romanen</span></span>
-<span id="cb6-63"><a href="#cb6-63" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   12 objects x 6 attributes</span></span>
-<span id="cb6-64"><a href="#cb6-64" tabindex="-1"></a><span class="co">#&gt;     Description:  methods of murder in Miss Marple novels (not short</span></span>
-<span id="cb6-65"><a href="#cb6-65" tabindex="-1"></a><span class="co">#&gt;                stories!)</span></span>
-<span id="cb6-66"><a href="#cb6-66" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-67"><a href="#cb6-67" tabindex="-1"></a><span class="co">#&gt; * missmarple_en.cxt</span></span>
-<span id="cb6-68"><a href="#cb6-68" tabindex="-1"></a><span class="co">#&gt;     Title:        Methods of murder in Miss Marple novels</span></span>
-<span id="cb6-69"><a href="#cb6-69" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   12 objects x 6 attributes</span></span>
-<span id="cb6-70"><a href="#cb6-70" tabindex="-1"></a><span class="co">#&gt;     Description:  methods of murder in Miss Marple novels (not short</span></span>
-<span id="cb6-71"><a href="#cb6-71" tabindex="-1"></a><span class="co">#&gt;                stories!)</span></span>
-<span id="cb6-72"><a href="#cb6-72" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-73"><a href="#cb6-73" tabindex="-1"></a><span class="co">#&gt; * music_en.cxt</span></span>
-<span id="cb6-74"><a href="#cb6-74" tabindex="-1"></a><span class="co">#&gt;     Title:        Music</span></span>
-<span id="cb6-75"><a href="#cb6-75" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   31 objects x 11 attributes</span></span>
-<span id="cb6-76"><a href="#cb6-76" tabindex="-1"></a><span class="co">#&gt;     Description:  music and their characteristics</span></span>
-<span id="cb6-77"><a href="#cb6-77" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-78"><a href="#cb6-78" tabindex="-1"></a><span class="co">#&gt; * newzealand_en.cxt</span></span>
-<span id="cb6-79"><a href="#cb6-79" tabindex="-1"></a><span class="co">#&gt;     Title:        New Zealand Leasure</span></span>
-<span id="cb6-80"><a href="#cb6-80" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   13 objects x 8 attributes</span></span>
-<span id="cb6-81"><a href="#cb6-81" tabindex="-1"></a><span class="co">#&gt;     Description:  Places in New Zealand and offered activities</span></span>
-<span id="cb6-82"><a href="#cb6-82" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-83"><a href="#cb6-83" tabindex="-1"></a><span class="co">#&gt; * officesupplies_de.cxt</span></span>
-<span id="cb6-84"><a href="#cb6-84" tabindex="-1"></a><span class="co">#&gt;     Title:        Bürobedarf</span></span>
-<span id="cb6-85"><a href="#cb6-85" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   8 objects x 5 attributes</span></span>
-<span id="cb6-86"><a href="#cb6-86" tabindex="-1"></a><span class="co">#&gt;     Description:  service offers of an office supplies business</span></span>
-<span id="cb6-87"><a href="#cb6-87" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-88"><a href="#cb6-88" tabindex="-1"></a><span class="co">#&gt; * officesupplies_en.cxt</span></span>
-<span id="cb6-89"><a href="#cb6-89" tabindex="-1"></a><span class="co">#&gt;     Title:        Office supply services</span></span>
-<span id="cb6-90"><a href="#cb6-90" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   8 objects x 5 attributes</span></span>
-<span id="cb6-91"><a href="#cb6-91" tabindex="-1"></a><span class="co">#&gt;     Description:  Office supply services</span></span>
-<span id="cb6-92"><a href="#cb6-92" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-93"><a href="#cb6-93" tabindex="-1"></a><span class="co">#&gt; * planets_en.cxt</span></span>
-<span id="cb6-94"><a href="#cb6-94" tabindex="-1"></a><span class="co">#&gt;     Title:        Planets</span></span>
-<span id="cb6-95"><a href="#cb6-95" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   9 objects x 7 attributes</span></span>
-<span id="cb6-96"><a href="#cb6-96" tabindex="-1"></a><span class="co">#&gt;     Description:  size and distance of planets</span></span>
-<span id="cb6-97"><a href="#cb6-97" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-98"><a href="#cb6-98" tabindex="-1"></a><span class="co">#&gt; * seasoningplanner_de.cxt</span></span>
-<span id="cb6-99"><a href="#cb6-99" tabindex="-1"></a><span class="co">#&gt;     Title:        Gewürzplaner</span></span>
-<span id="cb6-100"><a href="#cb6-100" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   56 objects x 37 attributes</span></span>
-<span id="cb6-101"><a href="#cb6-101" tabindex="-1"></a><span class="co">#&gt;     Description:  spices and herbs together and the meals they match</span></span>
-<span id="cb6-102"><a href="#cb6-102" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-103"><a href="#cb6-103" tabindex="-1"></a><span class="co">#&gt; * tealady.cxt</span></span>
-<span id="cb6-104"><a href="#cb6-104" tabindex="-1"></a><span class="co">#&gt;     Title:        Tea Ladies</span></span>
-<span id="cb6-105"><a href="#cb6-105" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   18 objects x 14 attributes</span></span>
-<span id="cb6-106"><a href="#cb6-106" tabindex="-1"></a><span class="co">#&gt;     Description:  participation of social events by some ladies in Old City</span></span>
-<span id="cb6-107"><a href="#cb6-107" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-108"><a href="#cb6-108" tabindex="-1"></a><span class="co">#&gt; * triangles_en.cxt</span></span>
-<span id="cb6-109"><a href="#cb6-109" tabindex="-1"></a><span class="co">#&gt;     Title:        Triangles</span></span>
-<span id="cb6-110"><a href="#cb6-110" tabindex="-1"></a><span class="co">#&gt;     Dimensions:   7 objects x 7 attributes</span></span>
-<span id="cb6-111"><a href="#cb6-111" tabindex="-1"></a><span class="co">#&gt;     Description:  Properties of triangles.</span></span></code></pre></div>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="fu">print_repo_details</span>(meta)</span></code></pre></div>
 </div>
 <div id="downloading-a-specific-context" class="section level3">
 <h3>Downloading a Specific Context</h3>
@@ -575,17 +470,10 @@ download it using <code>fetch_context()</code>. This function handles
 the download, parsing, and error checking for you.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Download and load the &#39;Planets&#39; context</span></span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>fc_planets <span class="ot">&lt;-</span> <span class="fu">fetch_context</span>(<span class="st">&quot;planets_en.cxt&quot;</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; ℹ Attempting to fetch &quot;planets_en.cxt&quot; from repository...</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; ✔ Context loaded successfully.</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; - Title: Planets</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; - Description: Size and distance of planets</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; - Source: Anggraini, D. (2011). Analisis Perubahan Kelompok Berdasarkan Perubahan Nilai Jual Pada Bloomberg Market Data dengan Menggunakan Formal Concept Analysis, p. 7</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co"># The object is ready for analysis</span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>fc_planets<span class="sc">$</span><span class="fu">find_concepts</span>()</span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>fc_planets<span class="sc">$</span>concepts<span class="sc">$</span><span class="fu">size</span>()</span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; [1] 12</span></span></code></pre></div>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co"># The object is ready for analysis</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>fc_planets<span class="sc">$</span><span class="fu">find_concepts</span>()</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>fc_planets<span class="sc">$</span>concepts<span class="sc">$</span><span class="fu">size</span>()</span></code></pre></div>
 </div>
 </div>
 <div id="interactive-use-the-rstudio-addin" class="section level2">

@@ -425,54 +425,67 @@ ImplicationSet <- R6::R6Class(
       }
 
       # 2. Call C++
-      res_list <- switch(
-        method,
-        "do_sp" = run_direct_optimal_sp_single_pass_rcpp_optimized(
+      is_binary <- (length(vals) <= 2) && all(vals %in% c(0, 1))
+
+      if (is_binary && method %in% c("do_sp", "direct_optimal", "monotonic", "priority")) {
+        if (verbose) {
+          message("Binary context detected: using hyper-optimized native Tree-Closure logic.")
+        }
+        res_list <- run_binary_tree_optimized(
           private$lhs_matrix,
           private$rhs_matrix,
-          private$attributes,
-          vals,
-          current_logic,
-          TRUE,
-          verbose
-        ),
-        "direct_optimal" = run_direct_optimal_sp_rcpp_optimized(
-          private$lhs_matrix,
-          private$rhs_matrix,
-          private$attributes,
-          vals,
-          current_logic,
-          TRUE,
-          verbose
-        ),
-        "final_ts" = run_final_ts_rcpp_optimized(
-          private$lhs_matrix,
-          private$rhs_matrix,
-          private$attributes,
-          vals,
-          current_logic,
-          TRUE,
-          verbose
-        ),
-        "monotonic" = run_monotonic_incremental_rcpp_optimized(
-          private$lhs_matrix,
-          private$rhs_matrix,
-          private$attributes,
-          vals,
-          current_logic,
-          TRUE,
-          verbose
-        ),
-        "priority" = run_priority_refinement_rcpp_optimized(
-          private$lhs_matrix,
-          private$rhs_matrix,
-          private$attributes,
-          vals,
-          current_logic,
-          TRUE,
-          verbose
+          TRUE
         )
-      )
+      } else {
+        res_list <- switch(
+          method,
+          "do_sp" = run_direct_optimal_sp_single_pass_rcpp_optimized(
+            private$lhs_matrix,
+            private$rhs_matrix,
+            private$attributes,
+            vals,
+            current_logic,
+            TRUE,
+            verbose
+          ),
+          "direct_optimal" = run_direct_optimal_sp_rcpp_optimized(
+            private$lhs_matrix,
+            private$rhs_matrix,
+            private$attributes,
+            vals,
+            current_logic,
+            TRUE,
+            verbose
+          ),
+          "final_ts" = run_final_ts_rcpp_optimized(
+            private$lhs_matrix,
+            private$rhs_matrix,
+            private$attributes,
+            vals,
+            current_logic,
+            TRUE,
+            verbose
+          ),
+          "monotonic" = run_monotonic_incremental_rcpp_optimized(
+            private$lhs_matrix,
+            private$rhs_matrix,
+            private$attributes,
+            vals,
+            current_logic,
+            TRUE,
+            verbose
+          ),
+          "priority" = run_priority_refinement_rcpp_optimized(
+            private$lhs_matrix,
+            private$rhs_matrix,
+            private$attributes,
+            vals,
+            current_logic,
+            TRUE,
+            verbose
+          )
+        )
+      }
 
       # 3. Reconstruct Sparse Matrices
       s_data <- res_list$Sigma
@@ -534,6 +547,100 @@ ImplicationSet <- R6::R6Class(
     #' @export
     get_logic = function() {
       private$logic
+    },
+
+    #' @description
+    #' Get the standard formal context associated with the implication set.
+    #'
+    #' @details
+    #' The standard formal context \eqn{K = (J, M, I)}{K = (J, M, I)} associated to a set of implications on \eqn{M}{M} is such that its concept lattice is isomorphic to the lattice of closed sets of the implication set.
+    #' The objects \eqn{J}{J} of this context are the meet-irreducible closed sets of the implication set.
+    #'
+    #' @return A \code{FormalContext} object where the objects are the meet-irreducible closed sets and the attributes are the attributes of the implication set.
+    #' @export
+    get_standard_context = function() {
+      if (self$is_empty()) {
+        # If no implications, any set is closed.
+        # But wait, usually the empty set of implications on M
+        # means the lattice is 2^M.
+        # The standard context for 2^M is (M, M, !=).
+        I <- matrix(1, nrow = length(private$attributes),
+                    ncol = length(private$attributes))
+        diag(I) <- 0
+        colnames(I) <- private$attributes
+        rownames(I) <- paste0("C", seq_len(nrow(I)))
+        return(FormalContext$new(I))
+      }
+
+      # Find all closed sets using C++ optimization
+      res <- get_closed_sets_implications(
+        private$lhs_matrix,
+        private$rhs_matrix,
+        private$attributes,
+        verbose = FALSE
+      )
+      
+      attrs <- private$attributes
+      n_attrs <- length(attrs)
+      
+      closed_sets_matrix <- res$closed_sets
+      n_closed <- ncol(closed_sets_matrix)
+      
+      # Convert to list of sparse vectors for the logic below
+      # (We could optimize the logic to work on the matrix, but this is a minimal change)
+      all_closed <- lapply(seq_len(n_closed), function(i) closed_sets_matrix[, i, drop = FALSE])
+
+
+      if (length(all_closed) <= 1) {
+         # Only top, or no attributes
+         I <- matrix(1, nrow = 1, ncol = n_attrs)
+         colnames(I) <- attrs
+         rownames(I) <- "C1"
+         return(FormalContext$new(I))
+      }
+
+      # Identify meet-irreducibles using optimized matrix operations
+      # We follow the same logic as in ConceptLattice$meet_irreducibles:
+      # 1. Compute subset relation matrix S (S_ij = 1 iff C_i <= C_j)
+      # 2. Compute transitive reduction of the inverse relation (>=) to get covering relation
+      # 3. Meet-irreducibles are elements with exactly one cover
+      
+      # .subset expects a Matrix, which closed_sets_matrix already is
+      # Note: .subset and .reduce_transitivity are internal fcaR functions
+      
+      S <- .subset(closed_sets_matrix)
+      
+      # Transpose to get superconcept relation (>=)
+      # Reduce transitivity to get covering relation (immediate superconcepts)
+      M <- .reduce_transitivity(Matrix::t(S))
+      
+      # Elements with exactly one upper cover are meet-irreducibles
+      # (ColSums gives the in-degree in the covering graph, which corresponds to number of covers)
+      is_meet_irr <- (Matrix::colSums(M) == 1)
+      
+      meet_irreducibles_mat <- closed_sets_matrix[, is_meet_irr, drop = FALSE]
+      
+      # Convert to list of columns for constructing incidence matrix
+      # (though we can construct it directly maybe? The old code made a list then rbind)
+      # Let's keep it consistent:
+      meet_irreducibles <- lapply(seq_len(ncol(meet_irreducibles_mat)), function(i) meet_irreducibles_mat[, i, drop = FALSE])
+
+
+      if (length(meet_irreducibles) == 0) {
+        # Fallback (shouldn't happen for finite lattices unless trivial)
+        I <- matrix(1, nrow = 1, ncol = n_attrs)
+        colnames(I) <- attrs
+        rownames(I) <- "C1"
+        return(FormalContext$new(I))
+      }
+
+      # Build incidence matrix
+      mi_matrix <- do.call(rbind, lapply(meet_irreducibles, Matrix::t))
+      I <- as.matrix(mi_matrix)
+      colnames(I) <- attrs
+      rownames(I) <- paste0("C", seq_len(nrow(I)))
+
+      return(FormalContext$new(I))
     },
 
     #' @description

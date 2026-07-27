@@ -33,3 +33,11 @@ fc_m3$find_concepts()
 print(paste("M3 Distributive:", fc_m3$concepts$is_distributive()))
 print(paste("M3 Modular:",      fc_m3$concepts$is_modular()))
 
+## ----arrow_relations----------------------------------------------------------
+# Use the planets dataset
+fc <- FormalContext$new(planets)
+fc$calculate_arrow_relations()
+
+# The print method now shows the arrows
+print(fc)
+

@@ -810,7 +810,8 @@ datasets:</p>
 algorithm in a formal context to extract the canonical basis of
 implications:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>fc_planets<span class="sc">$</span><span class="fu">find_implications</span>()</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>fc_I<span class="sc">$</span><span class="fu">find_implications</span>()</span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>fc_I<span class="sc">$</span><span class="fu">find_implications</span>()</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; LinCbO is only available for binary contexts. Falling back to NextClosure.FALSE</span></span></code></pre></div>
 <p>We can inspect the implications by doing:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>fc_planets<span class="sc">$</span>implications</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; Implication set with 10 implications.</span></span>
@@ -1027,19 +1028,41 @@ another one:</p>
 <span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a>imps <span class="sc">%~%</span> imps2[<span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>]</span>
 <span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
 </div>
-<div id="recommendations" class="section level2">
-<h2>Recommendations</h2>
+<div id="standard-context" class="section level2">
+<h2>Standard Context</h2>
+<p>The <code>ImplicationSet</code> allows us to recover the underlying
+lattice structure (the lattice of closed sets) by computing the
+<strong>standard context</strong>. This context has the meet-irreducible
+closed sets of the implication set as objects, and the original
+attributes as attributes:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="co"># Get the standard context from the implications of the planets context</span></span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>sc <span class="ot">&lt;-</span> fc_planets<span class="sc">$</span>implications<span class="sc">$</span><span class="fu">get_standard_context</span>()</span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co"># We can inspect the new context</span></span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a>sc</span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="co">#&gt; FormalContext with 5 objects and 7 attributes.</span></span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="co">#&gt;     small  medium  large  near  far  moon  no_moon  </span></span>
+<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a><span class="co">#&gt;  C1                  X           X     X            </span></span>
+<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a><span class="co">#&gt;  C2           X                  X     X            </span></span>
+<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a><span class="co">#&gt;  C3   X                          X     X            </span></span>
+<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a><span class="co">#&gt;  C4   X                     X                 X     </span></span>
+<span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a><span class="co">#&gt;  C5   X                     X          X</span></span></code></pre></div>
+<p>The concept lattice of this standard context is isomorphic to the
+lattice of closed sets of the original implication set.</p>
+</div>
+<div id="recommendation-systems" class="section level2">
+<h2>Recommendation systems</h2>
 <p>One of the final applications of an <code>ImplicationSet</code> is
 the easy development of a recommendation system where, from an attribute
 set, the system would infer the value to other attribute. This is done
 by the <code>recommend()</code> function, which internally computes the
 closure of the attribute set:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>S <span class="ot">&lt;-</span> Set<span class="sc">$</span><span class="fu">new</span>(<span class="at">attributes =</span> fc_I<span class="sc">$</span>attributes)</span>
-<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>S<span class="sc">$</span><span class="fu">assign</span>(<span class="at">P1 =</span> <span class="dv">1</span>, <span class="at">P4 =</span> <span class="fl">0.5</span>)</span>
-<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a></span>
-<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a>fc_I<span class="sc">$</span>implications<span class="sc">$</span><span class="fu">recommend</span>(S, <span class="at">attribute_filter =</span> <span class="fu">c</span>(<span class="st">&quot;P3&quot;</span>, <span class="st">&quot;P5&quot;</span>))</span>
-<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="co">#&gt; P3 P5 </span></span>
-<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="co">#&gt;  1  1</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>S <span class="ot">&lt;-</span> Set<span class="sc">$</span><span class="fu">new</span>(<span class="at">attributes =</span> fc_I<span class="sc">$</span>attributes)</span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>S<span class="sc">$</span><span class="fu">assign</span>(<span class="at">P1 =</span> <span class="dv">1</span>, <span class="at">P4 =</span> <span class="fl">0.5</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>fc_I<span class="sc">$</span>implications<span class="sc">$</span><span class="fu">recommend</span>(S, <span class="at">attribute_filter =</span> <span class="fu">c</span>(<span class="st">&quot;P3&quot;</span>, <span class="st">&quot;P5&quot;</span>))</span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="co">#&gt; P3 P5 </span></span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="co">#&gt;  1  1</span></span></code></pre></div>
 </div>
 </div>
 

@@ -55,21 +55,21 @@ fc_csv <- FormalContext$new(csv_file)
 # Inspect dimensions
 dim(fc_csv)
 
-## ----repo_browse--------------------------------------------------------------
-# Get the list of available contexts
-meta <- get_fcarepository_contexts()
+## ----repo_browse, eval=FALSE--------------------------------------------------
+# # Get the list of available contexts
+# meta <- get_fcarepository_contexts()
+# 
+# # Print a detailed summary to the console
+# # (Shows Title, Dimensions, and Description for each entry)
+# print_repo_details(meta)
 
-# Print a detailed summary to the console
-# (Shows Title, Dimensions, and Description for each entry)
-print_repo_details(meta)
-
-## ----fetch--------------------------------------------------------------------
-# Download and load the 'Planets' context
-fc_planets <- fetch_context("planets_en.cxt")
-
-# The object is ready for analysis
-fc_planets$find_concepts()
-fc_planets$concepts$size()
+## ----fetch, eval=FALSE--------------------------------------------------------
+# # Download and load the 'Planets' context
+# fc_planets <- fetch_context("planets_en.cxt")
+# 
+# # The object is ready for analysis
+# fc_planets$find_concepts()
+# fc_planets$concepts$size()
 
 ## ----addin, eval=FALSE--------------------------------------------------------
 # select_repository_context_addin()

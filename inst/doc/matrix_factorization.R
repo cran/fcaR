@@ -8,63 +8,49 @@ knitr::opts_chunk$set(
 library(fcaR)
 
 ## ----data_creation------------------------------------------------------------
-# Create a fuzzy matrix (6 breeds x 5 attributes)
+# Create a binary matrix (5 breeds x 5 attributes)
 I <- matrix(c(
-  0.9, 0.9, 0.0, 0.0, 0.2, # Labrador
-  0.8, 0.9, 0.1, 0.0, 0.1, # Golden Ret.
-  0.2, 0.2, 0.9, 0.9, 0.8, # German Shepherd
-  0.1, 0.1, 0.8, 0.9, 0.9, # Rottweiler
-  0.9, 0.2, 0.2, 0.1, 0.2, # Beagle
-  0.2, 0.1, 0.1, 0.1, 0.9  # Chihuahua
-), nrow = 6, byrow = TRUE)
+  1, 1, 0, 0, 0, # Labrador: Friendly, Playful
+  1, 1, 0, 0, 0, # Golden Retriever: Friendly, Playful
+  0, 0, 1, 1, 0, # German Shepherd: Guard, Aggressive
+  0, 0, 1, 1, 0, # Rottweiler: Guard, Aggressive
+  1, 0, 0, 0, 1  # Chihuahua: Friendly, Small
+), nrow = 5, byrow = TRUE)
 
-rownames(I) <- c("Labrador", "Golden Ret.", "G. Shepherd", "Rottweiler", "Beagle", "Chihuahua")
+rownames(I) <- c("Labrador", "Golden Ret.", "G. Shepherd", "Rottweiler", "Chihuahua")
 colnames(I) <- c("Friendly", "Playful", "Guard", "Aggressive", "Small")
 
+# Initialize the FormalContext
 fc <- FormalContext$new(I)
-# Use Lukasiewicz logic for fuzzy operations
-fc$use_logic("Lukasiewicz") 
+print(fc)
 
 ## ----factorization------------------------------------------------------------
-# Factorize using GreConD+
-factors <- fc$factorize(method = "GreConD", w = 1.0)
+# Factorize using GreConD
+factors <- fc$factorize(method = "GreConD")
 
 # The result contains two new FormalContext objects
 A <- factors$object_factor
 B <- factors$factor_attribute
 
-print("Matrix A (Object-Factor):")
+## ----print_A------------------------------------------------------------------
 print(A$incidence())
 
-print("Matrix B (Factor-Attribute):")
+## ----print_B------------------------------------------------------------------
 print(B$incidence())
 
-## ----verification-------------------------------------------------------------
-# Reconstruct I' = A o B
-rec_I <- A$incidence() %*% B$incidence() # Note: standard matrix product is just an approximation
-# For exact fuzzy reconstruction we would loop using the T-norm, but let's check the error:
+## ----rsf_example--------------------------------------------------------------
+# Factorize using RSF
+res_rsf <- fc$factorize(method = "RSF")
+print(res_rsf$factor_attribute$incidence())
 
-# (In a real scenario, we use the logic's operators)
-mae <- mean(abs(I - A$incidence() %*% B$incidence())) # Simplified check
-# For exact reconstruction, GreConD+ guarantees I <= A o B if w is high.
+# Factorize using RSF-ES (Highly optimized)
+res_rsfes <- fc$factorize(method = "RSF-ES")
+print(res_rsfes$factor_attribute$incidence())
 
 ## ----asso_example-------------------------------------------------------------
-# Create a binary dataset
-I_bin <- matrix(c(
-  1, 1, 1, 0, 0,
-  1, 1, 1, 0, 0,
-  0, 0, 0, 1, 1,
-  0, 0, 0, 1, 1,
-  1, 0, 0, 0, 1
-), nrow = 5, byrow = TRUE)
-rownames(I_bin) <- paste0("O", 1:5)
-colnames(I_bin) <- paste0("A", 1:5)
-
-fc_bin <- FormalContext$new(I_bin)
-
 # Factorize using ASSO
-# threshold: confidence threshold for candidate generation
-res_asso <- fc_bin$factorize(method = "ASSO", threshold = 0.6)
+res_asso <- fc$factorize(method = "ASSO", threshold = 0.6)
 
+# Print the resulting factor-attribute matrix
 print(res_asso$factor_attribute$incidence())
 

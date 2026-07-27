@@ -416,6 +416,38 @@ verify our checks.</p>
 <span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; [1] &quot;M3 Modular: TRUE&quot;</span></span></code></pre></div>
 </div>
 </div>
+<div id="arrow-relations" class="section level2">
+<h2>2. Arrow Relations</h2>
+<p>Arrow relations highlight the structural relationships between
+objects and attributes in a binary formal context. They are particularly
+useful for identifying irreducible elements and understanding the
+lattice structure.</p>
+<p>For a pair <span class="math inline">\((g, m) \notin I\)</span>: -
+<span class="math inline">\(g \swarrow m\)</span> iff <span class="math inline">\(g&#39;\)</span> is maximal among intents not
+containing <span class="math inline">\(m\)</span>. - <span class="math inline">\(g \nearrow m\)</span> iff <span class="math inline">\(m&#39;\)</span> is maximal among extents not
+containing <span class="math inline">\(g\)</span>. - <span class="math inline">\(g \updownarrow m\)</span> iff both <span class="math inline">\(g \swarrow m\)</span> and <span class="math inline">\(g \nearrow m\)</span>.</p>
+<p>In <code>fcaR</code>, you can compute these relations using the
+<code>calculate_arrow_relations()</code> method. Once computed, the
+<code>print()</code> and <code>to_latex()</code> methods will display
+the arrows:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Use the planets dataset</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>fc <span class="ot">&lt;-</span> FormalContext<span class="sc">$</span><span class="fu">new</span>(planets)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>fc<span class="sc">$</span><span class="fu">calculate_arrow_relations</span>()</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co"># The print method now shows the arrows</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="fu">print</span>(fc)</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; FormalContext with 9 objects and 7 attributes.</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt;          small  medium  large  near  far  moon  no_moon  </span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt;  Mercury   X      ↙      ↙     X    ↙   ↕      X     </span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;    Venus   X      ↙      ↙     X    ↙   ↕      X     </span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt;    Earth   X      ↙      ↙     X    ↕    X      ↕    </span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt;     Mars   X      ↙      ↙     X    ↕    X      ↕    </span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt;  Jupiter   ↕     ↕      X     ↙    X     X      ↙    </span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt;   Saturn   ↕     ↕      X     ↙    X     X      ↙    </span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt;   Uranus   ↕      X      ↕    ↙    X     X      ↙    </span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt;  Neptune   ↕      X      ↕    ↙    X     X      ↙    </span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt;    Pluto   X      ↕      ↕    ↕    X     X      ↙</span></span></code></pre></div>
+</div>
 
 
 

@@ -27,6 +27,7 @@ basis transformation.
 \item \href{#method-ImplicationSet-to_direct_optimal}{\code{ImplicationSet$to_direct_optimal()}}
 \item \href{#method-ImplicationSet-use_logic}{\code{ImplicationSet$use_logic()}}
 \item \href{#method-ImplicationSet-get_logic}{\code{ImplicationSet$get_logic()}}
+\item \href{#method-ImplicationSet-get_standard_context}{\code{ImplicationSet$get_standard_context()}}
 \item \href{#method-ImplicationSet-use_hedge}{\code{ImplicationSet$use_hedge()}}
 \item \href{#method-ImplicationSet-get_hedge}{\code{ImplicationSet$get_hedge()}}
 \item \href{#method-ImplicationSet-to_json}{\code{ImplicationSet$to_json()}}
@@ -48,6 +49,7 @@ basis transformation.
 <li><span class="pkg-link" data-pkg="fcaR" data-topic="RuleSet" data-id="is_empty"><a href='../../fcaR/html/RuleSet.html#method-RuleSet-is_empty'><code>fcaR::RuleSet$is_empty()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="fcaR" data-topic="RuleSet" data-id="size"><a href='../../fcaR/html/RuleSet.html#method-RuleSet-size'><code>fcaR::RuleSet$size()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="fcaR" data-topic="RuleSet" data-id="to_latex"><a href='../../fcaR/html/RuleSet.html#method-RuleSet-to_latex'><code>fcaR::RuleSet$to_latex()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="fcaR" data-topic="RuleSet" data-id="total_size"><a href='../../fcaR/html/RuleSet.html#method-RuleSet-total_size'><code>fcaR::RuleSet$total_size()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -292,6 +294,24 @@ Gets the logic used
 
 \subsection{Returns}{
 A string with the name of the logic.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ImplicationSet-get_standard_context"></a>}}
+\if{latex}{\out{\hypertarget{method-ImplicationSet-get_standard_context}{}}}
+\subsection{Method \code{get_standard_context()}}{
+Get the standard formal context associated with the implication set.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ImplicationSet$get_standard_context()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+The standard formal context \eqn{K = (J, M, I)}{K = (J, M, I)} associated to a set of implications on \eqn{M}{M} is such that its concept lattice is isomorphic to the lattice of closed sets of the implication set.
+The objects \eqn{J}{J} of this context are the meet-irreducible closed sets of the implication set.
+}
+
+\subsection{Returns}{
+A \code{FormalContext} object where the objects are the meet-irreducible closed sets and the attributes are the attributes of the implication set.
 }
 }
 \if{html}{\out{<hr>}}

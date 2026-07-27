@@ -19,6 +19,7 @@ managing, filtering, and exporting rules.
 \item \href{#method-RuleSet-cardinality}{\code{RuleSet$cardinality()}}
 \item \href{#method-RuleSet-is_empty}{\code{RuleSet$is_empty()}}
 \item \href{#method-RuleSet-size}{\code{RuleSet$size()}}
+\item \href{#method-RuleSet-total_size}{\code{RuleSet$total_size()}}
 \item \href{#method-RuleSet-print}{\code{RuleSet$print()}}
 \item \href{#method-RuleSet-get_quality}{\code{RuleSet$get_quality()}}
 \item \href{#method-RuleSet-to_latex}{\code{RuleSet$to_latex()}}
@@ -165,6 +166,19 @@ Size: number of attributes in each of LHS and RHS
 
 \subsection{Returns}{
 A matrix with two columns: the number of attributes present in each of the LHS and RHS of each rule.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-RuleSet-total_size"></a>}}
+\if{latex}{\out{\hypertarget{method-RuleSet-total_size}{}}}
+\subsection{Method \code{total_size()}}{
+Total Size: cumulative sum of attributes in LHS and RHS
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{RuleSet$total_size()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A named numeric vector of length 2: LHS and RHS sizes.
 }
 }
 \if{html}{\out{<hr>}}

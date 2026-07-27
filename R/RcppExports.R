@@ -25,14 +25,6 @@ check_atomicity_sparse <- function(adj_i, adj_p, cov_i, cov_p, dim) {
     .Call(`_fcaR_check_atomicity_sparse`, adj_i, adj_p, cov_i, cov_p, dim)
 }
 
-tnorm_Zadeh <- function(x, y) {
-    .Call(`_fcaR_tnorm_Zadeh`, x, y)
-}
-
-implication_Zadeh <- function(x, y) {
-    .Call(`_fcaR_implication_Zadeh`, x, y)
-}
-
 tnorm_Lukasiewicz <- function(x, y) {
     .Call(`_fcaR_tnorm_Lukasiewicz`, x, y)
 }
@@ -69,6 +61,14 @@ asso_cpp <- function(I, threshold = 0.7, w_pos = 1.0, w_neg = 1.0) {
     .Call(`_fcaR_asso_cpp`, I, threshold, w_pos, w_neg)
 }
 
+rsf_es_attr_cpp <- function(R) {
+    .Call(`_fcaR_rsf_es_attr_cpp`, R)
+}
+
+rsf_attr_cpp <- function(R) {
+    .Call(`_fcaR_rsf_attr_cpp`, R)
+}
+
 randomize_swap_cpp <- function(I, iterations) {
     .Call(`_fcaR_randomize_swap_cpp`, I, iterations)
 }
@@ -79,6 +79,27 @@ randomize_rewire_cpp <- function(I, iterations) {
 
 reduce_transitivity_cpp <- function(sp_i, sp_p, dim) {
     .Call(`_fcaR_reduce_transitivity_cpp`, sp_i, sp_p, dim)
+}
+
+bonds_mcis_cpp <- function(extents, intents, verbose = FALSE) {
+    .Call(`_fcaR_bonds_mcis_cpp`, extents, intents, verbose)
+}
+
+#' @title compute_arrow_relations_cpp
+#' @description Computes the arrow relations (swarrow, nearrow, and double arrow)
+#' for a binary formal context.
+#' @param I (IntegerMatrix) The binary incidence matrix of the formal context.
+#' @return An IntegerMatrix where:
+#'   - 1: \swarrow
+#'   - 2: \nearrow
+#'   - 3: \updownarrow
+#' @noRd
+compute_arrow_relations_cpp <- function(I) {
+    .Call(`_fcaR_compute_arrow_relations_cpp`, I)
+}
+
+asso_bitwise_cpp <- function(I_in, k_max, threshold, w_pos, w_neg) {
+    .Call(`_fcaR_asso_bitwise_cpp`, I_in, k_max, threshold, w_pos, w_neg)
 }
 
 print_matrix <- function(I) {
@@ -93,15 +114,47 @@ get_element_array <- function(I, i, j, k) {
     .Call(`_fcaR_get_element_array`, I, i, j, k)
 }
 
+run_binary_monotonic_optimized <- function(lhs_in, rhs_in, use_pruning = TRUE) {
+    .Call(`_fcaR_run_binary_monotonic_optimized`, lhs_in, rhs_in, use_pruning)
+}
+
+run_binary_dosp_optimized <- function(lhs_in, rhs_in, use_pruning = TRUE) {
+    .Call(`_fcaR_run_binary_dosp_optimized`, lhs_in, rhs_in, use_pruning)
+}
+
+run_binary_single_pass_optimized <- function(lhs_in, rhs_in, use_pruning = TRUE) {
+    .Call(`_fcaR_run_binary_single_pass_optimized`, lhs_in, rhs_in, use_pruning)
+}
+
+run_binary_monotonic_batch_optimized <- function(lhs_in, rhs_in, use_pruning = TRUE) {
+    .Call(`_fcaR_run_binary_monotonic_batch_optimized`, lhs_in, rhs_in, use_pruning)
+}
+
+run_binary_tree_optimized <- function(lhs_in, rhs_in, use_pruning = TRUE) {
+    .Call(`_fcaR_run_binary_tree_optimized`, lhs_in, rhs_in, use_pruning)
+}
+
+run_binary_lexicographic_optimized <- function(lhs_in, rhs_in, use_pruning = TRUE) {
+    .Call(`_fcaR_run_binary_lexicographic_optimized`, lhs_in, rhs_in, use_pruning)
+}
+
 binary_next_closure_implications <- function(I, verbose = FALSE) {
     .Call(`_fcaR_binary_next_closure_implications`, I, verbose)
+}
+
+binary_closure_cpp <- function(S_mat, LHS_mat, RHS_mat) {
+    .Call(`_fcaR_binary_closure_cpp`, S_mat, LHS_mat, RHS_mat)
+}
+
+bonds_closure_cpp <- function(J_in, I_in) {
+    .Call(`_fcaR_bonds_closure_cpp`, J_in, I_in)
 }
 
 FastCbO_binary <- function(I, attrs, verbose = FALSE) {
     .Call(`_fcaR_FastCbO_binary`, I, attrs, verbose)
 }
 
-FuzzyFCbO <- function(I, grades_set, attrs, connection = "standard", name = "Zadeh", verbose = FALSE) {
+FuzzyFCbO <- function(I, grades_set, attrs, connection = "standard", name = "Godel", verbose = FALSE) {
     .Call(`_fcaR_FuzzyFCbO`, I, grades_set, attrs, connection, name, verbose)
 }
 
@@ -129,7 +182,23 @@ run_direct_optimal_sp_single_pass_rcpp_optimized <- function(lhs_in, rhs_in, att
     .Call(`_fcaR_run_direct_optimal_sp_single_pass_rcpp_optimized`, lhs_in, rhs_in, attributes, L, logic_name, use_pruning, verbose)
 }
 
-InClose <- function(I, grades_set, attrs, connection = "standard", name = "Zadeh", verbose = FALSE) {
+grecond_cpp <- function(I, no_of_factors = -1L) {
+    .Call(`_fcaR_grecond_cpp`, I, no_of_factors)
+}
+
+greess_cpp <- function(I_in) {
+    .Call(`_fcaR_greess_cpp`, I_in)
+}
+
+hyper_inclose_cpp <- function(I_mat, min_support = 1L) {
+    .Call(`_fcaR_hyper_inclose_cpp`, I_mat, min_support)
+}
+
+hyper_plus_optimized_cpp <- function(I_mat, hyper_res, beta = 0.1) {
+    .Call(`_fcaR_hyper_plus_optimized_cpp`, I_mat, hyper_res, beta)
+}
+
+InClose <- function(I, grades_set, attrs, connection = "standard", name = "Godel", verbose = FALSE) {
     .Call(`_fcaR_InClose`, I, grades_set, attrs, connection, name, verbose)
 }
 
@@ -145,8 +214,12 @@ calculate_grades_rcpp <- function(concept_ids, edge_from, edge_to) {
     .Call(`_fcaR_calculate_grades_rcpp`, concept_ids, edge_from, edge_to)
 }
 
-calculate_lattice_layout_rcpp <- function(concept_ids, grades, edge_from, edge_to, method) {
-    .Call(`_fcaR_calculate_lattice_layout_rcpp`, concept_ids, grades, edge_from, edge_to, method)
+calculate_lattice_layout_rcpp <- function(concept_ids, layers_vec, y_coords_vec, edge_from, edge_to, method) {
+    .Call(`_fcaR_calculate_lattice_layout_rcpp`, concept_ids, layers_vec, y_coords_vec, edge_from, edge_to, method)
+}
+
+binary_lincbo_implications <- function(I, save_concepts = FALSE, verbose = FALSE) {
+    .Call(`_fcaR_binary_lincbo_implications`, I, save_concepts, verbose)
 }
 
 calculate_stability_sparse_rcpp <- function(mat) {
@@ -165,32 +238,48 @@ calculate_fuzzy_density_rcpp <- function(extents, intents, I) {
     .Call(`_fcaR_calculate_fuzzy_density_rcpp`, extents, intents, I)
 }
 
-test_new <- function(A) {
-    invisible(.Call(`_fcaR_test_new`, A))
-}
-
-test_export_new <- function(A) {
-    .Call(`_fcaR_test_export_new`, A)
-}
-
-test_extent_new <- function(A, I) {
-    .Call(`_fcaR_test_extent_new`, A, I)
-}
-
-test_intent_new <- function(A, I) {
-    .Call(`_fcaR_test_intent_new`, A, I)
-}
-
-next_closure_implications <- function(I, grades_set, attrs, connection = "standard", name = "Zadeh", save_concepts = TRUE, verbose = FALSE) {
+next_closure_implications <- function(I, grades_set, attrs, connection = "standard", name = "Godel", save_concepts = TRUE, verbose = FALSE) {
     .Call(`_fcaR_next_closure_implications`, I, grades_set, attrs, connection, name, save_concepts, verbose)
 }
 
-next_closure_concepts <- function(I, grades_set, attrs, connection = "standard", name = "Zadeh", verbose = FALSE, ret = TRUE) {
+next_closure_concepts <- function(I, grades_set, attrs, connection = "standard", name = "Godel", verbose = FALSE, ret = TRUE) {
     .Call(`_fcaR_next_closure_concepts`, I, grades_set, attrs, connection, name, verbose, ret)
 }
 
 binary_next_closure_concepts <- function(I, verbose = FALSE) {
     .Call(`_fcaR_binary_next_closure_concepts`, I, verbose)
+}
+
+get_closed_sets_implications <- function(lhs, rhs, attrs, verbose = FALSE) {
+    .Call(`_fcaR_get_closed_sets_implications`, lhs, rhs, attrs, verbose)
+}
+
+panda_plus_unified_cpp <- function(I_in, k_max, cost_func = "J_P", rho = 1.0) {
+    .Call(`_fcaR_panda_plus_unified_cpp`, I_in, k_max, cost_func, rho)
+}
+
+panda_plus_jp_cpp <- function(I_in, k_max) {
+    .Call(`_fcaR_panda_plus_jp_cpp`, I_in, k_max)
+}
+
+panda_plus_ja_cpp <- function(I_in, k_max) {
+    .Call(`_fcaR_panda_plus_ja_cpp`, I_in, k_max)
+}
+
+panda_plus_jprho_cpp <- function(I_in, k_max, rho) {
+    .Call(`_fcaR_panda_plus_jprho_cpp`, I_in, k_max, rho)
+}
+
+calculate_width_cpp <- function(i_idx, p_idx, n) {
+    .Call(`_fcaR_calculate_width_cpp`, i_idx, p_idx, n)
+}
+
+calculate_dimension_heuristic_cpp <- function(i_idx, p_idx, n) {
+    .Call(`_fcaR_calculate_dimension_heuristic_cpp`, i_idx, p_idx, n)
+}
+
+find_protoconcepts_cpp <- function(I, connection = "standard", name = "Godel", verbose = FALSE) {
+    .Call(`_fcaR_find_protoconcepts_cpp`, I, connection, name, verbose)
 }
 
 compute_intent <- function(V, I, connection, name) {
@@ -219,6 +308,10 @@ compute_upleft_arrow <- function(V, I, name) {
 
 compute_downright_arrow <- function(V, I, name) {
     .Call(`_fcaR_compute_downright_arrow`, V, I, name)
+}
+
+bonds_standard_opt_cpp <- function(I1, I2, verbose = FALSE) {
+    .Call(`_fcaR_bonds_standard_opt_cpp`, I1, I2, verbose)
 }
 
 sparse_subset_dispatch <- function(X_p, X_i, X_x, Y_p, Y_i, Y_x, num_rows, proper_code, is_binary) {

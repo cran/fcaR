@@ -125,6 +125,13 @@ imps %~% imps2
 imps %~% imps2[1:9]
 
 ## -----------------------------------------------------------------------------
+# Get the standard context from the implications of the planets context
+sc <- fc_planets$implications$get_standard_context()
+
+# We can inspect the new context
+sc
+
+## -----------------------------------------------------------------------------
 S <- Set$new(attributes = fc_I$attributes)
 S$assign(P1 = 1, P4 = 0.5)
 

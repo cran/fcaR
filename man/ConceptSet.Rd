@@ -96,11 +96,18 @@ Is the lattice empty?
 \subsection{Method \code{extents()}}{
 Concept Extents
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConceptSet$extents()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ConceptSet$extents(as_list = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{as_list}}{Logical. If \code{TRUE}, returns a list of \code{Set}s; otherwise, a sparse matrix.}
+}
+\if{html}{\out{</div>}}
+}
 \subsection{Returns}{
-The extents of all concepts, as a \code{dgCMatrix}.
+The extents of all concepts.
 }
 }
 \if{html}{\out{<hr>}}
@@ -109,11 +116,18 @@ The extents of all concepts, as a \code{dgCMatrix}.
 \subsection{Method \code{intents()}}{
 Concept Intents
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConceptSet$intents()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ConceptSet$intents(as_list = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{as_list}}{Logical. If \code{TRUE}, returns a list of \code{Set}s; otherwise, a sparse matrix.}
+}
+\if{html}{\out{</div>}}
+}
 \subsection{Returns}{
-The intents of all concepts, as a \code{dgCMatrix}.
+The intents of all concepts.
 }
 }
 \if{html}{\out{<hr>}}

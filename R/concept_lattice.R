@@ -74,9 +74,15 @@ ConceptLattice <- R6::R6Class(
     #'   \item \code{"attributes"}: Nodes show only their intent (attributes).
     #'   \item \code{"empty"}: Nodes are drawn as points without labels. Recommended for very large lattices (>50 concepts).
     #' }
-    #' @param ...          Other parameters passed to the internal plotting function (e.g., graphical parameters for \code{ggraph}).
+    #' @param viewer       (character) The viewer to use for plotting. Options are:
+    #' \itemize{
+    #'   \item \code{"ggraph"} (default): Use \code{ggraph} for drawing.
+    #'   \item \code{"base"}: Use R base graphics. This is a lightweight alternative that supports themes.
+    #' }
+    #' @param theme        (character) The color theme to use for the \code{"base"} viewer. Options are: \code{"standard"}, \code{"nord"}, \code{"latex"}, \code{"vibrant"}.
+    #' @param ...          Other parameters passed to the internal plotting function (e.g., graphical parameters for \code{ggraph} or \code{base}).
     #'
-    #' @return If \code{to_latex} is \code{FALSE}, it returns (invisibly) the \code{ggplot2} object representing the graph.
+    #' @return If \code{to_latex} is \code{FALSE}, it returns (invisibly) the \code{ggplot2} object representing the graph (for \code{ggraph}) or \code{NULL} (for \code{base}).
     #' If \code{to_latex} is \code{TRUE}, it returns a \code{tikz_code} object containing the LaTeX code.
     #' @export
     plot = function(
@@ -84,6 +90,8 @@ ConceptLattice <- R6::R6Class(
       to_latex = FALSE,
       method = c("sugiyama", "force"),
       mode = NULL,
+      viewer = c("ggraph", "base"),
+      theme = "standard",
       ...
     ) {
       # 1. Verificación de estado
@@ -111,6 +119,7 @@ ConceptLattice <- R6::R6Class(
       # 3. Delegación a lattice_plot
       # Pasamos los datos privados necesarios (matriz, objetos, atributos)
       method <- match.arg(method)
+      viewer <- match.arg(viewer)
       lattice_plot(
         nodes_df = nodes_df,
         cover_matrix = private$covering_matrix,
@@ -125,6 +134,8 @@ ConceptLattice <- R6::R6Class(
         intents = intents_list,
         object_names = self$objects,
         to_latex = to_latex,
+        viewer = viewer,
+        theme = theme,
         ...
       )
     },
@@ -167,6 +178,150 @@ ConceptLattice <- R6::R6Class(
 
         return(cl)
       }
+    },
+
+    #' @description
+    #' Build a sublattice from selected concepts
+    #'
+    #' @param attributes Character vector of attribute names, or \code{NULL} (default).
+    #' @param match \code{"all"} (default) or \code{"any"}: how to combine several attributes.
+    #' @param min_support Numeric in \eqn{[0, 1]}. Discard concepts with smaller support.
+    #' @param top_n Integer or \code{NULL}. Keep the \code{top_n} concepts with highest support.
+    #' @param verbose Logical; print a short summary.
+    #'
+    #' @return A \code{ConceptLattice} object.
+    #' @export
+    sublattice_from = function(attributes = NULL,
+                              match = c("all", "any"),
+                              min_support = 0,
+                              top_n = 7L,
+                              verbose = TRUE) {
+      match <- match.arg(match)
+      n_all <- self$size()
+
+      if (n_all < 1L) {
+        stop("No concepts found. Call find_concepts() first.", call. = FALSE)
+      }
+
+      if (!is.numeric(min_support) || length(min_support) != 1L ||
+          is.na(min_support) || min_support < 0 || min_support > 1) {
+        stop("`min_support` must be a single number in [0, 1].", call. = FALSE)
+      }
+
+      if (!is.null(top_n)) {
+        top_n <- as.integer(top_n)
+        if (length(top_n) != 1L || is.na(top_n) || top_n < 1L) {
+          stop("`top_n` must be a positive integer or NULL.", call. = FALSE)
+        }
+      }
+
+      candidates <- seq_len(n_all)
+      query <- list(
+        attributes  = attributes,
+        match       = if (!is.null(attributes)) match else NA_character_,
+        min_support = min_support,
+        top_n       = top_n
+      )
+
+      # Filter by attributes in the intent
+      if (!is.null(attributes)) {
+        atts <- private$attributes
+        attributes <- as.character(attributes)
+        if (length(attributes) == 0L) {
+          stop("`attributes` must be non-empty or NULL.", call. = FALSE)
+        }
+        unknown <- setdiff(attributes, atts)
+        if (length(unknown) > 0L) {
+          stop(
+            "Unknown attribute(s): ", paste(unknown, collapse = ", "),
+            "\nAvailable: ", paste(atts, collapse = ", "),
+            call. = FALSE
+          )
+        }
+
+        intents <- self$intents()
+        rows <- match(attributes, atts)
+        present <- lapply(rows, function(r) {
+          as.vector(intents[r, , drop = FALSE] > 0)
+        })
+        if (match == "all") {
+          hit <- Reduce(`&`, present)
+        } else {
+          hit <- Reduce(`|`, present)
+        }
+        candidates <- which(hit)
+        if (length(candidates) == 0L) {
+          stop(
+            "No concepts have ", match, " of {",
+            paste(attributes, collapse = ", "), "} in their intent.",
+            call. = FALSE
+          )
+        }
+      }
+
+      # Filter by minimum support
+      sup <- self$support()
+      if (min_support > 0) {
+        candidates <- candidates[sup[candidates] >= min_support]
+        if (length(candidates) == 0L) {
+          stop(
+            "No concepts left with support >= ", min_support, ".",
+            call. = FALSE
+          )
+        }
+      }
+
+      n_candidates <- length(candidates)
+
+      # Rank by support
+      ord <- order(sup[candidates], decreasing = TRUE)
+      ranked <- candidates[ord]
+
+      if (is.null(top_n)) {
+        generators <- ranked
+        if (length(generators) > 25L) {
+          warning(
+            length(generators),
+            " concepts will generate the sublattice; ",
+            "the join/meet closure may be slow and the plot hard to read. ",
+            "Consider setting top_n (e.g. top_n = 8).",
+            call. = FALSE
+          )
+        }
+      } else {
+        if (top_n > length(ranked)) {
+          if (isTRUE(verbose)) {
+            message(
+              "top_n = ", top_n, " > ", length(ranked),
+              " candidates; using all candidates."
+            )
+          }
+          top_n <- length(ranked)
+        }
+        generators <- ranked[seq_len(top_n)]
+      }
+
+      sub <- self$sublattice(generators)
+
+      if (isTRUE(verbose)) {
+        how <- if (is.null(attributes)) {
+          "by support"
+        } else {
+          paste0(
+            "intent contains ", match, " of {",
+            paste(attributes, collapse = ", "), "}"
+          )
+        }
+        message(sprintf(
+          "sublattice_from: %s; %d candidate(s) -> %d generator(s) -> %d concept(s)",
+          how, n_candidates, length(generators), sub$size()
+        ))
+      }
+
+      attr(sub, "generators")   <- generators
+      attr(sub, "n_candidates") <- n_candidates
+      attr(sub, "query")        <- query
+      return(sub)
     },
 
     #' @description Top of a Lattice
@@ -603,6 +758,42 @@ ConceptLattice <- R6::R6Class(
     },
 
     #' @description
+    #' Computes the Dilworth's width of the lattice.
+    #' The width is the size of the largest antichain.
+    #' @return Integer.
+    #' @export
+    width = function() {
+      if (!is.na(private$properties$width)) {
+        return(private$properties$width)
+      }
+
+      private$build_adjacency()
+      adj <- private$subconcept_matrix
+
+      res <- calculate_width_cpp(adj@i, adj@p, adj@Dim[1])
+      private$properties$width <- res
+      return(res)
+    },
+
+    #' @description
+    #' Computes the order dimension (Dushnik-Miller) of the lattice.
+    #' Note: This uses a heuristic and may return an estimate for large lattices.
+    #' @return Integer.
+    #' @export
+    dimension = function() {
+      if (!is.na(private$properties$dimension)) {
+        return(private$properties$dimension)
+      }
+
+      private$build_adjacency()
+      adj <- private$subconcept_matrix
+
+      res <- calculate_dimension_heuristic_cpp(adj@i, adj@p, adj@Dim[1])
+      private$properties$dimension <- res
+      return(res)
+    },
+
+    #' @description
     #' Internal method to set state from JSON import
     #' @param state List of internal state variables
     set_state = function(state) {
@@ -723,7 +914,9 @@ ConceptLattice <- R6::R6Class(
       distributivity = NA,
       modularity = NA,
       semimodularity = NA,
-      atomicity = NA
+      atomicity = NA,
+      width = NA,
+      dimension = NA
     ),
 
     subconcept_matrix = NULL,
@@ -737,7 +930,7 @@ ConceptLattice <- R6::R6Class(
       }
 
       if (is.null(private$subconcept_matrix)) {
-        private$subconcept_matrix <- as(.subset(private$pr_extents), "nMatrix")
+        private$subconcept_matrix <- .subset(private$pr_extents)
       }
 
       invisible(self)
@@ -753,7 +946,7 @@ ConceptLattice <- R6::R6Class(
       if (is.null(private$covering_matrix)) {
         private$covering_matrix <- as(
           .reduce_transitivity(private$subconcept_matrix),
-          "ngCMatrix"
+          "nMatrix"
         )
       }
 

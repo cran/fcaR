@@ -165,11 +165,11 @@ RuleSet <- R6::R6Class(
         attributes = private$attributes
       )
 
-      LHS <- as(L$lhs, "ngCMatrix")
+      LHS <- as(L$lhs, "nMatrix")
       LHS <- as(LHS, "itemMatrix")
       itemLabels(LHS) <- private$attributes
 
-      RHS <- as(L$rhs, "ngCMatrix")
+      RHS <- as(L$rhs, "nMatrix")
       RHS <- as(RHS, "itemMatrix")
       itemLabels(RHS) <- private$attributes
 
@@ -278,6 +278,19 @@ RuleSet <- R6::R6Class(
     },
 
     #' @description
+    #' Total Size: cumulative sum of attributes in LHS and RHS
+    #'
+    #' @return A named numeric vector of length 2: LHS and RHS sizes.
+    #' @export
+    total_size = function() {
+      s <- self$size()
+      if (is.null(s) || length(s) == 0L) {
+        return(c(LHS = 0, RHS = 0))
+      }
+      return(colSums(s))
+    },
+
+    #' @description
     #' Print all rules to text
     #'
     #' @return A string with all the rules in the set.
@@ -378,14 +391,19 @@ RuleSet <- R6::R6Class(
         LHS <- Matrix::Matrix(
           FALSE,
           nrow = length(private$attributes),
-          ncol = 1,
+          ncol = 0,
           sparse = TRUE
         )
       } else {
         LHS <- private$lhs_matrix
       }
 
-      dimnames(LHS) <- list(private$attributes, paste0(seq_len(ncol(LHS))))
+      n_lhs <- if (is.null(dim(LHS))) 0 else ncol(LHS)
+      if (is.null(dim(LHS)) && length(LHS) > 0) {
+        cat("CRASHING ON LHS:\nCLASS:", class(LHS), "\nLENGTH:", length(LHS), "\n")
+        print(LHS)
+      }
+      dimnames(LHS) <- list(private$attributes, paste0(seq_len(n_lhs)))
 
       return(LHS)
     },
@@ -408,7 +426,8 @@ RuleSet <- R6::R6Class(
         RHS <- private$rhs_matrix
       }
 
-      dimnames(RHS) <- list(private$attributes, paste0(seq_len(ncol(RHS))))
+      n_rhs <- if (is.null(dim(RHS))) 0 else ncol(RHS)
+      dimnames(RHS) <- list(private$attributes, paste0(seq_len(n_rhs)))
 
       return(RHS)
     },

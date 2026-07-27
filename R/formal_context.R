@@ -62,10 +62,10 @@ FormalContext <- R6::R6Class(
     expanded_grades_set = NULL,
 
     #' @field concepts The concept lattice associated to the formal context as a \code{\link{ConceptLattice}}.
-    concepts = "Not computed yet",
+    concepts = NULL,
 
     #' @field implications A set of implications on the formal context as an \code{\link{ImplicationSet}}.
-    implications = "Not computed yet",
+    implications = NULL,
 
     #' @field description An optional description of the dataset
     description = character(0),
@@ -388,14 +388,21 @@ FormalContext <- R6::R6Class(
     #' @description
     #' Get the intent of a fuzzy set of objects
     #'
-    #' @param S   (\code{Set}) The set of objects to compute the intent for.
+    #' @param ... A \code{Set} of objects, or object names.
     #'
     #' @return A \code{Set} with the intent.
     #'
     #' @export
-    intent = function(S) {
+    intent = function(...) {
       if (private$is_many_valued) {
         error_many_valued()
+      }
+
+      dots <- list(...)
+      if (length(dots) == 1 && (inherits(dots[[1]], "Set") || is.numeric(dots[[1]]) || inherits(dots[[1]], "Matrix") || inherits(dots[[1]], "matrix"))) {
+        S <- dots[[1]]
+      } else {
+        S <- object_set(self, ...)
       }
 
       if (inherits(S, "Set")) {
@@ -466,16 +473,23 @@ FormalContext <- R6::R6Class(
     #' @description
     #' Get the extent of a fuzzy set of attributes
     #'
-    #' @param S   (\code{Set}) The set of attributes to compute the extent for.
+    #' @param ... A \code{Set} of attributes, or attribute names.
     #'
     #' @return A \code{Set} with the intent.
     #'
     #' @export
-    extent = function(S) {
+    extent = function(...) {
       # TODO: Apply scales to Sets.
 
       if (private$is_many_valued) {
         error_many_valued()
+      }
+
+      dots <- list(...)
+      if (length(dots) == 1 && (inherits(dots[[1]], "Set") || is.numeric(dots[[1]]) || inherits(dots[[1]], "Matrix") || inherits(dots[[1]], "matrix"))) {
+        S <- dots[[1]]
+      } else {
+        S <- attribute_set(self, ...)
       }
 
       if (inherits(S, "Set")) {
@@ -546,14 +560,21 @@ FormalContext <- R6::R6Class(
     #' @description
     #' Get the closure of a fuzzy set of attributes
     #'
-    #' @param S   (\code{Set}) The set of attributes to compute the closure for.
+    #' @param ... A \code{Set} of attributes, or attribute names.
     #'
     #' @return A \code{Set} with the closure.
     #'
     #' @export
-    closure = function(S) {
+    closure = function(...) {
       if (private$is_many_valued) {
         error_many_valued()
+      }
+
+      dots <- list(...)
+      if (length(dots) == 1 && (inherits(dots[[1]], "Set") || is.numeric(dots[[1]]) || inherits(dots[[1]], "Matrix") || inherits(dots[[1]], "matrix"))) {
+        S <- dots[[1]]
+      } else {
+        S <- attribute_set(self, ...)
       }
 
       if (inherits(S, "Set")) {
@@ -680,12 +701,18 @@ FormalContext <- R6::R6Class(
     #' @description
     #' Testing closure of attribute sets
     #'
-    #' @param S A \code{Set} of attributes
+    #' @param ... A \code{Set} of attributes, or attribute names.
     #'
     #' @return
     #' \code{TRUE} if the set \code{S} is closed in this formal context.
     #' @export
-    is_closed = function(S) {
+    is_closed = function(...) {
+      dots <- list(...)
+      if (length(dots) == 1 && (inherits(dots[[1]], "Set") || is.numeric(dots[[1]]) || inherits(dots[[1]], "Matrix") || inherits(dots[[1]], "matrix"))) {
+        S <- dots[[1]]
+      } else {
+        S <- attribute_set(self, ...)
+      }
       Sc <- self$closure(S)
       return(S %==% Sc)
     },
@@ -733,88 +760,57 @@ FormalContext <- R6::R6Class(
     #' Reduce a formal context
     #'
     #' @param copy   (logical) If \code{TRUE}, a new \code{FormalContext} object is created with the clarified and reduced context, otherwise the current one is overwritten.
+    #' @param method (character) The method to use for reduction. One of \code{"arrows"} (default, uses arrow relations, only for binary contexts) or \code{"concepts"} (uses irreducible concepts, works for fuzzy).
     #'
     #' @return The clarified and reduced \code{FormalContext}.
     #'
     #' @export
-    reduce = function(copy = FALSE) {
-      if (!private$is_binary) {
-        stop(
-          "This FormalContext is not binary. Reduction is not implemented for fuzzy contexts.",
-          call. = FALSE
-        )
+    reduce = function(copy = FALSE, method = c("arrows", "concepts")) {
+      private$check_empty()
+
+      if (private$is_many_valued) {
+        error_many_valued()
       }
 
-      # Make a copy with the clarified context
-      fc2 <- self$clarify(TRUE)
+      method <- match.arg(method)
 
-      my_I <- Matrix::as.matrix(Matrix::t(fc2$I))
+      if (method == "arrows") {
+        if (!private$is_binary) {
+          stop("Arrow relations are only defined for binary contexts. Use method = 'concepts' for fuzzy contexts.", call. = FALSE)
+        }
+        res <- self$reduce_arrows()
+      } else {
+        if (self$concepts$is_empty()) {
+          stop("Concepts must be computed before reducing by 'concepts'.")
+        }
+        if (self$concepts$is_empty()) {
+          stop("Concept lattice is empty. Compute concepts before reducing.")
+        }
 
-      att <- fc2$attributes
+        join_irr <- self$concepts$join_irreducibles()$to_list()
+        meet_irr <- self$concepts$meet_irreducibles()$to_list()
 
-      Z <- Set$new(attributes = att)
+        nj <- length(join_irr)
+        nm <- length(meet_irr)
 
-      for (y in att) {
-        R <- Set$new(attributes = fc2$objects)
-        R$assign(
-          attributes = fc2$objects,
-          values = rep(1, length(fc2$objects))
-        )
+        I_new <- matrix(0, nrow = nj, ncol = nm)
 
-        R <- R$get_vector()
-
-        yv <- Set$new(attributes = att)
-        yv$assign(attributes = y, values = 1)
-        y_down <- fc2$extent(yv)
-
-        for (yp in setdiff(att, y)) {
-          ypv <- Set$new(attributes = att)
-          ypv$assign(attributes = yp, values = 1)
-          yp_down <- fc2$extent(ypv)
-
-          S <- .subset(
-            y_down$get_vector(),
-            yp_down$get_vector()
-          )
-
-          if (S[1]) {
-            R[Matrix::which(
-              yp_down$get_vector() < R
-            )] <- yp_down$get_vector()[Matrix::which(yp_down$get_vector() < R)]
+        for (i in seq(nj)) {
+          for (j in seq(nm)) {
+            I_new[i, j] <- ifelse(join_irr[[i]] %<=% meet_irr[[j]], 1, 0)
           }
         }
 
-        if (!.equal_sets(R, y_down$get_vector())[1]) {
-          Z$assign(attributes = y, values = 1)
-        }
+        colnames(I_new) <- paste0("M", seq(nm))
+        rownames(I_new) <- paste0("J", seq(nj))
+
+        res <- FormalContext$new(I_new)
       }
 
-      new_att <- Z$get_attributes()[Matrix::which(Z$get_vector() > 0)]
-
-      idx <- match(new_att, att)
-
-      # if (length(idx) == 1) {
-      #
-      #   my_I <- .extract_column(my_I, idx)
-      #
-      # } else {
-      #
-      #   my_I <- my_I[, idx]
-      #
-      # }
-
-      my_I <- matrix(my_I[, idx], ncol = length(idx))
-
-      colnames(my_I) <- new_att
-      rownames(my_I) <- fc2$objects
-
       if (copy) {
-        fc3 <- FormalContext$new(my_I)
-
-        return(fc3)
+        return(res)
       } else {
-        self$initialize(my_I)
-
+        self$initialize(res$incidence())
         return(invisible(self))
       }
     },
@@ -823,38 +819,15 @@ FormalContext <- R6::R6Class(
     #' Build the Standard Context
     #'
     #' @details
-    #' All concepts must be previously computed.
+    #' This is a wrapper around \code{reduce(copy = TRUE, method = "arrows")} for binary contexts,
+    #' or \code{reduce(copy = TRUE, method = "concepts")} for fuzzy contexts.
     #'
     #' @return
     #' The standard context using the join- and meet- irreducible elements.
     #' @export
     standardize = function() {
-      if (private$is_many_valued) {
-        error_many_valued()
-      }
-
-      if (self$concepts$is_empty()) {
-        stop("Concepts must be computed beforehand.\n", call. = FALSE)
-      }
-
-      join_irr <- self$concepts$join_irreducibles()$to_list()
-      meet_irr <- self$concepts$meet_irreducibles()$to_list()
-
-      nj <- length(join_irr)
-      nm <- length(meet_irr)
-
-      I <- matrix(0, nrow = nj, ncol = nm)
-
-      for (i in seq(nj)) {
-        for (j in seq(nm)) {
-          I[i, j] <- ifelse(join_irr[[i]] %<=% meet_irr[[j]], 1, 0)
-        }
-      }
-
-      colnames(I) <- paste0("M", seq(nm))
-      rownames(I) <- paste0("J", seq(nj))
-
-      return(FormalContext$new(I))
+      method <- if (private$is_binary) "arrows" else "concepts"
+      return(self$reduce(copy = TRUE, method = method))
     },
 
     #' @description
@@ -966,26 +939,48 @@ FormalContext <- R6::R6Class(
     #'
     #' @param save_concepts (logical) \code{TRUE} will also compute and save the concept lattice. \code{FALSE} is usually faster, since it only computes implications.
     #' @param verbose   (logical) \code{TRUE} will provide a verbose output.
+    #' @param method (character) Algorithm to use for binary contexts. One of \code{"LinCbO"} (default, Janostik, Konecny, Krajca) or \code{"NextClosure"} (Ganter's algorithm). For non-binary (fuzzy) contexts, NextClosure is always used.
     #'
     #' @return Nothing, just updates the internal fields \code{concepts} and \code{implications}.
     #'
     #'
     #' @export
-    find_implications = function(save_concepts = TRUE, verbose = FALSE) {
+    find_implications = function(
+      save_concepts = TRUE,
+      verbose = FALSE,
+      method = c("LinCbO", "NextClosure")
+    ) {
       private$check_empty()
 
       if (private$is_many_valued) {
         error_many_valued()
       }
 
+      method <- match.arg(method)
+
       if (all(self$I@x == 1)) {
         I <- self$incidence()
         mode(I) <- "integer"
-        L <- binary_next_closure_implications(
-          I,
-          verbose = verbose
-        )
+
+        if (method == "LinCbO") {
+          L <- binary_lincbo_implications(
+            I,
+            save_concepts = save_concepts,
+            verbose = verbose
+          )
+        } else {
+          L <- binary_next_closure_implications(
+            I,
+            verbose = verbose
+          )
+        }
       } else {
+        if (method == "LinCbO") {
+          message(
+            "LinCbO is only available for binary contexts. Falling back to NextClosure.",
+            call. = FALSE
+          )
+        }
         my_I <- Matrix::as.matrix(Matrix::t(self$I))
         grades_set <- rep(list(self$grades_set), length(self$attributes))
         attrs <- self$attributes
@@ -1033,9 +1028,6 @@ FormalContext <- R6::R6Class(
         L$RHS <- L3$rhs
       }
 
-      # Since the previous function gives the list of intents of
-      # the computed concepts, now we will compute the corresponding
-      # extents.
       if (save_concepts) {
         my_intents <- L$concepts
         my_extents <- L$extents
@@ -1076,6 +1068,39 @@ FormalContext <- R6::R6Class(
       self$implications$use_logic(self$get_logic())
 
       return(invisible(self))
+    },
+
+    #' @description
+    #' Find protoconcepts
+    #'
+    #' @param verbose (logical) Show verbose output.
+    #'
+    #' @return A list of protoconcepts, where each protoconcept is a list of two Sets (extent and intent).
+    #' @export
+    find_protoconcepts = function(verbose = FALSE) {
+      private$check_empty()
+
+      my_I <- Matrix::as.matrix(Matrix::t(self$I))
+
+      L <- find_protoconcepts_cpp(
+        I = my_I,
+        connection = private$connection,
+        name = private$logic,
+        verbose = verbose
+      )
+
+      res <- vector("list", length(L))
+
+      for (i in seq_along(L)) {
+        elt <- L[[i]]
+        # elt[[1]] is extent (S4), elt[[2]] is intent (S4)
+
+        S_ext <- Set$new(attributes = self$objects, M = elt[[1]])
+        S_int <- Set$new(attributes = self$attributes, M = elt[[2]])
+
+        res[[i]] <- list(extent = S_ext, intent = S_int)
+      }
+      return(res)
     },
 
     #' @description
@@ -1161,19 +1186,25 @@ FormalContext <- R6::R6Class(
     },
 
     #' @description
-    #' Factorize the formal context using Boolean/Fuzzy Matrix Factorization algorithms.
+    #' Factorize the formal context using Boolean Matrix Factorization (BMF) algorithms.
+    #' Note: Fuzzy contexts are currently not supported and will result in an error.
     #'
-    #' @param method (character) The algorithm to use. Currently supported: "GreConD", "ASSO".
-    #' @param ... Additional arguments:
+    #' @param method (character) The algorithm to use. Supported algorithms:
+    #' "RSF", "RSF-ES", "GreConD", "GreEss", "ASSO", "PaNDa+ MDL", "PaNDa+ ASSO-style",
+    #' "PaNDa+ Weighted", "Hyper", "Hyper+".
+    #' @param ... Additional arguments depending on the method:
     #' \itemize{
-    #'   \item For \code{GreConD}: \code{w} (weight, default 1.0), \code{stop_threshold_ratio} (error tolerance, default 0.0).
-    #'   \item For \code{ASSO}: \code{threshold} (confidence threshold, default 0.7), \code{w_pos} (reward), \code{w_neg} (penalty).
+    #'   \item \code{GreConD}, \code{PaNDa+ *}, \code{ASSO}: \code{k} (integer) maximum factors to extract.
+    #'   \item \code{ASSO}: \code{threshold} (default 0.6), \code{w_pos} (default 1.0), \code{w_neg} (default 1.0).
+    #'   \item \code{PaNDa+ Weighted}: \code{rho} (default 1.0).
+    #'   \item \code{Hyper}, \code{Hyper+}: \code{min_support} (ratio, default 0.05).
+    #'   \item \code{Hyper+}: \code{beta} (default 0.1).
     #' }
     #'
     #' @return A list with two \code{FormalContext} objects:
     #' \itemize{
-    #'   \item \code{object_factor}: The context mapping Objects to Factors (Matrix A).
-    #'   \item \code{factor_attribute}: The context mapping Factors to Attributes (Matrix B).
+    #'   \item \code{object_factor}: The context mapping Objects to Factors (Matrix A / U).
+    #'   \item \code{factor_attribute}: The context mapping Factors to Attributes (Matrix B / V).
     #' }
     #' @export
     factorize = function(method = "GreConD", ...) {
@@ -1181,64 +1212,99 @@ FormalContext <- R6::R6Class(
         stop("Context is empty.")
       }
 
-      # Convertir a densa para algoritmos numéricos complejos
       I_mat <- as.matrix(self$incidence())
 
-      dots <- list(...)
-      factors_list <- NULL
-
-      if (method == "GreConD" || method == "GreConD+") {
-        w <- ifelse(is.null(dots$w), 1.0, dots$w)
-        stop_ratio <- ifelse(
-          is.null(dots$stop_threshold_ratio),
-          0.0,
-          dots$stop_threshold_ratio
-        )
-
-        # --- INTEGRACIÓN DIFUSA ---
-        # Recuperamos la lógica actual del objeto
-        current_logic <- self$get_logic()
-
-        factors_list <- grecond_plus_cpp(I_mat, w, stop_ratio, current_logic)
-      } else if (method == "ASSO") {
-        threshold <- ifelse(is.null(dots$threshold), 0.7, dots$threshold)
-        w_pos <- ifelse(is.null(dots$w_pos), 1.0, dots$w_pos)
-        w_neg <- ifelse(is.null(dots$w_neg), 1.0, dots$w_neg)
-
-        factors_list <- asso_cpp(I_mat, threshold, w_pos, w_neg)
-      } else {
-        stop(paste("Unknown factorization method:", method))
+      # Verificamos si la matriz es difusa (tiene valores > 0 y < 1)
+      if (any(I_mat > 0 & I_mat < 1)) {
+        stop("Current context is fuzzy. Factorization is currently only supported for Boolean contexts. Please binarize the context first.")
       }
 
-      if (length(factors_list) == 0) {
+      # Forzamos conversión a matriz lógica para Rcpp
+      storage.mode(I_mat) <- "logical"
+
+      # Estrategia de transposición para optimizar rendimiento:
+      # Si hay más atributos que objetos, operamos sobre la matriz transpuesta.
+      needs_transpose <- nrow(I_mat) < ncol(I_mat)
+      if (needs_transpose) {
+        I_mat <- t(I_mat)
+      }
+
+      dots <- list(...)
+      res <- NULL
+
+      # Enrutamiento de algoritmos
+      if (method == "RSF") {
+        res <- rsf_attr_cpp(I_mat)
+      } else if (method == "RSF-ES") {
+        res <- rsf_es_attr_cpp(I_mat)
+      } else if (method == "GreConD") {
+        k <- ifelse(is.null(dots$k), -1L, as.integer(dots$k))
+        res <- grecond_cpp(I_mat, no_of_factors = k)
+      } else if (method == "GreEss") {
+        res <- greess_cpp(I_mat)
+      } else if (method == "ASSO") {
+        k <- ifelse(is.null(dots$k), 5000L, as.integer(dots$k))
+        threshold <- ifelse(is.null(dots$threshold), 0.6, as.numeric(dots$threshold))
+        w_pos <- ifelse(is.null(dots$w_pos), 1.0, as.numeric(dots$w_pos))
+        w_neg <- ifelse(is.null(dots$w_neg), 1.0, as.numeric(dots$w_neg))
+        res <- asso_bitwise_cpp(I_mat, k_max = k, threshold = threshold, w_pos = w_pos, w_neg = w_neg)
+      } else if (method == "PaNDa+ MDL") {
+        k <- ifelse(is.null(dots$k), 5000L, as.integer(dots$k))
+        res <- panda_plus_jp_cpp(I_mat, k_max = k)
+      } else if (method == "PaNDa+ ASSO-style") {
+        k <- ifelse(is.null(dots$k), 5000L, as.integer(dots$k))
+        res <- panda_plus_ja_cpp(I_mat, k_max = k)
+      } else if (method == "PaNDa+ Weighted") {
+        k <- ifelse(is.null(dots$k), 5000L, as.integer(dots$k))
+        rho <- ifelse(is.null(dots$rho), 1.0, as.numeric(dots$rho))
+        res <- panda_plus_jprho_cpp(I_mat, k_max = k, rho = rho)
+      } else if (method == "Hyper" || method == "Hyper+") {
+        min_support <- ifelse(is.null(dots$min_support), 0.05, as.numeric(dots$min_support))
+        min_support_count <- max(1L, as.integer(floor(nrow(I_mat) * min_support)))
+
+        res_h <- hyper_inclose_cpp(I_mat, min_support = min_support_count)
+
+        if (method == "Hyper") {
+          res <- res_h
+        } else {
+          beta <- ifelse(is.null(dots$beta), 0.1, as.numeric(dots$beta))
+          res <- hyper_plus_optimized_cpp(I_mat, res_h, beta = beta)
+        }
+      } else {
+        stop(sprintf("Unknown factorization method: '%s'. Supported methods are: RSF, RSF-ES, GreConD, GreEss, ASSO, PaNDa+ MDL, PaNDa+ ASSO-style, PaNDa+ Weighted, Hyper, Hyper+.", method))
+      }
+
+      # Comprobamos validez de la salida
+      if (is.null(res) || ncol(res$U) == 0) {
         warning("No factors found.")
         return(NULL)
       }
 
-      # Reconstruir Contextos de Factores
-      n_factors <- length(factors_list)
-      factor_names <- paste0("F", seq_len(n_factors))
-
-      A <- matrix(0, nrow = length(self$objects), ncol = n_factors)
-      rownames(A) <- self$objects
-      colnames(A) <- factor_names
-
-      B <- matrix(0, nrow = n_factors, ncol = length(self$attributes))
-      rownames(B) <- factor_names
-      colnames(B) <- self$attributes
-
-      for (k in seq_len(n_factors)) {
-        f <- factors_list[[k]]
-        A[, k] <- f$extent
-        B[k, ] <- f$intent
+      # Restaurar las dimensiones originales si se aplicó transposición
+      if (needs_transpose) {
+        tmp <- t(res$U)
+        res$U <- t(res$V)
+        res$V <- tmp
       }
 
-      # Crear nuevos objetos con la MISMA configuración de lógica que el padre
-      ctx_A <- FormalContext$new(A)
-      ctx_B <- FormalContext$new(B)
+      # Construimos los objetos FormalContext usando sparse matrices por eficiencia
+      # Convertimos a numérico primero porque lgCMatrix -> ngCMatrix falla en versiones recientes de Matrix
+      U_num <- matrix(as.numeric(res$U), nrow = nrow(res$U), ncol = ncol(res$U))
+      V_num <- matrix(as.numeric(res$V), nrow = nrow(res$V), ncol = ncol(res$V))
 
-      ctx_A$use_logic(self$get_logic())
-      ctx_B$use_logic(self$get_logic())
+      U_sparse <- methods::as(Matrix::Matrix(U_num, sparse = TRUE), "nMatrix")
+      V_sparse <- methods::as(Matrix::Matrix(V_num, sparse = TRUE), "nMatrix")
+
+      n_factors <- ncol(U_sparse)
+      factor_names <- paste0("F", seq_len(n_factors))
+
+      rownames(U_sparse) <- self$objects
+      colnames(U_sparse) <- factor_names
+      rownames(V_sparse) <- factor_names
+      colnames(V_sparse) <- self$attributes
+
+      ctx_A <- FormalContext$new(U_sparse)
+      ctx_B <- FormalContext$new(V_sparse)
 
       return(list(
         object_factor = ctx_A,
@@ -1556,7 +1622,11 @@ FormalContext <- R6::R6Class(
         I <- Matrix::as.matrix(Matrix::t(self$I))
 
         if (private$is_binary) {
-          I <- .print_binary(I, latex = FALSE)
+          if (!is.null(private$arrow_rels)) {
+            I <- .print_arrows(I, private$arrow_rels, latex = FALSE)
+          } else {
+            I <- .print_binary(I, latex = FALSE)
+          }
         }
 
         objects <- self$objects
@@ -1624,6 +1694,124 @@ FormalContext <- R6::R6Class(
     },
 
     #' @description
+    #' Calculate arrow relations for a binary context.
+    #'
+    #' @details
+    #' This method computes the arrow relations (swarrow, nearrow, and double arrow).
+    #'
+    #' @return Nothing, updates the internal state.
+    #' @export
+    calculate_arrow_relations = function() {
+      private$check_empty()
+
+      if (!private$is_binary) {
+        stop("Arrow relations are only defined for binary contexts.",
+             call. = FALSE)
+      }
+
+      I_mat <- self$incidence()
+      # Ensure it is integer binary matrix for C++
+      I_mat <- matrix(as.integer(I_mat > 0),
+                      nrow = nrow(I_mat),
+                      ncol = ncol(I_mat))
+
+      private$arrow_rels <- compute_arrow_relations_cpp(I_mat)
+      invisible(self)
+    },
+
+    #' @description
+    #' Get arrow relations
+    #'
+    #' @return An integer matrix with the arrow relations.
+    #' @export
+    get_arrow_relations = function() {
+      if (is.null(private$arrow_rels)) {
+        self$calculate_arrow_relations()
+      }
+      res <- private$arrow_rels
+      dimnames(res) <- list(self$objects, self$attributes)
+      return(res)
+    },
+
+    #' @description
+    #' Get irreducible objects
+    #'
+    #' @return A character vector with the names of the irreducible objects.
+    #' @export
+    get_irreducible_objects = function() {
+      if (is.null(private$arrow_rels)) {
+        self$calculate_arrow_relations()
+      }
+
+      # Irreducible objects: those with at least one arrow swarrow (1) or double (3)
+      irr <- rowSums(private$arrow_rels == 1 | private$arrow_rels == 3) > 0
+      return(self$objects[irr])
+    },
+
+    #' @description
+    #' Get irreducible attributes
+    #'
+    #' @return A character vector with the names of the irreducible attributes.
+    #' @export
+    get_irreducible_attributes = function() {
+      if (is.null(private$arrow_rels)) {
+        self$calculate_arrow_relations()
+      }
+
+      # Irreducible attributes: those with at least one arrow nearrow (2) or double (3)
+      irr <- colSums(private$arrow_rels == 2 | private$arrow_rels == 3) > 0
+      return(self$attributes[irr])
+    },
+
+    #' @description
+    #' Check if the context (and its lattice) is distributive
+    #'
+    #' @return Logical: \code{TRUE} if the lattice is distributive.
+    #' @export
+    is_distributive = function() {
+      private$check_empty()
+      if (self$concepts$is_empty()) {
+         self$find_concepts()
+      }
+      return(self$concepts$is_distributive())
+    },
+
+    #' @description
+    #' Reduce the formal context using arrow relations
+    #'
+    #' @return A new \code{FormalContext} object that is clarified and reduced.
+    #' @export
+    reduce_arrows = function() {
+      private$check_empty()
+
+      # 1. Clarify (removes redundant duplicates)
+      fc <- self$clarify(copy = TRUE)
+
+      # 2. Calculate arrows on clarified context
+      fc$calculate_arrow_relations()
+
+      # 3. Identify irreducibles
+      objs <- fc$get_irreducible_objects()
+      atts <- fc$get_irreducible_attributes()
+
+      # 4. Extract submatrix
+      return(fc$subcontext(objects = objs, attributes = atts))
+    },
+
+    #' @description
+    #' Get the Core of the Formal Context
+    #'
+    #' @details
+    #' The core is the minimal subcontext that generates the same concept lattice.
+    #' For binary contexts, this is equivalent to \code{standardize()}.
+    #'
+    #' @return A new \code{FormalContext} object containing only irreducible rows and columns.
+    #' @export
+    get_core = function() {
+      return(self$reduce(copy = TRUE, method = "arrows"))
+    },
+
+    #' @description
     #' Write the context in LaTeX format
     #'
     #' @param table (logical) If \code{TRUE}, surrounds everything between \code{\\begin{table}} and \code{\\end{table}}.
@@ -1648,7 +1836,11 @@ FormalContext <- R6::R6Class(
       I <- Matrix::as.matrix(Matrix::t(self$I))
 
       if (private$is_binary) {
-        I <- .print_binary(I, latex = TRUE)
+        if (!is.null(private$arrow_rels)) {
+          I <- .print_arrows(I, private$arrow_rels, latex = TRUE)
+        } else {
+          I <- .print_binary(I, latex = TRUE)
+        }
       } else {
         if (fraction != "none") {
           I <- .to_fraction(I, latex = TRUE, type = fraction)
@@ -1922,7 +2114,8 @@ FormalContext <- R6::R6Class(
     }
   ),
   private = list(
-    logic = "Zadeh",
+    logic = "Godel",
+    arrow_rels = NULL,
     connection = "standard",
     is_binary = FALSE,
     is_many_valued = FALSE,
